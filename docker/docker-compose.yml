@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:15
+    container_name: odoo18-das-db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo_db_password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./volumes/db:/var/lib/postgresql/data/pgdata
+    ports:
+      - "8072:5432"
+    networks:
+      - odoo-das-net
+
+  odoo:
+    image: odoo:18.0
+    container_name: odoo18-das
+    depends_on:
+      - db
+    ports:
+      - "8070:8069"
+    volumes:
+      - ./volumes/odoo:/var/lib/odoo
+      - ../addons:/mnt/extra-addons
+      - ../config:/etc/odoo
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo_db_password
+    networks:
+      - odoo-das-net
+
+networks:
+  odoo-das-net:
+    driver: bridge
