@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="product_template_das_lms_cta" inherit_id="website_sale.product">
+        <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
+            <div
+                t-if="product._das_lms_is_enrolled_in_course()"
+                class="d-inline-flex align-items-center mb-2 me-auto"
+            >
+                <a
+                    t-att-href="product._das_lms_course_website_url()"
+                    class="btn btn-primary flex-grow-1"
+                >
+                    Acceder al curso
+                </a>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='add_to_cart_wrap']" position="attributes">
+            <attribute name="t-attf-class">{{'d-none' if combination_info['prevent_zero_price_sale'] or product._das_lms_is_enrolled_in_course() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
+        </xpath>
+    </template>
+</odoo>

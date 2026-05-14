@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+{
+    'name': 'DAS LMS - Inscripciones',
+    'summary': 'Seguimiento y estadísticas de inscripciones eLearning (slide.channel.partner)',
+    'version': '18.0.3.1.0',
+    'category': 'Website/eLearning',
+    'author': 'DAS',
+    'license': 'LGPL-3',
+    'depends': [
+        'website_slides',
+        'website_sale',
+        'website_sale_slides',
+        'website',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/das_lms_dashboard_views.xml',
+        'views/course_enrollment_views.xml',
+        'views/slide_channel_views.xml',
+        'views/product_template_website.xml',
+        'data/das_lms_cleanup_views.xml',
+    ],
+    'installable': True,
+    'application': False,
+}

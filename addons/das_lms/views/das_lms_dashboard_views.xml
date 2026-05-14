@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_das_lms_academic_dashboard_form" model="ir.ui.view">
+        <field name="name">das.lms.academic.dashboard.form</field>
+        <field name="model">das.lms.academic.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard académico">
+                <header>
+                    <button name="action_refresh" type="object" string="Actualizar datos" class="btn-primary"/>
+                    <button name="action_open_enrollments" type="object" string="Ver inscripciones" class="btn-secondary"/>
+                    <button name="action_open_analytics" type="object" string="Análisis avanzado (pivot y gráficos)" class="btn-link"/>
+                </header>
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>Panel académico DAS LMS</h1>
+                        <p class="text-muted">Resumen de inscripciones sincronizadas desde eLearning.</p>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-lg-3">
+                            <div class="border rounded p-3 text-center bg-light">
+                                <div class="text-muted small">Inscripciones totales</div>
+                                <h2 class="mb-0 text-primary"><field name="total_enrollments" class="oe_inline"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="border rounded p-3 text-center bg-light">
+                                <div class="text-muted small">Cursos activos</div>
+                                <h2 class="mb-0 text-primary"><field name="total_courses_with_students" class="oe_inline"/></h2>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="border rounded p-3 text-center bg-light">
+                                <div class="text-muted small">Promedio de avance</div>
+                                <h2 class="mb-0 text-success"><field name="avg_progress_general" class="oe_inline"/> %</h2>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="border rounded p-3 text-center bg-light">
+                                <div class="text-muted small">Alumnos activos</div>
+                                <h2 class="mb-0"><field name="active_students" class="oe_inline"/></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 col-md-4 col-lg">
+                            <div class="border rounded p-3 text-center">
+                                <div class="text-muted small">Sin iniciar</div>
+                                <h3 class="mb-0"><field name="count_sin_iniciar" class="oe_inline"/></h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <div class="border rounded p-3 text-center">
+                                <div class="text-muted small">En progreso</div>
+                                <h3 class="mb-0 text-info"><field name="count_en_progreso" class="oe_inline"/></h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <div class="border rounded p-3 text-center">
+                                <div class="text-muted small">Completados</div>
+                                <h3 class="mb-0 text-success"><field name="count_completados" class="oe_inline"/></h3>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg">
+                            <div class="border rounded p-3 text-center">
+                                <div class="text-muted small">Inactivos</div>
+                                <h3 class="mb-0 text-danger"><field name="count_inactivos" class="oe_inline"/></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <separator string="Resumen por curso"/>
+                    <field name="line_ids" nolabel="1" colspan="2">
+                        <list create="false" delete="false" edit="false" default_order="course_id">
+                            <field name="course_id" string="Curso"/>
+                            <field name="total_enrolled" string="Total inscritos"/>
+                            <field name="count_sin_iniciar" string="Sin iniciar"/>
+                            <field name="count_en_progreso" string="En progreso"/>
+                            <field name="count_completados" string="Completados"/>
+                            <field name="count_inactivos" string="Inactivos"/>
+                            <field name="avg_progress" string="Avance promedio (%)"/>
+                            <field name="last_activity_max" string="Última actividad (más reciente)"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_das_lms_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">das.lms.academic.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="view_id" ref="view_das_lms_academic_dashboard_form"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Cargando panel académico…</p>
+        </field>
+    </record>
+</odoo>

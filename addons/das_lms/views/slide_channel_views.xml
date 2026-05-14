@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="slide_channel_view_form_das_lms" model="ir.ui.view">
+        <field name="name">slide.channel.form.das.lms</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="website_slides.view_slide_channel_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Estadísticas DAS" name="das_lms_stats">
+                    <field
+                        name="das_lms_enrollment_ids"
+                        nolabel="1"
+                        colspan="4"
+                        mode="list"
+                    >
+                        <list create="false" delete="false" edit="false">
+                            <field name="student_id" string="Alumno"/>
+                            <field name="student_email" string="Correo"/>
+                            <field name="modality" string="Modalidad"/>
+                            <field name="status" string="Estado académico"/>
+                            <field name="engagement_status" string="Engagement" optional="hide"/>
+                            <field name="progress" string="Avance" widget="progressbar" options="{'max_value': 100}"/>
+                            <field name="enrollment_date" string="Fecha inscripción"/>
+                            <field name="last_activity_at" string="Última actividad" optional="show"/>
+                            <field name="last_sync_at" string="Última sincronización" optional="show"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
