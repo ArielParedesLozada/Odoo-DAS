@@ -19,14 +19,15 @@
                 <field name="student_id" string="Alumno"/>
                 <field name="student_email" string="Correo"/>
                 <field name="course_id" string="Curso"/>
-                <field name="enrollment_date" string="Fecha de inscripción"/>
+                <field name="enrollment_date" string="Fecha inscripción"/>
                 <field name="modality" string="Modalidad"/>
                 <field name="status" string="Estado académico"/>
                 <field name="progress" string="Avance %" widget="progressbar" options="{'max_value': 100}"/>
                 <field name="last_activity_at" string="Última actividad"/>
                 <field name="last_sync_at" string="Última sincronización"/>
-                <field name="course_website_url" string="Curso web" widget="url"/>
+                <button name="action_open_course" type="object" string="Curso web" class="btn-link" icon="fa-external-link" title="Abrir curso en la web"/>
                 <button name="action_open_student" type="object" string="Contacto" class="btn-link" icon="fa-user" title="Abrir ficha del alumno"/>
+                <field name="course_website_url" column_invisible="1"/>
                 <field name="student_phone" string="Teléfono" optional="hide"/>
                 <field name="course_start_date" string="Inicio del curso" optional="hide"/>
                 <field name="channel_partner_id" string="Miembro eLearning" optional="hide"/>
@@ -122,6 +123,7 @@
     <record id="view_course_enrollment_pivot" model="ir.ui.view">
         <field name="name">course.enrollment.pivot</field>
         <field name="model">course.enrollment</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <pivot string="Análisis pivot">
                 <field name="course_id" type="row"/>
@@ -135,6 +137,7 @@
     <record id="view_course_enrollment_graph_courses" model="ir.ui.view">
         <field name="name">course.enrollment.graph.courses</field>
         <field name="model">course.enrollment</field>
+        <field name="priority">10</field>
         <field name="arch" type="xml">
             <graph string="Inscritos por curso" type="bar" stacked="0">
                 <field name="course_id"/>
@@ -143,13 +146,38 @@
         </field>
     </record>
 
+    <record id="view_course_enrollment_graph_academic_status" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.academic.status</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">12</field>
+        <field name="arch" type="xml">
+            <graph string="Distribución por estado académico" type="bar" stacked="1">
+                <field name="status"/>
+                <field name="student_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
     <record id="view_course_enrollment_graph_engagement" model="ir.ui.view">
         <field name="name">course.enrollment.graph.engagement</field>
         <field name="model">course.enrollment</field>
+        <field name="priority">14</field>
         <field name="arch" type="xml">
             <graph string="Distribución por engagement" type="pie">
                 <field name="engagement_status"/>
                 <field name="student_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_progress_course" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.progress.course</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">16</field>
+        <field name="arch" type="xml">
+            <graph string="Avance agregado por curso (suma; use pivot para promedio)" type="bar" stacked="0">
+                <field name="course_id"/>
+                <field name="progress" type="measure"/>
             </graph>
         </field>
     </record>
@@ -170,14 +198,18 @@
         </field>
     </record>
 
-    <!-- Análisis avanzado: no está en el menú principal; se abre desde el Dashboard. -->
     <record id="action_course_enrollment_analytics" model="ir.actions.act_window">
         <field name="name">Análisis avanzado</field>
         <field name="res_model">course.enrollment</field>
         <field name="view_mode">pivot,graph</field>
         <field name="context">{'create': False, 'edit': False}</field>
         <field name="help" type="html">
-            <p>Vistas pivot y gráficas para análisis detallado.</p>
+            <div class="o_das_lms_analytics_banner">
+                <strong>Análisis avanzado DAS LMS.</strong>
+                Use esta vista para analizar inscripciones por curso, estado académico y avance.
+                Cambie entre <em>Pivot</em> y <em>Gráfico</em> y elija el tipo de gráfico en el selector de vistas
+                (inscritos por curso, estado académico, engagement o avance agregado por curso).
+            </div>
         </field>
     </record>
 
@@ -203,6 +235,13 @@
         parent="menu_das_lms_root"
         action="action_course_enrollment"
         sequence="20"
+    />
+    <menuitem
+        id="menu_das_lms_analytics"
+        name="Análisis avanzado"
+        parent="menu_das_lms_root"
+        action="action_course_enrollment_analytics"
+        sequence="25"
     />
     <menuitem
         id="menu_das_lms_sync"

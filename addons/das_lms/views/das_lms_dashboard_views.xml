@@ -4,80 +4,121 @@
         <field name="name">das.lms.academic.dashboard.form</field>
         <field name="model">das.lms.academic.dashboard</field>
         <field name="arch" type="xml">
-            <form string="Dashboard académico">
+            <form string="Dashboard académico" class="o_das_lms_dashboard_form">
                 <header>
                     <button name="action_refresh" type="object" string="Actualizar datos" class="btn-primary"/>
-                    <button name="action_open_enrollments" type="object" string="Ver inscripciones" class="btn-secondary"/>
-                    <button name="action_open_analytics" type="object" string="Análisis avanzado (pivot y gráficos)" class="btn-link"/>
                 </header>
                 <sheet>
-                    <div class="oe_title mb-3">
+                    <div class="o_das_lms_hero">
                         <h1>Panel académico DAS LMS</h1>
-                        <p class="text-muted">Resumen de inscripciones sincronizadas desde eLearning.</p>
+                        <p class="text-muted mb-0">
+                            Seguimiento de inscripciones, avance y participación de estudiantes en cursos eLearning.
+                        </p>
                     </div>
-                    <div class="row g-3 mb-4">
+
+                    <div class="o_das_lms_section-title">Indicadores principales</div>
+                    <div class="row g-3 mb-2 o_das_lms_kpi-cards">
                         <div class="col-6 col-lg-3">
-                            <div class="border rounded p-3 text-center bg-light">
-                                <div class="text-muted small">Inscripciones totales</div>
-                                <h2 class="mb-0 text-primary"><field name="total_enrollments" class="oe_inline"/></h2>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-3">
-                            <div class="border rounded p-3 text-center bg-light">
-                                <div class="text-muted small">Cursos activos</div>
-                                <h2 class="mb-0 text-primary"><field name="total_courses_with_students" class="oe_inline"/></h2>
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-primary">
+                                <i class="fa fa-users o_das_lms_kpi-icon text-primary" title="Inscripciones"/>
+                                <div class="o_das_lms_kpi-title">Inscripciones totales</div>
+                                <div class="o_das_lms_kpi-value"><field name="total_enrollments" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Registros DAS sincronizados con eLearning.</div>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="border rounded p-3 text-center bg-light">
-                                <div class="text-muted small">Promedio de avance</div>
-                                <h2 class="mb-0 text-success"><field name="avg_progress_general" class="oe_inline"/> %</h2>
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-info">
+                                <i class="fa fa-graduation-cap o_das_lms_kpi-icon text-info" title="Cursos"/>
+                                <div class="o_das_lms_kpi-title">Cursos activos</div>
+                                <div class="o_das_lms_kpi-value"><field name="total_courses_with_students" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Canales con al menos una inscripción.</div>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="border rounded p-3 text-center bg-light">
-                                <div class="text-muted small">Alumnos activos</div>
-                                <h2 class="mb-0"><field name="active_students" class="oe_inline"/></h2>
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-success">
+                                <i class="fa fa-line-chart o_das_lms_kpi-icon text-success" title="Avance"/>
+                                <div class="o_das_lms_kpi-title">Promedio de avance</div>
+                                <div class="o_das_lms_kpi-value"><field name="avg_progress_general" nolabel="1" class="oe_inline"/> %</div>
+                                <div class="o_das_lms_kpi-hint">Media global de completitud de contenidos.</div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md-4 col-lg">
-                            <div class="border rounded p-3 text-center">
-                                <div class="text-muted small">Sin iniciar</div>
-                                <h3 class="mb-0"><field name="count_sin_iniciar" class="oe_inline"/></h3>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4 col-lg">
-                            <div class="border rounded p-3 text-center">
-                                <div class="text-muted small">En progreso</div>
-                                <h3 class="mb-0 text-info"><field name="count_en_progreso" class="oe_inline"/></h3>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4 col-lg">
-                            <div class="border rounded p-3 text-center">
-                                <div class="text-muted small">Completados</div>
-                                <h3 class="mb-0 text-success"><field name="count_completados" class="oe_inline"/></h3>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-4 col-lg">
-                            <div class="border rounded p-3 text-center">
-                                <div class="text-muted small">Inactivos</div>
-                                <h3 class="mb-0 text-danger"><field name="count_inactivos" class="oe_inline"/></h3>
+                        <div class="col-6 col-lg-3">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-primary">
+                                <i class="fa fa-user-check o_das_lms_kpi-icon text-primary" title="Activos"/>
+                                <div class="o_das_lms_kpi-title">Alumnos activos</div>
+                                <div class="o_das_lms_kpi-value"><field name="active_students" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Estado académico «Activo» en DAS.</div>
                             </div>
                         </div>
                     </div>
-                    <separator string="Resumen por curso"/>
-                    <field name="line_ids" nolabel="1" colspan="2">
+                    <div class="row g-3 mb-4 o_das_lms_kpi-cards">
+                        <div class="col-6 col-md-3">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-muted">
+                                <i class="fa fa-circle-o o_das_lms_kpi-icon text-secondary" title="Sin iniciar"/>
+                                <div class="o_das_lms_kpi-title">Sin iniciar</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_sin_iniciar" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Avance 0 % sin arranque registrado.</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-info">
+                                <i class="fa fa-spinner o_das_lms_kpi-icon text-info" title="En progreso"/>
+                                <div class="o_das_lms_kpi-title">En progreso</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_en_progreso" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Participación con avance intermedio.</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-success">
+                                <i class="fa fa-check-circle o_das_lms_kpi-icon text-success" title="Completados"/>
+                                <div class="o_das_lms_kpi-title">Completados</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_completados" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Curso finalizado o 100 % de avance.</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi-accent-danger">
+                                <i class="fa fa-exclamation-triangle o_das_lms_kpi-icon text-danger" title="Inactivos"/>
+                                <div class="o_das_lms_kpi-title">Inactivos</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_inactivos" nolabel="1" class="oe_inline"/></div>
+                                <div class="o_das_lms_kpi-hint">Sin actividad reciente e incompletos.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="o_das_lms_section-title">Accesos rápidos</div>
+                    <div class="o_das_lms_quick-actions mb-4">
+                        <button name="action_open_enrollments" type="object" string="Ver inscripciones" class="btn btn-primary"/>
+                        <button name="action_open_analytics" type="object" string="Análisis avanzado" class="btn btn-outline-primary"/>
+                        <button name="action_open_elearning_courses" type="object" string="Ver cursos eLearning" class="btn btn-outline-secondary"/>
+                        <button name="action_open_sync" type="object" string="Sincronizar inscripciones" class="btn btn-outline-secondary" groups="base.group_system,base.group_erp_manager"/>
+                    </div>
+
+                    <div class="o_das_lms_section-title">Alertas académicas</div>
+                    <field name="alert_line_ids" nolabel="1" class="o_das_lms_alert-list mb-4">
+                        <list create="false" delete="false" edit="false"
+                            decoration-danger="severity == 'danger'"
+                            decoration-warning="severity == 'warning'"
+                            decoration-info="severity == 'info'"
+                            decoration-success="severity == 'success'">
+                            <field name="title" string="Alerta"/>
+                            <field name="body" string="Detalle"/>
+                            <field name="severity" column_invisible="1"/>
+                        </list>
+                    </field>
+
+                    <div class="o_das_lms_section-title">Resumen por curso</div>
+                    <field name="line_ids" nolabel="1" class="o_das_lms_course_summary" colspan="2">
                         <list create="false" delete="false" edit="false" default_order="course_id">
                             <field name="course_id" string="Curso"/>
-                            <field name="total_enrolled" string="Total inscritos"/>
+                            <field name="total_enrolled" string="Inscritos"/>
                             <field name="count_sin_iniciar" string="Sin iniciar"/>
                             <field name="count_en_progreso" string="En progreso"/>
                             <field name="count_completados" string="Completados"/>
                             <field name="count_inactivos" string="Inactivos"/>
-                            <field name="avg_progress" string="Avance promedio (%)"/>
-                            <field name="last_activity_max" string="Última actividad (más reciente)"/>
+                            <field name="avg_progress_int" string="Avance prom." widget="progressbar" options="{'max_value': 100}"/>
+                            <field name="last_activity_max" string="Última actividad"/>
+                            <field name="avg_progress" column_invisible="1"/>
                         </list>
                     </field>
                 </sheet>

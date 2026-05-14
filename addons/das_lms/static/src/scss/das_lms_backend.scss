@@ -1,0 +1,108 @@
+/* DAS LMS — estilos backend (dashboard y análisis) */
+
+.o_form_view.o_das_lms_dashboard_form {
+    .o_das_lms_hero {
+        border-radius: 8px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fc 0%, #eef2fb 100%);
+        border: 1px solid #dee2e6;
+    }
+
+    .o_das_lms_hero h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1b2a4a;
+        margin-bottom: 0.35rem;
+    }
+
+    .o_das_lms_kpi-card {
+        border-radius: 10px;
+        padding: 1rem 1rem 1.1rem;
+        height: 100%;
+        border: 1px solid #e0e4ec;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(15, 34, 58, 0.06);
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+        &:hover {
+            box-shadow: 0 4px 14px rgba(15, 34, 58, 0.08);
+            border-color: #c9d4ec;
+        }
+
+        .o_das_lms_kpi-icon {
+            font-size: 1.35rem;
+            opacity: 0.9;
+        }
+
+        .o_das_lms_kpi-title {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #5c6578;
+            font-weight: 600;
+            margin-top: 0.35rem;
+        }
+
+        .o_das_lms_kpi-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #1b2a4a;
+            line-height: 1.2;
+        }
+
+        .o_das_lms_kpi-hint {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.35rem;
+        }
+
+        &.o_das_lms_kpi-accent-primary {
+            border-top: 3px solid #0d6efd;
+        }
+        &.o_das_lms_kpi-accent-success {
+            border-top: 3px solid #198754;
+        }
+        &.o_das_lms_kpi-accent-warning {
+            border-top: 3px solid #fd7e14;
+        }
+        &.o_das_lms_kpi-accent-danger {
+            border-top: 3px solid #dc3545;
+        }
+        &.o_das_lms_kpi-accent-muted {
+            border-top: 3px solid #6c757d;
+        }
+        &.o_das_lms_kpi-accent-info {
+            border-top: 3px solid #0dcaf0;
+        }
+    }
+
+    .o_das_lms_section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1b2a4a;
+        margin: 1.25rem 0 0.75rem;
+        padding-bottom: 0.35rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .o_das_lms_alert-list .o_list_table {
+        font-size: 0.875rem;
+    }
+
+    .o_das_lms_quick-actions .btn {
+        min-width: 9rem;
+        margin: 0.25rem;
+    }
+
+    .o_das_lms_course_summary .o_list_table > thead > tr > th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: #5c6578;
+    }
+
+    .o_das_lms_course_summary .o_list_table > tbody > tr > td {
+        vertical-align: middle;
+    }
+}

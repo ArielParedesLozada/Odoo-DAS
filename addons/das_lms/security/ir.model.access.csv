@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_course_enrollment_user,course.enrollment usuario interno,model_course_enrollment,base.group_user,1,1,0,0
 access_das_lms_academic_dashboard_user,das.lms.academic.dashboard usuario,model_das_lms_academic_dashboard,base.group_user,1,1,1,1
 access_das_lms_dashboard_course_line_user,das.lms.dashboard.course.line usuario,model_das_lms_dashboard_course_line,base.group_user,1,1,1,1
+access_das_lms_dashboard_alert_line_user,das.lms.dashboard.alert.line usuario,model_das_lms_dashboard_alert_line,base.group_user,1,1,1,1
