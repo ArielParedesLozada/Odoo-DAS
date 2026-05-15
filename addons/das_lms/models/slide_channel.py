@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class SlideChannel(models.Model):
@@ -11,3 +11,14 @@ class SlideChannel(models.Model):
         string='Seguimiento DAS LMS',
         readonly=True,
     )
+
+    @api.model
+    def _das_lms_portal_can_study_channel(self, channel):
+        """Acceso a contenido eLearning para el usuario actual (inscrito o invitación pendiente)."""
+        if not channel:
+            return False
+        channel.ensure_one()
+        user = channel.env.user
+        if user._is_public():
+            return False
+        return bool(channel.is_member or channel.is_member_invited)

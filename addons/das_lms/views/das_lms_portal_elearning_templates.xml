@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_slide_channel_access_denied" name="DAS LMS: curso no inscrito">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="alert alert-info shadow-sm" role="alert">
+                        <h1 class="h4 mb-2">No estás inscrito en este curso.</h1>
+                        <p class="mb-0">
+                            Solo puedes acceder al contenido de los cursos en los que estás inscrito.
+                            Si aún no lo has adquirido, puedes hacerlo desde la tienda.
+                        </p>
+                    </div>
+                    <p t-if="channel" class="mt-3">
+                        <strong>Curso:</strong>
+                        <span t-field="channel.name"/>
+                    </p>
+                    <div class="mt-4">
+                        <a href="/shop" class="btn btn-primary">Ir a la tienda</a>
+                        <a href="/slides" class="btn btn-outline-secondary ms-2">Mis cursos</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -59,6 +59,34 @@ class TestDasLmsEnrollment(TransactionCase):
                     'modality': 'en_vivo',
                 })
 
+    def test_portal_can_study_channel_gate(self):
+        from odoo.tests.common import new_test_user
+
+        channel = self.env['slide.channel'].create({
+            'name': 'Curso Portal Gate',
+            'website_published': True,
+            'visibility': 'connected',
+        })
+        portal_user = new_test_user(
+            self.env,
+            'portal_gate_user',
+            email='portal_gate@test.example.com',
+            groups='base.group_portal',
+        )
+        ch_portal = channel.with_user(portal_user)
+        self.assertFalse(
+            self.env['slide.channel']._das_lms_portal_can_study_channel(ch_portal),
+        )
+        self.env['slide.channel.partner'].create({
+            'channel_id': channel.id,
+            'partner_id': portal_user.partner_id.id,
+            'member_status': 'joined',
+        })
+        ch_portal = channel.with_user(portal_user)
+        self.assertTrue(
+            self.env['slide.channel']._das_lms_portal_can_study_channel(ch_portal),
+        )
+
     def test_dashboard_default_get(self):
         partner = self.env['res.partner'].create({'name': 'Dash Alumno'})
         channel = self.env['slide.channel'].create({'name': 'Dash Curso'})
