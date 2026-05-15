@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="course_main_das_lms_academic_block" inherit_id="website_slides.course_main" name="DAS LMS: bloque académico en página del curso">
+        <!-- hasclass() no aplica: la cabecera usa t-attf-class, no class fijo -->
+        <xpath expr="//div[contains(@t-attf-class, 'o_wslides_course_header')]//h1[@t-field='channel.name']" position="after">
+            <div
+                class="o_das_lms_course_academic card border-0 shadow-sm mt-3 mb-1 text-start"
+                t-if="channel.das_start_date or channel.das_end_date or channel.das_modality or (channel.das_autonomous_hours or 0) &gt; 0 or (channel.das_teacher_contact_hours or 0) &gt; 0 or (channel.das_total_hours or 0) &gt; 0"
+            >
+                <div class="card-body py-3 px-3 px-md-4">
+                    <div class="o_das_lms_course_academic__title text-uppercase small fw-bold text-muted mb-2">Información académica DAS</div>
+                    <div class="row g-2 g-md-3 small text-body">
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Fecha de inicio</div>
+                            <div class="fw-semibold" t-if="channel.das_start_date">
+                                <span t-field="channel.das_start_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                            <div class="fw-semibold text-muted" t-else="">—</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Fecha de fin</div>
+                            <div class="fw-semibold" t-if="channel.das_end_date">
+                                <span t-field="channel.das_end_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                            <div class="fw-semibold text-muted" t-else="">—</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Modalidad</div>
+                            <div class="fw-semibold" t-if="channel.das_modality">
+                                <span t-field="channel.das_modality"/>
+                            </div>
+                            <div class="fw-semibold text-muted" t-else="">—</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Total de horas</div>
+                            <div class="fw-semibold">
+                                <t t-if="(channel.das_total_hours or 0) &gt; 0">
+                                    <span t-field="channel.das_total_hours"/> <span class="text-muted">h</span>
+                                </t>
+                                <t t-else="">—</t>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Horas autónomas</div>
+                            <div class="fw-semibold">
+                                <t t-if="(channel.das_autonomous_hours or 0) &gt; 0">
+                                    <span t-field="channel.das_autonomous_hours"/> <span class="text-muted">h</span>
+                                </t>
+                                <t t-else="">—</t>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Horas con docente</div>
+                            <div class="fw-semibold">
+                                <t t-if="(channel.das_teacher_contact_hours or 0) &gt; 0">
+                                    <span t-field="channel.das_teacher_contact_hours"/> <span class="text-muted">h</span>
+                                </t>
+                                <t t-else="">—</t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

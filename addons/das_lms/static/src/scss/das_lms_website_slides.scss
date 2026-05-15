@@ -11,3 +11,22 @@ body.o_wslides_body .container.o_wslides_home_nav.position-relative {
 body.o_wslides_body .container.o_wslides_home_main {
     padding-top: 0.75rem;
 }
+
+/* Bloque académico DAS (página pública del curso) */
+.o_wslides_course_header .o_das_lms_course_academic {
+    max-width: 100%;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+
+.o_wslides_course_header .o_das_lms_course_academic__title {
+    letter-spacing: 0.06em;
+}
+
+.o_wslides_course_header .o_das_lms_course_academic__lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+}

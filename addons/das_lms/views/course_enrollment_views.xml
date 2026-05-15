@@ -16,6 +16,7 @@
                 <field name="student_id" string="Alumno"/>
                 <field name="student_email" string="Correo"/>
                 <field name="course_id" string="Curso" class="o_das_lms_enrollment_course_cell"/>
+                <field name="course_das_total_hours" string="Horas curso" optional="hide"/>
                 <field name="enrollment_date" string="Fecha inscripción"/>
                 <field name="modality" string="Modalidad"/>
                 <field name="status" string="Estado académico"/>
@@ -54,6 +55,7 @@
                     <group string="Datos del curso">
                         <group>
                             <field name="course_id" readonly="1"/>
+                            <field name="course_das_total_hours" readonly="1"/>
                             <field name="course_start_date" readonly="1"/>
                             <field name="course_website_url" readonly="1" widget="url"/>
                             <field name="enrollment_date" readonly="1"/>

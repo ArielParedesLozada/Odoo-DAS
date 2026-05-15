@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
+from .das_lms_constants import DAS_LMS_ACADEMIC_MODALITY
+
 # Días sin actividad con avance < 100 % para marcar como inactivo
 DAS_LMS_INACTIVE_DAYS = 30
 
@@ -89,13 +91,17 @@ class CourseEnrollment(models.Model):
     )
 
     modality = fields.Selection(
-        selection=[
-            ('grabado', 'Grabado'),
-            ('en_vivo', 'En vivo'),
-        ],
+        selection=DAS_LMS_ACADEMIC_MODALITY,
         string='Modalidad',
         required=True,
         default='grabado',
+        help='Por defecto coincide con la modalidad académica del curso; puede ajustarse puntualmente.',
+    )
+    course_das_total_hours = fields.Float(
+        related='course_id.das_total_hours',
+        string='Horas totales (curso)',
+        readonly=True,
+        digits=(16, 1),
     )
     status = fields.Selection(
         selection=[
@@ -233,9 +239,11 @@ class CourseEnrollment(models.Model):
 
     @api.model
     def _prepare_vals_from_channel_partner(self, scp):
+        channel = scp.channel_id
+        modality = (channel.das_modality or 'grabado') if channel else 'grabado'
         return {
             'channel_partner_id': scp.id,
-            'modality': 'grabado',
+            'modality': modality,
             'status': self._status_from_channel_partner(scp),
             'last_sync_at': fields.Datetime.now(),
         }
@@ -253,8 +261,14 @@ class CourseEnrollment(models.Model):
             scp = rec.channel_partner_id
             if not scp:
                 continue
-            vals = {'status': self._status_from_channel_partner(scp)}
-            if vals['status'] != rec.status:
+            new_status = self._status_from_channel_partner(scp)
+            new_modality = (rec.course_id.das_modality or 'grabado') if rec.course_id else rec.modality
+            vals = {}
+            if new_status != rec.status:
+                vals['status'] = new_status
+            if new_modality != rec.modality:
+                vals['modality'] = new_modality
+            if vals:
                 super(CourseEnrollment, rec).write(vals)
 
     @api.model_create_multi
@@ -265,9 +279,10 @@ class CourseEnrollment(models.Model):
                     _('Las inscripciones DAS solo existen como reflejo de eLearning. '
                       'Sincronice desde el Dashboard DAS LMS (Actualizar datos) o espere a que exista slide.channel.partner.')
                 )
-            vals.setdefault('status', self._status_from_channel_partner(
-                self.env['slide.channel.partner'].browse(vals['channel_partner_id'])
-            ))
+            scp = self.env['slide.channel.partner'].browse(vals['channel_partner_id'])
+            ch = scp.channel_id
+            vals.setdefault('modality', (ch.das_modality or 'grabado') if ch else 'grabado')
+            vals.setdefault('status', self._status_from_channel_partner(scp))
             vals.setdefault('last_sync_at', fields.Datetime.now())
         records = super().create(vals_list)
         records._sync_fields_from_channel_partner()

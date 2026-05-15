@@ -6,6 +6,20 @@
         <field name="inherit_id" ref="website_slides.view_slide_channel_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
+                <page string="Información académica DAS" name="das_lms_academic">
+                    <group>
+                        <group string="Calendario y modalidad">
+                            <field name="das_start_date"/>
+                            <field name="das_end_date"/>
+                            <field name="das_modality"/>
+                        </group>
+                        <group string="Carga horaria (académica)">
+                            <field name="das_autonomous_hours"/>
+                            <field name="das_teacher_contact_hours"/>
+                            <field name="das_total_hours"/>
+                        </group>
+                    </group>
+                </page>
                 <page string="Estadísticas DAS" name="das_lms_stats">
                     <field
                         name="das_lms_enrollment_ids"
@@ -26,6 +40,19 @@
                         </list>
                     </field>
                 </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="slide_channel_view_tree_das_lms_academic" model="ir.ui.view">
+        <field name="name">slide.channel.list.das.lms.academic</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="website_slides.slide_channel_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="das_start_date" string="Inicio académico" optional="hide"/>
+                <field name="das_modality" string="Modalidad DAS" optional="hide"/>
+                <field name="das_total_hours" string="Horas totales" optional="hide"/>
             </xpath>
         </field>
     </record>
