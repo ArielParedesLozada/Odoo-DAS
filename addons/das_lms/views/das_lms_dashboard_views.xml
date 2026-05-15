@@ -99,43 +99,18 @@
                         </div>
                     </div>
 
-                    <!-- 3. Analítica visual -->
+                    <!-- 3. Resumen visual (solo distribución + top inscritos; detalle por curso → Análisis avanzado) -->
                     <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
-                        <h2>Analítica visual</h2>
+                        <h2>Resumen visual</h2>
                     </div>
                     <div class="o_das_lms_panel o_das_lms_panel--charts o_das_lms_panel--charts-wide mb-4">
                         <field name="charts_html" colspan="2" nolabel="1" readonly="1"/>
                     </div>
 
-                    <!-- 4. Resumen por curso -->
-                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
-                        <h2>Resumen por curso</h2>
-                    </div>
-                    <div class="o_das_lms_panel o_das_lms_panel--table mb-4">
-                        <field name="line_ids" nolabel="1" class="o_das_lms_course_table" colspan="2">
-                            <list create="false" delete="false" edit="false" default_order="course_id"
-                                class="o_das_lms_enrollment_table"
-                                decoration-muted="avg_progress_int == 0"
-                                decoration-warning="count_inactivos &gt; 0"
-                                decoration-success="avg_progress_int &gt; 79">
-                                <field name="course_id" string="Curso"/>
-                                <field name="total_enrolled" string="Inscritos" optional="show"/>
-                                <field name="count_sin_iniciar" string="Sin iniciar"/>
-                                <field name="count_en_progreso" string="En progreso"/>
-                                <field name="count_completados" string="Completados"/>
-                                <field name="count_inactivos" string="Inactivos"/>
-                                <!-- avg_progress_int: sin widget en columna (evita barra + badge duplicados del progressbar en lista) -->
-                                <field name="avg_progress_int" column_invisible="1"/>
-                                <field name="avg_progress" string="Avance %" class="o_das_lms_avance_pct text-end"/>
-                                <field name="last_activity_max" string="Última actividad" optional="show"/>
-                            </list>
-                        </field>
-                    </div>
-
-                    <!-- 5. Alertas -->
+                    <!-- 4. Alertas -->
                     <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
                         <h2>Alertas académicas</h2>
-                        <span class="o_das_lms_section-heading__badge">Prioridad: crítica · media · informativa</span>
+                        <span class="o_das_lms_section-heading__badge">Se generan al abrir o al pulsar Actualizar; no son avisos por correo.</span>
                     </div>
                     <div class="o_das_lms_panel o_das_lms_panel--alerts mb-4">
                         <field name="alert_line_ids" nolabel="1" colspan="2" class="o_das_lms_alert_field">
@@ -165,7 +140,7 @@
                         </field>
                     </div>
 
-                    <!-- 6. Actividad reciente -->
+                    <!-- 5. Actividad reciente -->
                     <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
                         <h2>Actividad reciente</h2>
                     </div>
@@ -173,7 +148,7 @@
                         <field name="activity_html" colspan="2" nolabel="1" readonly="1"/>
                     </div>
 
-                    <!-- 7. Accesos rápidos -->
+                    <!-- 6. Accesos rápidos -->
                     <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
                         <h2>Accesos rápidos</h2>
                     </div>

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
 
-from html import escape
-
-from markupsafe import Markup
-
 from odoo import _, api, fields, models
 
 from .course_enrollment import DAS_LMS_INACTIVE_DAYS
@@ -13,8 +9,8 @@ from .course_enrollment import DAS_LMS_INACTIVE_DAYS
 class DasLmsAdvancedAnalytics(models.TransientModel):
     """Vista analítica por curso (agregados desde course.enrollment).
 
-    Pensada como centro de consulta tabular; pivot/lista/gráficos nativos
-    siguen en la acción «Vista técnica».
+    Centro tabular; filtros y vistas nativas en «Filtros y vistas técnicas».
+    Sin gráficos duplicados del dashboard ejecutivo.
     """
 
     _name = 'das.lms.advanced.analytics'
@@ -22,7 +18,7 @@ class DasLmsAdvancedAnalytics(models.TransientModel):
 
     name = fields.Char(string='Título', default=lambda self: _('Análisis avanzado'), readonly=True)
 
-    header_date_display = fields.Char(string='Fecha', compute='_compute_aux_html', readonly=True)
+    header_date_display = fields.Char(string='Fecha', readonly=True)
 
     total_enrollments = fields.Integer(string='Total inscritos', readonly=True)
     total_courses_active = fields.Integer(string='Cursos con datos', readonly=True)
@@ -33,81 +29,12 @@ class DasLmsAdvancedAnalytics(models.TransientModel):
     )
     count_completados = fields.Integer(string='Inscripciones completadas', readonly=True)
 
-    aux_html = fields.Html(
-        string='Contexto visual',
-        sanitize=False,
-        compute='_compute_aux_html',
-        readonly=True,
-        help='Mini resumen gráfico del engagement (complemento a la tabla).',
-    )
-
     line_ids = fields.One2many(
         'das.lms.analytics.course.line',
         'analytics_id',
         string='Por curso',
         readonly=True,
     )
-
-    @api.depends(
-        'line_ids',
-        'line_ids.total_enrolled',
-        'line_ids.avg_progress',
-        'line_ids.avg_progress_int',
-        'line_ids.course_id',
-        'total_enrollments',
-        'total_courses_active',
-        'avg_progress_general',
-        'count_completados',
-    )
-    def _compute_aux_html(self):
-        for rec in self:
-            today = fields.Date.context_today(rec)
-            rec.header_date_display = today.strftime('%d/%m/%Y')
-            rec.aux_html = rec._das_lms_analytics_build_mini_engagement()
-
-    def _das_lms_analytics_build_mini_engagement(self):
-        """Una sola visual pequeña: doughnut compacto de engagement global."""
-        self.ensure_one()
-        Enrollment = self.env['course.enrollment'].sudo()
-        all_rec = Enrollment.search([])
-        s_sin = len(all_rec.filtered(lambda e: e.engagement_status == 'sin_iniciar'))
-        s_prog = len(all_rec.filtered(lambda e: e.engagement_status == 'en_progreso'))
-        s_done = len(all_rec.filtered(lambda e: e.engagement_status == 'completado'))
-        s_ina = len(all_rec.filtered(lambda e: e.engagement_status == 'inactivo'))
-        total_eng = s_sin + s_prog + s_done + s_ina
-        parts = ['<div class="o_das_lms_analytics_mini_chart">']
-        parts.append('<span class="o_das_lms_analytics_mini_chart__label">Engagement global</span>')
-        if total_eng <= 0:
-            parts.append('<span class="text-muted small">Sin datos.</span></div>')
-            return Markup(''.join(parts))
-        spec = [
-            (s_sin, '#94a3b8', _('Sin iniciar')),
-            (s_prog, '#0ea5e9', _('En progreso')),
-            (s_done, '#22c55e', _('Completados')),
-            (s_ina, '#f87171', _('Inactivos')),
-        ]
-        cursor = 0.0
-        stops = []
-        for count, color, _lbl in spec:
-            if count <= 0:
-                continue
-            deg = 360.0 * count / total_eng
-            stops.append('%s %.4fdeg %.4fdeg' % (color, cursor, cursor + deg))
-            cursor += deg
-        grad = 'conic-gradient(from 0deg, %s)' % ', '.join(stops)
-        legend = ''.join(
-            '<span class="o_das_lms_analytics_mini_leg"><i style="background:%s"></i>%s %s</span>'
-            % (color, escape(str(lbl)), cnt)
-            for cnt, color, lbl in spec
-            if cnt > 0
-        )
-        parts.append(
-            '<div class="o_das_lms_analytics_mini_donut" style="background:%s" title="Distribución inscripciones"></div>'
-            % grad
-        )
-        parts.append('<div class="o_das_lms_analytics_mini_legwrap">%s</div>' % legend)
-        parts.append('</div>')
-        return Markup(''.join(parts))
 
     @api.model
     def default_get(self, fields_list):
@@ -116,6 +43,7 @@ class DasLmsAdvancedAnalytics(models.TransientModel):
         all_rec = Enrollment.search([])
 
         res['name'] = _('Análisis avanzado')
+        res['header_date_display'] = fields.Date.context_today(self).strftime('%d/%m/%Y')
         res['total_enrollments'] = len(all_rec)
         courses = all_rec.mapped('course_id').filtered(lambda c: c)
         res['total_courses_active'] = len(courses)

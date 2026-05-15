@@ -15,7 +15,7 @@
                         <div>
                             <h1 class="o_das_lms_analytics_hub_head__title">Análisis avanzado</h1>
                             <p class="o_das_lms_analytics_hub_head__desc">
-                                Consulta agregada por curso. Use <b>Filtros y vistas técnicas</b> para lista, pivot, gráficos y búsqueda por inscripción.
+                                Centro de control por curso: conteos, avance y estado. Para explorar inscripciones con filtros, agrupaciones, pivot y gráficos nativos, abra <b>Filtros y vistas técnicas</b>.
                             </p>
                         </div>
                         <div class="o_das_lms_analytics_hub_head__meta">
@@ -42,11 +42,7 @@
                         </div>
                     </div>
 
-                    <div class="o_das_lms_analytics_hub_aux">
-                        <field name="aux_html" nolabel="1" colspan="2" readonly="1"/>
-                    </div>
-
-                    <div class="o_das_lms_analytics_hub_section_title">Análisis por curso</div>
+                    <div class="o_das_lms_analytics_hub_section_title">Consolidado por curso</div>
 
                     <div class="o_das_lms_analytics_hub_tablewrap">
                         <field name="line_ids" nolabel="1" class="o_das_lms_analytics_main_table" colspan="2">
@@ -56,11 +52,11 @@
                                 <field name="count_sin_iniciar" string="Sin iniciar"/>
                                 <field name="count_en_progreso" string="En progreso"/>
                                 <field name="count_completados" string="Completados"/>
-                                <field name="avg_progress_int" string="Avance" widget="progressbar" options="{'max_value': 100}"/>
+                                <field name="avg_progress_int" column_invisible="1"/>
+                                <field name="avg_progress" string="Avance %" class="o_das_lms_avance_pct text-end"/>
                                 <field name="last_activity_max" string="Última actividad"/>
-                                <field name="course_health" string="Estado"/>
+                                <field name="course_health" string="Estado" widget="badge"/>
                                 <field name="count_inactivos" column_invisible="1"/>
-                                <field name="avg_progress" column_invisible="1"/>
                             </list>
                         </field>
                     </div>

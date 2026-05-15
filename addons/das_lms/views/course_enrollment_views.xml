@@ -6,19 +6,16 @@
         <field name="arch" type="xml">
             <list
                 string="Inscripciones DAS LMS"
+                class="o_das_lms_enrollment_list"
                 create="false"
                 delete="false"
                 edit="false"
                 multi_edit="false"
-                decoration-muted="engagement_status == 'sin_iniciar'"
-                decoration-info="engagement_status == 'en_progreso'"
-                decoration-success="engagement_status == 'completado'"
-                decoration-danger="engagement_status == 'inactivo'"
             >
-                <field name="engagement_status" column_invisible="1"/>
+                <field name="engagement_status" string="Engagement" widget="badge"/>
                 <field name="student_id" string="Alumno"/>
                 <field name="student_email" string="Correo"/>
-                <field name="course_id" string="Curso"/>
+                <field name="course_id" string="Curso" class="o_das_lms_enrollment_course_cell"/>
                 <field name="enrollment_date" string="Fecha inscripción"/>
                 <field name="modality" string="Modalidad"/>
                 <field name="status" string="Estado académico"/>
@@ -193,7 +190,7 @@
             </p>
             <p>
                 Las inscripciones reales se crean en eLearning al completar el flujo comercial y de facturación.
-                Use <b>Sincronizar inscripciones</b> (solo administradores) para importar o actualizar desde eLearning.
+                Los administradores pueden sincronizar desde el <b>Dashboard DAS LMS</b> (botón <b>Actualizar datos</b> o acceso rápido de sincronización).
             </p>
         </field>
     </record>
@@ -220,14 +217,6 @@
         parent="menu_das_lms_root"
         action="action_course_enrollment"
         sequence="20"
-    />
-    <menuitem
-        id="menu_das_lms_sync"
-        name="Sincronizar inscripciones"
-        parent="menu_das_lms_root"
-        action="action_das_lms_sync_server"
-        sequence="30"
-        groups="base.group_system,base.group_erp_manager"
     />
     <record id="view_course_enrollment_pivot_das_style" model="ir.ui.view">
         <field name="name">course.enrollment.pivot.das.style</field>

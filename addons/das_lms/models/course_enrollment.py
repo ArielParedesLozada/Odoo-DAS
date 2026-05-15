@@ -263,7 +263,7 @@ class CourseEnrollment(models.Model):
             if not vals.get('channel_partner_id'):
                 raise UserError(
                     _('Las inscripciones DAS solo existen como reflejo de eLearning. '
-                      'Ejecute «Sincronizar inscripciones» o espere a que exista slide.channel.partner.')
+                      'Sincronice desde el Dashboard DAS LMS (Actualizar datos) o espere a que exista slide.channel.partner.')
                 )
             vals.setdefault('status', self._status_from_channel_partner(
                 self.env['slide.channel.partner'].browse(vals['channel_partner_id'])

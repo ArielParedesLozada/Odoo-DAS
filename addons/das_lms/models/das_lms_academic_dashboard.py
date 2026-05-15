@@ -152,32 +152,6 @@ class DasLmsAcademicDashboard(models.TransientModel):
 
         parts.append('</div>')  # charts_top
 
-        # --- Fila 2 ancho completo: barras verticales = avance medio por curso ---
-        vlines = self.line_ids.sorted(lambda l: -int(l.avg_progress_int or 0))[:12]
-        parts.append('<div class="o_das_lms_chart-block o_das_lms_chart-block--vchart">')
-        parts.append('<h6 class="o_das_lms_chart-title">Avance medio por curso</h6>')
-        if not vlines:
-            parts.append('<p class="text-muted small mb-0">Sin datos.</p>')
-        else:
-            vmax = max(int(l.avg_progress_int or 0) for l in vlines) or 1
-            parts.append('<div class="o_das_lms_vchart">')
-            for line in vlines:
-                raw = line.course_id.display_name or ''
-                title_esc = escape(raw)
-                pct = min(100.0, 100.0 * int(line.avg_progress_int or 0) / vmax)
-                h = max(6.0, pct)
-                short = escape((raw[:14] + ('…' if len(raw) > 14 else '')) or '—')
-                val = int(line.avg_progress_int or 0)
-                parts.append(
-                    '<div class="o_das_lms_vcol" title="%s — %s %%">'
-                    '<div class="o_das_lms_vbar-wrap"><div class="o_das_lms_vbar" style="height:%.1f%%"></div></div>'
-                    '<span class="o_das_lms_vval">%s%%</span>'
-                    '<span class="o_das_lms_vlbl">%s</span></div>'
-                    % (title_esc, val, h, val, short)
-                )
-            parts.append('</div>')
-        parts.append('</div>')
-
         parts.append('</div>')
         return Markup(''.join(parts))
 

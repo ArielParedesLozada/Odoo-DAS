@@ -110,7 +110,7 @@ class TestDasLmsEnrollment(TransactionCase):
         panel = self.env['das.lms.advanced.analytics'].create({})
         self.assertGreaterEqual(panel.total_enrollments, 1)
         self.assertTrue(panel.line_ids)
-        self.assertTrue(panel.aux_html)
+        self.assertTrue(panel.header_date_display)
         self.assertTrue(panel.line_ids[0].course_health)
         tech = self.env.ref('das_lms.action_course_enrollment_analytics_technical').read()[0]
         self.assertEqual(tech.get('res_model'), 'course.enrollment')
