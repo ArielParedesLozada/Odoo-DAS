@@ -978,15 +978,4 @@ $o-das-card: #ffffff;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-
-    .o_progressbar {
-        height: 7px;
-        border-radius: 99px;
-        background: #e2e8f0;
-    }
-
-    .o_progressbar .o_progress {
-        border-radius: 99px;
-        background: linear-gradient(90deg, #94a3b8 0%, #475569 100%);
-    }
 }
