@@ -52,17 +52,11 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         channels_my = tools.lazy(
             lambda: channels_all.filtered(lambda c: c.is_member).sorted(
                 lambda c: 0 if c.completed else c.completion, reverse=True
-            )[:3]
+            )
         )
-        member_scope = tools.lazy(
-            lambda: channels_all.filtered(lambda c: c.is_member or c.is_member_invited)
-        )
-        channels_popular = tools.lazy(
-            lambda: member_scope.sorted('total_votes', reverse=True)[:3]
-        )
-        channels_newest = tools.lazy(
-            lambda: member_scope.sorted('create_date', reverse=True)[:3]
-        )
+        # Una sola sección en la home: no duplicar populares / novedades (misma lista que "Mis cursos").
+        channels_popular = tools.lazy(lambda: request.env['slide.channel'].browse())
+        channels_newest = tools.lazy(lambda: request.env['slide.channel'].browse())
 
         achievements = tools.lazy(
             lambda: request.env['gamification.badge.user']
@@ -107,6 +101,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         render_values.update(self._prepare_user_values(**post))
         render_values.update(
             {
+                'das_lms_slides_portal_home': True,
                 'channels_my': channels_my,
                 'channels_popular': channels_popular,
                 'channels_newest': channels_newest,

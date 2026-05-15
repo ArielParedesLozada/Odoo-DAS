@@ -204,11 +204,16 @@
         <field name="view_mode">pivot,graph</field>
         <field name="context">{'create': False, 'edit': False}</field>
         <field name="help" type="html">
-            <div class="o_das_lms_analytics_banner">
-                <strong>Análisis avanzado DAS LMS.</strong>
-                Use esta vista para analizar inscripciones por curso, estado académico y avance.
-                Cambie entre <em>Pivot</em> y <em>Gráfico</em> y elija el tipo de gráfico en el selector de vistas
-                (inscritos por curso, estado académico, engagement o avance agregado por curso).
+            <div class="o_das_lms_analytics_intro">
+                <h3 class="o_das_lms_analytics_intro__title">Análisis avanzado DAS LMS</h3>
+                <p class="o_das_lms_analytics_intro__text">
+                    Explore inscripciones por curso, estado académico y avance. Cambie entre
+                    <strong>Pivot</strong> y <strong>Gráfico</strong> desde el selector de vistas superior.
+                </p>
+                <ul class="o_das_lms_analytics_intro__list">
+                    <li>Vistas de gráfico predefinidas: inscritos por curso, estado académico, engagement y avance.</li>
+                    <li>Use filtros y agrupaciones del buscador para comparativas.</li>
+                </ul>
             </div>
         </field>
     </record>
@@ -251,4 +256,59 @@
         sequence="30"
         groups="base.group_system,base.group_erp_manager"
     />
+    <record id="view_course_enrollment_pivot_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.pivot.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_pivot"/>
+        <field name="arch" type="xml">
+            <xpath expr="//pivot" position="attributes">
+                <attribute name="class">o_das_lms_analytics_pivot</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_courses_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.courses.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_courses"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_engagement_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.engagement.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_engagement"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_progress_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.progress.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_progress_course"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_academic_status_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.academic.status.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_academic_status"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
