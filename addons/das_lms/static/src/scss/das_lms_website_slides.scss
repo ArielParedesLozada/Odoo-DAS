@@ -1,0 +1,13 @@
+/* DAS LMS — eLearning (/slides, /slides/all): barra "Todos los cursos" + búsqueda.
+   Odoo usa top: -40px en .o_wslides_home_nav (solapa el banner). Se neutraliza y se
+   añade aire entre la barra y el bloque principal (Mis cursos, tarjetas, lateral). */
+
+body.o_wslides_body .container.o_wslides_home_nav.position-relative {
+    top: 0;
+    margin-top: 2rem;
+    margin-bottom: 1.75rem;
+}
+
+body.o_wslides_body .container.o_wslides_home_main {
+    padding-top: 0.75rem;
+}

@@ -9,6 +9,10 @@
         <xpath expr="//t[contains(@t-foreach, 'channels_my[:3]')]" position="attributes">
             <attribute name="t-foreach">channels_my if das_lms_slides_portal_home else channels_my[:3]</attribute>
         </xpath>
+        <!-- Quitar "Ver todo" en Mis cursos: en portal DAS la home ya muestra todos los inscritos. -->
+        <xpath expr="//a[@href='/slides/all?my=1']" position="replace"/>
+        <!-- Quitar enlace "Vista" / View al perfil en el lateral (redundante en portal DAS). -->
+        <xpath expr="//div[hasclass('o_wslides_home_aside_title')]//a[@class='d-none d-lg-block']" position="replace"/>
     </template>
 
     <template id="portal_slide_channel_access_denied" name="DAS LMS: curso no inscrito">
