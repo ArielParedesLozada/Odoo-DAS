@@ -198,26 +198,6 @@
         </field>
     </record>
 
-    <record id="action_course_enrollment_analytics" model="ir.actions.act_window">
-        <field name="name">Análisis avanzado</field>
-        <field name="res_model">course.enrollment</field>
-        <field name="view_mode">pivot,graph</field>
-        <field name="context">{'create': False, 'edit': False}</field>
-        <field name="help" type="html">
-            <div class="o_das_lms_analytics_intro">
-                <h3 class="o_das_lms_analytics_intro__title">Análisis avanzado DAS LMS</h3>
-                <p class="o_das_lms_analytics_intro__text">
-                    Explore inscripciones por curso, estado académico y avance. Cambie entre
-                    <strong>Pivot</strong> y <strong>Gráfico</strong> desde el selector de vistas superior.
-                </p>
-                <ul class="o_das_lms_analytics_intro__list">
-                    <li>Vistas de gráfico predefinidas: inscritos por curso, estado académico, engagement y avance.</li>
-                    <li>Use filtros y agrupaciones del buscador para comparativas.</li>
-                </ul>
-            </div>
-        </field>
-    </record>
-
     <record id="action_das_lms_sync_server" model="ir.actions.server">
         <field name="name">Sincronizar inscripciones desde eLearning</field>
         <field name="model_id" ref="model_course_enrollment"/>
@@ -240,13 +220,6 @@
         parent="menu_das_lms_root"
         action="action_course_enrollment"
         sequence="20"
-    />
-    <menuitem
-        id="menu_das_lms_analytics"
-        name="Análisis avanzado"
-        parent="menu_das_lms_root"
-        action="action_course_enrollment_analytics"
-        sequence="25"
     />
     <menuitem
         id="menu_das_lms_sync"

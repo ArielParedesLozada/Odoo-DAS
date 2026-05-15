@@ -98,3 +98,20 @@ class TestDasLmsEnrollment(TransactionCase):
         dash = self.env['das.lms.academic.dashboard'].create({})
         self.assertGreaterEqual(dash.total_enrollments, 1)
         self.assertTrue(dash.line_ids)
+
+    def test_advanced_analytics_panel(self):
+        partner = self.env['res.partner'].create({'name': 'Ana Panel'})
+        channel = self.env['slide.channel'].create({'name': 'Curso Panel'})
+        self.env['slide.channel.partner'].create({
+            'channel_id': channel.id,
+            'partner_id': partner.id,
+        })
+        self.env['course.enrollment'].action_sync_from_elearning()
+        panel = self.env['das.lms.advanced.analytics'].create({})
+        self.assertGreaterEqual(panel.total_enrollments, 1)
+        self.assertTrue(panel.line_ids)
+        self.assertTrue(panel.aux_html)
+        self.assertTrue(panel.line_ids[0].course_health)
+        tech = self.env.ref('das_lms.action_course_enrollment_analytics_technical').read()[0]
+        self.assertEqual(tech.get('res_model'), 'course.enrollment')
+        self.assertIn('list', tech.get('view_mode', ''))

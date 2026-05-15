@@ -2,7 +2,7 @@
 {
     'name': 'DAS LMS - Inscripciones',
     'summary': 'Seguimiento y estadísticas de inscripciones eLearning (slide.channel.partner)',
-    'version': '18.0.3.6.1',
+    'version': '18.0.3.8.1',
     'category': 'Website/eLearning',
     'author': 'DAS',
     'license': 'LGPL-3',
@@ -16,6 +16,7 @@
         'security/ir.model.access.csv',
         'views/das_lms_dashboard_views.xml',
         'views/course_enrollment_views.xml',
+        'views/das_lms_advanced_analytics_views.xml',
         'views/slide_channel_views.xml',
         'views/product_template_website.xml',
         'views/das_lms_portal_elearning_templates.xml',

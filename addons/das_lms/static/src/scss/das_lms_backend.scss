@@ -15,7 +15,9 @@ $o-das-card: #ffffff;
     }
 
     .o_das_lms_dashboard_sheet.o_form_sheet,
-    .o_form_sheet.o_das_lms_dashboard_sheet {
+    .o_form_sheet.o_das_lms_dashboard_sheet,
+    .o_das_lms_analytics_exec_sheet.o_form_sheet,
+    .o_form_sheet.o_das_lms_analytics_exec_sheet {
         max-width: 1400px;
         margin: 0 auto;
         padding-bottom: 2.5rem;
@@ -34,6 +36,10 @@ $o-das-card: #ffffff;
         background: linear-gradient(125deg, #1e3a5f 0%, #0f2744 42%, #1a3652 100%);
         color: #f1f5f9;
         box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    }
+
+    .o_das_lms_exec_header.o_das_lms_exec_header--analytics {
+        background: linear-gradient(125deg, #312e81 0%, #1e3a5f 48%, #0f2744 100%);
     }
 
     .o_das_lms_exec_header__brand {
@@ -376,6 +382,15 @@ $o-das-card: #ffffff;
         background: linear-gradient(90deg, #60a5fa, #4f46e5);
         min-width: 2%;
         transition: width 0.35s ease;
+    }
+
+    .o_das_lms_bar-fill--progress {
+        background: linear-gradient(90deg, #34d399, #059669);
+    }
+
+    .o_das_lms_chart-block--full {
+        width: 100%;
+        margin-top: 0.15rem;
     }
 
     /* Barras verticales — avance por curso */
@@ -766,6 +781,15 @@ $o-das-card: #ffffff;
     }
 }
 
+.o_das_lms_analytics_intro.o_das_lms_analytics_intro--compact {
+    max-width: 42rem;
+    padding: 0.5rem 0.25rem 0.35rem;
+}
+
+.o_das_lms_analytics_intro.o_das_lms_analytics_intro--compact .o_das_lms_analytics_intro__list {
+    font-size: 0.82rem;
+}
+
 /* --- Pivot / gráficos: más presencia en pantalla ------------------------- */
 .o_das_lms_analytics_pivot {
     min-height: 420px;
@@ -773,4 +797,198 @@ $o-das-card: #ffffff;
 
 .o_das_lms_analytics_graph {
     min-height: 380px;
+}
+
+/* --- Análisis avanzado: hub tabular (diferenciado del dashboard) ---------- */
+.o_form_view.o_das_lms_analytics_hub_form {
+    .o_form_sheet_bg {
+        background: #f1f5f9;
+    }
+
+    .o_das_lms_analytics_hub_sheet.o_form_sheet,
+    .o_form_sheet.o_das_lms_analytics_hub_sheet {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 2rem;
+    }
+
+    .o_das_lms_analytics_hub_head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-bottom: 0.25rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .o_das_lms_analytics_hub_head__title {
+        margin: 0 0 0.35rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+    }
+
+    .o_das_lms_analytics_hub_head__desc {
+        margin: 0;
+        max-width: 46rem;
+        font-size: 0.875rem;
+        line-height: 1.45;
+        color: #64748b;
+    }
+
+    .o_das_lms_analytics_hub_head__meta {
+        flex-shrink: 0;
+    }
+
+    .o_das_lms_analytics_hub_head__date {
+        display: inline-block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #475569;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.35rem 0.65rem;
+    }
+
+    .o_das_lms_analytics_hub_kpis {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+    }
+
+    .o_das_lms_analytics_hub_kpi {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.45rem 0.85rem;
+        min-width: 7.5rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .o_das_lms_analytics_hub_kpi__lbl {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+    }
+
+    .o_das_lms_analytics_hub_kpi__val {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .o_das_lms_analytics_hub_aux {
+        margin-bottom: 1.25rem;
+    }
+
+    .o_das_lms_analytics_mini_chart {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.85rem 1.25rem;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .o_das_lms_analytics_mini_chart__label {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        width: 100%;
+        flex-basis: 100%;
+    }
+
+    .o_das_lms_analytics_mini_donut {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        position: relative;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 26%;
+            background: #fff;
+            border-radius: 50%;
+        }
+    }
+
+    .o_das_lms_analytics_mini_legwrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        max-width: 28rem;
+    }
+
+    .o_das_lms_analytics_mini_leg {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        color: #475569;
+
+        i {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+    }
+
+    .o_das_lms_analytics_hub_section_title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #475569;
+        margin: 0 0 0.5rem;
+    }
+
+    .o_das_lms_analytics_hub_tablewrap {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.35rem 0.25rem 0.5rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > thead > tr > th {
+        background: #f8fafc !important;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > tbody > tr:hover > td {
+        background: #fafbfc !important;
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > tbody > tr > td {
+        font-size: 0.8125rem;
+        vertical-align: middle;
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+    }
 }

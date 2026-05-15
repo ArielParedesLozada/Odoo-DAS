@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_das_lms_advanced_analytics_form" model="ir.ui.view">
+        <field name="name">das.lms.advanced.analytics.form</field>
+        <field name="model">das.lms.advanced.analytics</field>
+        <field name="arch" type="xml">
+            <form string="Análisis avanzado" class="o_das_lms_analytics_hub_form">
+                <header>
+                    <button name="action_refresh" type="object" string="Actualizar" class="btn-primary"/>
+                    <button name="action_open_technical_views" type="object" string="Filtros y vistas técnicas" class="btn-secondary"/>
+                    <button name="action_open_dashboard" type="object" string="Dashboard ejecutivo" class="btn-link"/>
+                </header>
+                <sheet class="o_form_sheet o_das_lms_analytics_hub_sheet">
+                    <div class="o_das_lms_analytics_hub_head">
+                        <div>
+                            <h1 class="o_das_lms_analytics_hub_head__title">Análisis avanzado</h1>
+                            <p class="o_das_lms_analytics_hub_head__desc">
+                                Consulta agregada por curso. Use <b>Filtros y vistas técnicas</b> para lista, pivot, gráficos y búsqueda por inscripción.
+                            </p>
+                        </div>
+                        <div class="o_das_lms_analytics_hub_head__meta">
+                            <span class="o_das_lms_analytics_hub_head__date"><field name="header_date_display" readonly="1" nolabel="1"/></span>
+                        </div>
+                    </div>
+
+                    <div class="o_das_lms_analytics_hub_kpis">
+                        <div class="o_das_lms_analytics_hub_kpi">
+                            <span class="o_das_lms_analytics_hub_kpi__lbl">Inscritos</span>
+                            <span class="o_das_lms_analytics_hub_kpi__val"><field name="total_enrollments" nolabel="1" class="oe_inline"/></span>
+                        </div>
+                        <div class="o_das_lms_analytics_hub_kpi">
+                            <span class="o_das_lms_analytics_hub_kpi__lbl">Avance medio</span>
+                            <span class="o_das_lms_analytics_hub_kpi__val"><field name="avg_progress_general" nolabel="1" class="oe_inline"/> %</span>
+                        </div>
+                        <div class="o_das_lms_analytics_hub_kpi">
+                            <span class="o_das_lms_analytics_hub_kpi__lbl">Completados</span>
+                            <span class="o_das_lms_analytics_hub_kpi__val"><field name="count_completados" nolabel="1" class="oe_inline"/></span>
+                        </div>
+                        <div class="o_das_lms_analytics_hub_kpi">
+                            <span class="o_das_lms_analytics_hub_kpi__lbl">Cursos</span>
+                            <span class="o_das_lms_analytics_hub_kpi__val"><field name="total_courses_active" nolabel="1" class="oe_inline"/></span>
+                        </div>
+                    </div>
+
+                    <div class="o_das_lms_analytics_hub_aux">
+                        <field name="aux_html" nolabel="1" colspan="2" readonly="1"/>
+                    </div>
+
+                    <div class="o_das_lms_analytics_hub_section_title">Análisis por curso</div>
+
+                    <div class="o_das_lms_analytics_hub_tablewrap">
+                        <field name="line_ids" nolabel="1" class="o_das_lms_analytics_main_table" colspan="2">
+                            <list create="false" delete="false" edit="false" default_order="course_id">
+                                <field name="course_id" string="Curso"/>
+                                <field name="total_enrolled" string="Inscritos"/>
+                                <field name="count_sin_iniciar" string="Sin iniciar"/>
+                                <field name="count_en_progreso" string="En progreso"/>
+                                <field name="count_completados" string="Completados"/>
+                                <field name="avg_progress_int" string="Avance" widget="progressbar" options="{'max_value': 100}"/>
+                                <field name="last_activity_max" string="Última actividad"/>
+                                <field name="course_health" string="Estado"/>
+                                <field name="count_inactivos" column_invisible="1"/>
+                                <field name="avg_progress" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </div>
+
+                    <field name="name" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_course_enrollment_analytics" model="ir.actions.act_window">
+        <field name="name">Análisis avanzado</field>
+        <field name="res_model">das.lms.advanced.analytics</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="view_id" ref="view_das_lms_advanced_analytics_form"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Cargando análisis…</p>
+            <p class="text-muted">Use <b>Filtros y vistas técnicas</b> para pivot, gráficos y el buscador completo.</p>
+        </field>
+    </record>
+
+    <record id="action_course_enrollment_analytics_technical" model="ir.actions.act_window">
+        <field name="name">Análisis técnico (lista / pivot / gráficos)</field>
+        <field name="res_model">course.enrollment</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="view_course_enrollment_search"/>
+        <field name="context">{'create': False, 'edit': False}</field>
+        <field name="help" type="html">
+            <div class="o_das_lms_analytics_intro o_das_lms_analytics_intro--compact">
+                <p class="o_das_lms_analytics_intro__text mb-1">
+                    Vista clásica con <strong>filtros</strong>, <strong>agrupaciones</strong>, <strong>pivot</strong> y <strong>gráficos</strong> sobre inscripciones.
+                </p>
+                <ul class="o_das_lms_analytics_intro__list mb-0">
+                    <li>Gráficos: inscritos por curso, estado académico, engagement (pie), avance por curso.</li>
+                    <li>Cambie de vista con el selector superior.</li>
+                </ul>
+            </div>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_das_lms_analytics"
+        name="Análisis avanzado"
+        parent="menu_das_lms_root"
+        action="action_course_enrollment_analytics"
+        sequence="25"
+    />
+</odoo>

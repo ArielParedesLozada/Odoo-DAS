@@ -3,3 +3,5 @@ access_course_enrollment_user,course.enrollment usuario interno,model_course_enr
 access_das_lms_academic_dashboard_user,das.lms.academic.dashboard usuario,model_das_lms_academic_dashboard,base.group_user,1,1,1,1
 access_das_lms_dashboard_course_line_user,das.lms.dashboard.course.line usuario,model_das_lms_dashboard_course_line,base.group_user,1,1,1,1
 access_das_lms_dashboard_alert_line_user,das.lms.dashboard.alert.line usuario,model_das_lms_dashboard_alert_line,base.group_user,1,1,1,1
+access_das_lms_advanced_analytics_user,das.lms.advanced.analytics usuario,model_das_lms_advanced_analytics,base.group_user,1,1,1,1
+access_das_lms_analytics_course_line_user,das.lms.analytics.course.line usuario,model_das_lms_analytics_course_line,base.group_user,1,1,1,1
