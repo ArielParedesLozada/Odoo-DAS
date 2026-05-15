@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tarjetas de curso (/slides, /slides/all, etc.): duración visible = carga horaria DAS si existe -->
+    <template id="course_card_das_lms_duration" inherit_id="website_slides.course_card" name="DAS LMS: carga horaria en tarjeta de curso">
+        <xpath expr="//div[hasclass('card-footer', 'bg-white', 'text-600')]//small[@t-esc='channel.total_time']" position="replace">
+            <small t-if="(channel.das_total_hours or 0) > 0" class="fw-bold o_das_lms_course_card_hours text-start">
+                <span class="o_das_lms_hours_label d-block text-muted">Carga horaria</span>
+                <span class="o_das_lms_hours_value" t-esc="'%g h' % channel.das_total_hours"/>
+            </small>
+            <small t-elif="channel.total_time" class="fw-bold text-start">
+                <span class="o_das_lms_hours_label d-block text-muted">Duración (contenidos)</span>
+                <span class="o_das_lms_hours_value" t-esc="channel.total_time" t-options="{'widget': 'duration', 'unit': 'hour', 'round': 'minute'}"/>
+            </small>
+        </xpath>
+    </template>
+
+    <!-- Sidebar del curso: tiempo de finalización → carga horaria académica DAS -->
+    <template id="course_sidebar_das_lms_duration" inherit_id="website_slides.course_sidebar" name="DAS LMS: sidebar carga horaria académica">
+        <xpath expr="//tr[@t-if='channel.total_time']" position="replace">
+            <tr t-if="(channel.das_total_hours or 0) > 0">
+                <th class="border-top-0">Carga horaria académica</th>
+                <td class="border-top-0">
+                    <div class="fw-bold o_das_lms_sidebar_hours-total">
+                        <span t-esc="'%g h' % channel.das_total_hours"/>
+                        <span class="text-muted small fw-normal"> total</span>
+                    </div>
+                    <div t-if="(channel.das_autonomous_hours or 0) > 0" class="small text-muted mb-0">
+                        Autónomas: <span t-esc="'%g' % channel.das_autonomous_hours"/> h
+                    </div>
+                    <div t-if="(channel.das_teacher_contact_hours or 0) > 0" class="small text-muted mb-0">
+                        Con docente: <span t-esc="'%g' % channel.das_teacher_contact_hours"/> h
+                    </div>
+                </td>
+            </tr>
+            <tr t-if="(channel.das_total_hours or 0) &lt;= 0 and channel.total_time">
+                <th class="border-top-0">Tiempo de finalización</th>
+                <td class="border-top-0">
+                    <t class="fw-bold" t-esc="channel.total_time" t-options="{'widget': 'duration', 'unit': 'hour', 'round': 'minute'}"/>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+</odoo>

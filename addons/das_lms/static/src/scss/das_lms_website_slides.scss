@@ -30,3 +30,24 @@ body.o_wslides_body .container.o_wslides_home_main {
     color: #64748b;
     margin-bottom: 0.15rem;
 }
+
+/* Tarjetas de curso: etiqueta de horas alineada con bloque académico DAS */
+body.o_wslides_body .o_wslides_course_card .o_das_lms_course_card_hours .o_das_lms_hours_label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.1rem;
+}
+
+body.o_wslides_body .o_wslides_course_card .o_das_lms_course_card_hours .o_das_lms_hours_value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+body.o_wslides_body .o_wslides_course_sidebar .o_das_lms_sidebar_hours-total {
+    font-size: 1rem;
+    color: #0f172a;
+}
