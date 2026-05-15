@@ -2,7 +2,7 @@
 {
     'name': 'DAS LMS - Inscripciones',
     'summary': 'Seguimiento y estadísticas de inscripciones eLearning (slide.channel.partner)',
-    'version': '18.0.3.5.0',
+    'version': '18.0.3.6.1',
     'category': 'Website/eLearning',
     'author': 'DAS',
     'license': 'LGPL-3',

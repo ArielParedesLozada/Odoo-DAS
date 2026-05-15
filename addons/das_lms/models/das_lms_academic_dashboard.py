@@ -88,15 +88,19 @@ class DasLmsAcademicDashboard(models.TransientModel):
         self.ensure_one()
         parts = ['<div class="o_das_lms_charts_root">']
 
-        # --- Donut / distribución engagement (mismos contadores que el panel) ---
+        # --- Fila 1: donut (izq.) + barras horizontales top inscritos (der.) ---
+        parts.append('<div class="o_das_lms_charts_top">')
+
+        # Donut — misma fuente numérica que los KPI (solo presentación).
         s_sin = int(self.count_sin_iniciar or 0)
         s_prog = int(self.count_en_progreso or 0)
         s_done = int(self.count_completados or 0)
         s_ina = int(self.count_inactivos or 0)
         total_eng = s_sin + s_prog + s_done + s_ina
-        parts.append('<div class="o_das_lms_chart-block"><h6 class="o_das_lms_chart-title">Distribución por engagement</h6>')
+        parts.append('<div class="o_das_lms_chart-block o_das_lms_chart-block--donut">')
+        parts.append('<h6 class="o_das_lms_chart-title">Distribución académica</h6>')
         if total_eng <= 0:
-            parts.append('<p class="text-muted small mb-0">Sin datos de engagement para graficar.</p></div>')
+            parts.append('<p class="text-muted small mb-0">Sin datos de engagement.</p>')
         else:
             spec = [
                 (s_sin, '#64748b', _('Sin iniciar')),
@@ -121,20 +125,22 @@ class DasLmsAcademicDashboard(models.TransientModel):
             )
             parts.append(
                 '<div class="o_das_lms_donut-wrap"><div class="o_das_lms_donut" style="background:%s"></div>'
-                '<div class="o_das_lms_donut-legend">%s</div></div></div>' % (grad, legend)
+                '<div class="o_das_lms_donut-legend">%s</div></div>' % (grad, legend)
             )
+        parts.append('</div>')
 
-        # --- Barras: inscritos por curso (top 10) ---
+        # Barras horizontales — top cursos por volumen de inscritos.
         lines = self.line_ids.sorted(lambda l: -l.total_enrolled)[:10]
-        parts.append('<div class="o_das_lms_chart-block"><h6 class="o_das_lms_chart-title">Inscritos por curso (principal)</h6>')
+        parts.append('<div class="o_das_lms_chart-block o_das_lms_chart-block--hbars">')
+        parts.append('<h6 class="o_das_lms_chart-title">Top cursos por inscritos</h6>')
         if not lines:
-            parts.append('<p class="text-muted small mb-0">Sin líneas de resumen por curso.</p></div>')
+            parts.append('<p class="text-muted small mb-0">Sin resumen por curso.</p>')
         else:
             mx = max(lines.mapped('total_enrolled')) or 1
             for line in lines:
                 raw = line.course_id.display_name or ''
                 name_esc = escape(raw)
-                short = escape(raw[:44] + ('…' if len(raw) > 44 else ''))
+                short = escape(raw[:48] + ('…' if len(raw) > 48 else ''))
                 n = int(line.total_enrolled or 0)
                 pct = min(100.0, 100.0 * n / mx)
                 parts.append(
@@ -142,38 +148,35 @@ class DasLmsAcademicDashboard(models.TransientModel):
                     '<div class="o_das_lms_bar-track"><div class="o_das_lms_bar-fill" style="width:%.1f%%"></div></div>'
                     '<div class="o_das_lms_bar-val">%s</div></div>' % (name_esc, short, pct, n)
                 )
+        parts.append('</div>')
+
+        parts.append('</div>')  # charts_top
+
+        # --- Fila 2 ancho completo: barras verticales = avance medio por curso ---
+        vlines = self.line_ids.sorted(lambda l: -int(l.avg_progress_int or 0))[:12]
+        parts.append('<div class="o_das_lms_chart-block o_das_lms_chart-block--vchart">')
+        parts.append('<h6 class="o_das_lms_chart-title">Avance medio por curso</h6>')
+        if not vlines:
+            parts.append('<p class="text-muted small mb-0">Sin datos.</p>')
+        else:
+            vmax = max(int(l.avg_progress_int or 0) for l in vlines) or 1
+            parts.append('<div class="o_das_lms_vchart">')
+            for line in vlines:
+                raw = line.course_id.display_name or ''
+                title_esc = escape(raw)
+                pct = min(100.0, 100.0 * int(line.avg_progress_int or 0) / vmax)
+                h = max(6.0, pct)
+                short = escape((raw[:14] + ('…' if len(raw) > 14 else '')) or '—')
+                val = int(line.avg_progress_int or 0)
+                parts.append(
+                    '<div class="o_das_lms_vcol" title="%s — %s %%">'
+                    '<div class="o_das_lms_vbar-wrap"><div class="o_das_lms_vbar" style="height:%.1f%%"></div></div>'
+                    '<span class="o_das_lms_vval">%s%%</span>'
+                    '<span class="o_das_lms_vlbl">%s</span></div>'
+                    % (title_esc, val, h, val, short)
+                )
             parts.append('</div>')
-
-        # --- “Línea”: avance medio por curso (comparativa visual) ---
-        lines2 = self.line_ids.sorted(lambda l: l.course_id.name or '')[:12]
-        parts.append('<div class="o_das_lms_chart-block"><h6 class="o_das_lms_chart-title">Avance medio por curso (comparativa)</h6>')
-        if not lines2:
-            parts.append('<p class="text-muted small mb-0">Sin datos.</p></div>')
-        else:
-            parts.append('<div class="o_das_lms_spark-row">')
-            for line in lines2:
-                h = max(4, int(line.avg_progress_int or 0))
-                nm = escape((line.course_id.name or '')[:10])
-                parts.append(
-                    '<div class="o_das_lms_spark-cell" title="%s"><div class="o_das_lms_spark-bar" style="height:%spx"></div>'
-                    '<span class="o_das_lms_spark-lbl">%s</span></div>'
-                    % (escape(line.course_id.display_name or ''), h, nm)
-                )
-            parts.append('</div></div>')
-
-        # --- Ranking compacto ---
-        top5 = self.line_ids.sorted(lambda l: -l.total_enrolled)[:5]
-        parts.append('<div class="o_das_lms_chart-block"><h6 class="o_das_lms_chart-title">Cursos con más estudiantes</h6>')
-        if not top5:
-            parts.append('<p class="text-muted small mb-0">—</p></div>')
-        else:
-            parts.append('<ol class="o_das_lms_rank_list">')
-            for line in top5:
-                parts.append(
-                    '<li><span class="o_das_lms_rank-name">%s</span><span class="o_das_lms_rank-n">%s</span></li>'
-                    % (escape(line.course_id.display_name or ''), int(line.total_enrolled or 0))
-                )
-            parts.append('</ol></div>')
+        parts.append('</div>')
 
         parts.append('</div>')
         return Markup(''.join(parts))
@@ -194,13 +197,6 @@ class DasLmsAcademicDashboard(models.TransientModel):
         )
         last_act = last_act_rec.last_activity_at if last_act_rec else False
 
-        eng_labels = {
-            'sin_iniciar': _('Sin iniciar'),
-            'en_progreso': _('En progreso'),
-            'completado': _('Completado'),
-            'inactivo': _('Inactivo'),
-        }
-
         parts.append('<div class="o_das_lms_activity-meta">')
         if last_sync:
             parts.append(
@@ -214,33 +210,37 @@ class DasLmsAcademicDashboard(models.TransientModel):
             )
         parts.append('</div>')
 
-        recent = Enrollment.search([], order='create_date desc', limit=6)
-        parts.append('<h6 class="o_das_lms_chart-title mt-3">Últimas inscripciones / movimientos</h6><ul class="o_das_lms_timeline">')
+        recent = Enrollment.search([], order='create_date desc', limit=4)
+        parts.append('<div class="o_das_lms_activity-split">')
+        parts.append('<div class="o_das_lms_activity-split__col">')
+        parts.append('<h6 class="o_das_lms_activity-h">Nuevas inscripciones</h6>')
+        parts.append('<ul class="o_das_lms_timeline">')
         if not recent:
-            parts.append('<li class="text-muted">No hay registros de inscripción.</li>')
+            parts.append('<li class="text-muted">Sin registros recientes.</li>')
         else:
             for e in recent:
                 st = escape(e.student_id.display_name or '')
                 cr = escape(e.course_id.display_name or '')
-                dt = e.write_date or e.create_date
+                dt = e.create_date
                 dts = escape(fields.Datetime.to_string(dt) if dt else '')
-                badge = escape(str(eng_labels.get(e.engagement_status, e.engagement_status or '')))
                 parts.append(
                     '<li><span class="o_das_lms_tl-dot"></span><div class="o_das_lms_tl-body">'
-                    '<div class="o_das_lms_tl-title">%s <span class="badge rounded-pill o_das_lms_tl-badge">%s</span></div>'
+                    '<div class="o_das_lms_tl-title">%s</div>'
                     '<div class="o_das_lms_tl-sub">%s</div><div class="o_das_lms_tl-date">%s</div></div></li>'
-                    % (st, badge, cr, dts)
+                    % (st, cr, dts)
                 )
-        parts.append('</ul>')
+        parts.append('</ul></div>')
 
         done = Enrollment.search(
             [('engagement_status', '=', 'completado')],
             order='write_date desc',
-            limit=4,
+            limit=3,
         )
-        parts.append('<h6 class="o_das_lms_chart-title mt-3">Últimos avances a «completado»</h6><ul class="o_das_lms_timeline o_das_lms_timeline--compact">')
+        parts.append('<div class="o_das_lms_activity-split__col">')
+        parts.append('<h6 class="o_das_lms_activity-h">Finalizaciones recientes</h6>')
+        parts.append('<ul class="o_das_lms_timeline o_das_lms_timeline--compact">')
         if not done:
-            parts.append('<li class="text-muted">Sin registros recientes.</li>')
+            parts.append('<li class="text-muted">Sin finalizaciones recientes.</li>')
         else:
             for e in done:
                 st = escape(e.student_id.display_name or '')
@@ -251,7 +251,7 @@ class DasLmsAcademicDashboard(models.TransientModel):
                     '<div class="o_das_lms_tl-title">%s</div><div class="o_das_lms_tl-sub">%s</div><div class="o_das_lms_tl-date">%s</div></div></li>'
                     % (st, cr, dts)
                 )
-        parts.append('</ul></div>')
+        parts.append('</ul></div></div></div>')
         return Markup(''.join(parts))
 
     @api.model
@@ -357,8 +357,10 @@ class DasLmsAcademicDashboard(models.TransientModel):
                 'severity': 'info',
             }))
 
-        if len(alert_commands) > 10:
-            alert_commands = alert_commands[:10]
+        _sev_rank = {'danger': 0, 'warning': 1, 'info': 2, 'success': 3}
+        alert_commands.sort(key=lambda cmd: _sev_rank.get(cmd[2].get('severity'), 9))
+        if len(alert_commands) > 5:
+            alert_commands = alert_commands[:5]
 
         if not alert_commands:
             alert_commands.append((0, 0, {
