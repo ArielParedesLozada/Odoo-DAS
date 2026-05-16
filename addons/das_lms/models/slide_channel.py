@@ -18,6 +18,7 @@ class SlideChannel(models.Model):
         'course_id',
         string='Seguimiento DAS LMS',
         readonly=True,
+        domain=[('is_das_student', '=', True)],
     )
 
     das_start_date = fields.Date(

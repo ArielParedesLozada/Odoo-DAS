@@ -38,6 +38,7 @@
                         nolabel="1"
                         colspan="4"
                         mode="list"
+                        domain="[('is_das_student', '=', True)]"
                     >
                         <list create="false" delete="false" edit="false">
                             <field name="student_id" string="Alumno"/>

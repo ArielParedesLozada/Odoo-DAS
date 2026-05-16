@@ -178,11 +178,13 @@ class DasLmsAcademicDashboard(models.TransientModel):
         Enrollment = self.env['course.enrollment'].sudo()
         parts = ['<div class="o_das_lms_activity_root">']
 
-        last_sync_rec = Enrollment.search([('last_sync_at', '!=', False)], order='last_sync_at desc', limit=1)
+        last_sync_rec = Enrollment._das_lms_search_students(
+            [('last_sync_at', '!=', False)], order='last_sync_at desc', limit=1,
+        )
         last_sync = last_sync_rec.last_sync_at if last_sync_rec else False
         # last_activity_at no está almacenado: no puede usarse en domain/order de search().
         # last_activity_date sí (store=True), coherente con la misma lógica de cómputo.
-        last_act_rec = Enrollment.search(
+        last_act_rec = Enrollment._das_lms_search_students(
             [('last_activity_date', '!=', False)],
             order='last_activity_date desc',
             limit=1,
@@ -202,7 +204,7 @@ class DasLmsAcademicDashboard(models.TransientModel):
             )
         parts.append('</div>')
 
-        recent = Enrollment.search([], order='create_date desc', limit=4)
+        recent = Enrollment._das_lms_search_students([], order='create_date desc', limit=4)
         parts.append('<div class="o_das_lms_activity-split">')
         parts.append('<div class="o_das_lms_activity-split__col">')
         parts.append('<h6 class="o_das_lms_activity-h">Nuevas inscripciones</h6>')
@@ -223,7 +225,7 @@ class DasLmsAcademicDashboard(models.TransientModel):
                 )
         parts.append('</ul></div>')
 
-        done = Enrollment.search(
+        done = Enrollment._das_lms_search_students(
             [('engagement_status', '=', 'completado')],
             order='write_date desc',
             limit=3,
@@ -250,7 +252,7 @@ class DasLmsAcademicDashboard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         Enrollment = self.env['course.enrollment'].sudo()
-        all_rec = Enrollment.search([])
+        all_rec = Enrollment._das_lms_search_students([])
         now = fields.Datetime.now()
         stale_limit = now - timedelta(days=30)
 

@@ -91,6 +91,7 @@
         <field name="model">course.enrollment</field>
         <field name="arch" type="xml">
             <search>
+                <field name="is_das_student" invisible="1"/>
                 <field name="student_id" string="Alumno"/>
                 <field name="student_email" string="Correo"/>
                 <field name="course_id" string="Curso"/>
@@ -98,6 +99,7 @@
                 <field name="status"/>
                 <field name="engagement_status"/>
                 <separator/>
+                <filter name="filter_das_students" string="Solo alumnos" domain="[('is_das_student', '=', True)]" invisible="1"/>
                 <filter name="filter_sin_iniciar" string="Sin iniciar" domain="[('engagement_status', '=', 'sin_iniciar')]"/>
                 <filter name="filter_en_progreso" string="En progreso" domain="[('engagement_status', '=', 'en_progreso')]"/>
                 <filter name="filter_completados" string="Completados" domain="[('engagement_status', '=', 'completado')]"/>
@@ -185,7 +187,8 @@
         <field name="name">Inscripciones</field>
         <field name="res_model">course.enrollment</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'create': False}</field>
+        <field name="domain">[('is_das_student', '=', True)]</field>
+        <field name="context">{'create': False, 'search_default_filter_das_students': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No hay registros de seguimiento.

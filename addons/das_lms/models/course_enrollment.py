@@ -150,11 +150,37 @@ class CourseEnrollment(models.Model):
         string='Observaciones internas',
     )
 
+    is_das_student = fields.Boolean(
+        string='Es alumno DAS',
+        compute='_compute_is_das_student',
+        store=True,
+        index=True,
+        help='Verdadero si el contacto no está vinculado a un usuario interno de Odoo.',
+    )
+
     course_website_url = fields.Char(
         related='course_id.website_url',
         string='Curso en web',
         readonly=True,
     )
+
+    @api.depends('student_id', 'student_id.user_ids', 'student_id.user_ids.share')
+    def _compute_is_das_student(self):
+        for rec in self:
+            partner = rec.student_id
+            rec.is_das_student = bool(
+                partner and partner._das_lms_is_academic_student_partner()
+            )
+
+    @api.model
+    def _das_lms_student_domain(self, domain=None):
+        """Dominio estándar DAS: solo inscripciones de alumnos reales."""
+        base = [('is_das_student', '=', True)]
+        return base + (domain or [])
+
+    @api.model
+    def _das_lms_search_students(self, domain=None, **kwargs):
+        return self.search(self._das_lms_student_domain(domain), **kwargs)
 
     @api.depends('student_id.phone', 'student_id.mobile')
     def _compute_student_phone(self):
@@ -279,6 +305,13 @@ class CourseEnrollment(models.Model):
                       'Sincronice desde el Dashboard DAS LMS (Actualizar datos) o espere a que exista slide.channel.partner.')
                 )
             scp = self.env['slide.channel.partner'].browse(vals['channel_partner_id'])
+            partner = scp.partner_id
+            if partner and not partner._das_lms_is_academic_student_partner():
+                raise UserError(
+                    _('El contacto «%s» no es un alumno (usuario interno). '
+                      'No se crea seguimiento DAS para instructores ni personal administrativo.')
+                    % partner.display_name
+                )
             ch = scp.channel_id
             vals.setdefault('modality', (ch.das_modality or 'grabado') if ch else 'grabado')
             vals.setdefault('status', self._status_from_channel_partner(scp))
@@ -305,15 +338,27 @@ class CourseEnrollment(models.Model):
             )
 
     @api.model
+    def _das_lms_prune_non_student_enrollments(self):
+        """Elimina espejos DAS de miembros no alumnos (no toca slide.channel.partner)."""
+        stale = self.sudo().search([('is_das_student', '=', False)])
+        if stale:
+            stale.unlink()
+
+    @api.model
     def action_sync_from_elearning(self):
-        """Crea o actualiza course.enrollment a partir de todos los slide.channel.partner."""
+        """Crea o actualiza course.enrollment a partir de slide.channel.partner (solo alumnos)."""
         self._das_lms_require_sync_admin()
         SlideChannelPartner = self.env['slide.channel.partner'].sudo()
         now = fields.Datetime.now()
         created = 0
         updated = 0
         for scp in SlideChannelPartner.search([]):
-            existing = self.search([('channel_partner_id', '=', scp.id)], limit=1)
+            partner = scp.partner_id
+            existing = self.sudo().search([('channel_partner_id', '=', scp.id)], limit=1)
+            if partner and not partner._das_lms_is_academic_student_partner():
+                if existing:
+                    existing.unlink()
+                continue
             if existing:
                 existing._sync_fields_from_channel_partner()
                 existing.write({'last_sync_at': now})
@@ -321,6 +366,8 @@ class CourseEnrollment(models.Model):
             else:
                 self.create(self._prepare_vals_from_channel_partner(scp))
                 created += 1
+
+        self._das_lms_prune_non_student_enrollments()
 
         list_action = self.env['ir.actions.actions']._for_xml_id('das_lms.action_course_enrollment')
         return {

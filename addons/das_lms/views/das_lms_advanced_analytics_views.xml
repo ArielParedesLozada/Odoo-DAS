@@ -84,7 +84,8 @@
         <field name="res_model">course.enrollment</field>
         <field name="view_mode">list,pivot,graph</field>
         <field name="search_view_id" ref="view_course_enrollment_search"/>
-        <field name="context">{'create': False, 'edit': False}</field>
+        <field name="domain">[('is_das_student', '=', True)]</field>
+        <field name="context">{'create': False, 'edit': False, 'search_default_filter_das_students': 1}</field>
         <field name="help" type="html">
             <div class="o_das_lms_analytics_intro o_das_lms_analytics_intro--compact">
                 <p class="o_das_lms_analytics_intro__text mb-1">

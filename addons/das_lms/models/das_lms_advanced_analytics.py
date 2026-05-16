@@ -40,7 +40,7 @@ class DasLmsAdvancedAnalytics(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         Enrollment = self.env['course.enrollment'].sudo()
-        all_rec = Enrollment.search([])
+        all_rec = Enrollment._das_lms_search_students([])
 
         res['name'] = _('Análisis avanzado')
         res['header_date_display'] = fields.Date.context_today(self).strftime('%d/%m/%Y')

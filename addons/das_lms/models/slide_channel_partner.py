@@ -37,6 +37,10 @@ class SlideChannelPartner(models.Model):
             if not scp.partner_id or not scp.channel_id:
                 continue
             existing = Enrollment.search([('channel_partner_id', '=', scp.id)], limit=1)
+            if not scp.partner_id._das_lms_is_academic_student_partner():
+                if existing:
+                    existing.unlink()
+                continue
             if existing:
                 existing._sync_fields_from_channel_partner()
             else:
