@@ -33,8 +33,9 @@ class TestDasLmsSaleCart(TransactionCase):
         self.assertTrue(tmpl._das_lms_user_is_enrolled(partner=portal.partner_id))
         so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
         empty_line = self.env['sale.order.line']
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as cm:
             so._verify_updated_quantity(empty_line, variant.id, 1)
+        self.assertIn('Canal LMS cart', cm.exception.args[0])
 
     def test_cart_blocks_finished_course_new_user(self):
         from odoo.tests.common import new_test_user
@@ -60,8 +61,9 @@ class TestDasLmsSaleCart(TransactionCase):
         })
         self.assertFalse(tmpl._das_lms_user_is_enrolled(partner=portal.partner_id))
         so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
-        with self.assertRaises(UserError):
+        with self.assertRaises(UserError) as cm:
             so._verify_updated_quantity(self.env['sale.order.line'], variant.id, 1)
+        self.assertIn('Canal fin LMS', cm.exception.args[0])
 
     def test_explicit_channel_must_match_product_variants(self):
         tmpl = self.env['product.template'].create({'name': 'Plantilla A', 'sale_ok': True})
@@ -102,3 +104,94 @@ class TestDasLmsSaleCart(TransactionCase):
         self.assertEqual(len(so.order_line), 1)
         so.write({'partner_id': portal.partner_id.id})
         self.assertFalse(so.order_line)
+
+    def test_order_allows_two_distinct_lms_courses(self):
+        """Varios cursos distintos x1 en el mismo pedido."""
+        from odoo.tests.common import new_test_user
+
+        portal = new_test_user(
+            self.env,
+            'lms_cart_two_courses',
+            email='lms_cart_two_courses@test.example.com',
+            groups='base.group_portal',
+        )
+        tmpl_a = self.env['product.template'].create({
+            'name': 'Curso A multi',
+            'list_price': 10.0,
+            'sale_ok': True,
+        })
+        tmpl_b = self.env['product.template'].create({
+            'name': 'Curso B multi',
+            'list_price': 20.0,
+            'sale_ok': True,
+        })
+        va = tmpl_a.product_variant_ids[:1]
+        vb = tmpl_b.product_variant_ids[:1]
+        self.env['slide.channel'].create({'name': 'Canal A multi', 'product_id': va.id})
+        self.env['slide.channel'].create({'name': 'Canal B multi', 'product_id': vb.id})
+        so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
+        self.env['sale.order.line'].create({
+            'order_id': so.id,
+            'product_id': va.id,
+            'product_uom_qty': 1,
+        })
+        self.env['sale.order.line'].create({
+            'order_id': so.id,
+            'product_id': vb.id,
+            'product_uom_qty': 1,
+        })
+        self.assertEqual(len(so.order_line), 2)
+
+    def test_order_blocks_quantity_two_same_course(self):
+        from odoo.tests.common import new_test_user
+
+        portal = new_test_user(
+            self.env,
+            'lms_cart_qty2',
+            email='lms_cart_qty2@test.example.com',
+            groups='base.group_portal',
+        )
+        tmpl = self.env['product.template'].create({
+            'name': 'Curso qty2 LMS',
+            'list_price': 10.0,
+            'sale_ok': True,
+        })
+        variant = tmpl.product_variant_ids[:1]
+        self.env['slide.channel'].create({'name': 'Canal qty2 LMS', 'product_id': variant.id})
+        so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
+        with self.assertRaises(UserError):
+            self.env['sale.order.line'].create({
+                'order_id': so.id,
+                'product_id': variant.id,
+                'product_uom_qty': 2,
+            })
+
+    def test_order_blocks_duplicate_line_same_course(self):
+        from odoo.tests.common import new_test_user
+
+        portal = new_test_user(
+            self.env,
+            'lms_cart_dup_line',
+            email='lms_cart_dup_line@test.example.com',
+            groups='base.group_portal',
+        )
+        tmpl = self.env['product.template'].create({
+            'name': 'Curso dup LMS',
+            'list_price': 10.0,
+            'sale_ok': True,
+        })
+        variant = tmpl.product_variant_ids[:1]
+        self.env['slide.channel'].create({'name': 'Canal dup LMS', 'product_id': variant.id})
+        so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
+        self.env['sale.order.line'].create({
+            'order_id': so.id,
+            'product_id': variant.id,
+            'product_uom_qty': 1,
+        })
+        with self.assertRaises(UserError) as cm:
+            self.env['sale.order.line'].create({
+                'order_id': so.id,
+                'product_id': variant.id,
+                'product_uom_qty': 1,
+            })
+        self.assertIn('Canal dup LMS', cm.exception.args[0])

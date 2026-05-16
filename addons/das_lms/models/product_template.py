@@ -163,20 +163,27 @@ class ProductTemplate(models.Model):
             )
             return True
 
-    def _das_lms_cart_validation_message(self, partner, new_qty=1):
-        """Mensaje de bloqueo carrito/checkout, o False si está permitido."""
+    def _das_lms_cart_validation_message(self, partner, new_qty=1, product_product=None):
+        """Mensaje de bloqueo carrito/checkout, o False si está permitido.
+
+        :param product_product: variante concreta (opcional) para resolver ``slide.channel``.
+        """
         self.ensure_one()
         try:
             if new_qty <= 0:
                 return False
-            channel = self._das_lms_get_related_channel()
-            if not channel or not partner:
+            channel = self._das_lms_get_related_channel(product_product=product_product)
+            if not channel:
+                return False
+            if new_qty > 1:
+                return _('Solo puedes comprar 1 unidad por cada curso.')
+            if not partner:
                 return False
             if channel._das_lms_user_is_enrolled(partner):
-                return _('Ya estás inscrito en este curso.')
+                return _('Ya estás inscrito en el curso «%s».') % channel.display_name
             status = channel.das_academic_status
             if status == 'finalizado':
-                return _('Este curso ya finalizó y no acepta nuevas inscripciones.')
+                return _('El curso «%s» ya finalizó y no acepta nuevas inscripciones.') % channel.display_name
             return False
         except Exception:
             _logger.exception(

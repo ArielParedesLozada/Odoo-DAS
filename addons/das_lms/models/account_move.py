@@ -181,6 +181,7 @@ class AccountMove(models.Model):
                 continue
             course_products = move._das_lms_get_invoice_course_products()
             channels_done = set()
+            enrollment_errors = []
             for product in course_products:
                 tmpl = product.product_tmpl_id.sudo()
                 channel = tmpl._das_lms_get_related_channel(product_product=product.sudo())
@@ -207,8 +208,24 @@ class AccountMove(models.Model):
                 )
                 try:
                     channel._das_lms_enroll_partner(partner)
-                except (UserError, ValidationError):
-                    raise
+                except UserError as err:
+                    enrollment_errors.append(err.args[0] if err.args else str(err))
+                    _logger.warning(
+                        'DAS LMS: UserError al inscribir partner=%s canal=%s factura=%s: %s',
+                        partner.id,
+                        channel.id,
+                        move.id,
+                        enrollment_errors[-1],
+                    )
+                except ValidationError as err:
+                    enrollment_errors.append(err.args[0] if err.args else str(err))
+                    _logger.warning(
+                        'DAS LMS: ValidationError al inscribir partner=%s canal=%s factura=%s: %s',
+                        partner.id,
+                        channel.id,
+                        move.id,
+                        enrollment_errors[-1],
+                    )
                 except Exception:
                     _logger.exception(
                         'DAS LMS: inscripción fallida partner=%s canal=%s factura=%s.',
@@ -216,6 +233,12 @@ class AccountMove(models.Model):
                         channel.id,
                         move.id,
                     )
+                    enrollment_errors.append(
+                        _('No se pudo completar la inscripción en el curso «%s».')
+                        % channel.display_name
+                    )
+            if enrollment_errors:
+                raise UserError('\n'.join(enrollment_errors))
 
     @api.model
     def das_lms_action_backfill_enrollments_from_posted_invoices(self):

@@ -24,16 +24,33 @@ class SaleOrder(models.Model):
         )
 
     def _das_lms_validate_course_cart_rules(self):
-        """Un solo curso por pedido y cantidad 1 (reemplaza automatización Studio archivada)."""
+        """Reglas LMS por línea: cantidad 1, sin repetir curso, sin recompra ni curso cerrado."""
         for order in self:
             if order.state not in ('draft', 'sent'):
                 continue
+            partner = order.partner_id
             lms_lines = order._das_lms_get_lms_sale_lines()
-            if len(lms_lines) > 1:
-                raise UserError(_('Solo puede incluir un curso por pedido.'))
+            seen_channel_ids = set()
             for line in lms_lines:
-                if line.product_uom_qty > 1:
-                    raise UserError(_('Solo puede comprar una unidad de este curso.'))
+                tmpl = line.product_id.product_tmpl_id
+                channel = tmpl._das_lms_get_related_channel(product_product=line.product_id)
+                if not channel:
+                    continue
+                qty = line.product_uom_qty or 0.0
+                if qty > 1:
+                    raise UserError(_('Solo puedes comprar 1 unidad por cada curso.'))
+                cid = channel.id
+                if cid in seen_channel_ids:
+                    raise UserError(_('El curso «%s» ya está agregado en el pedido.') % channel.display_name)
+                seen_channel_ids.add(cid)
+                if partner:
+                    msg = tmpl._das_lms_cart_validation_message(
+                        partner,
+                        new_qty=max(1, int(line.product_uom_qty or 1)),
+                        product_product=line.product_id,
+                    )
+                    if msg:
+                        raise UserError(msg)
 
     def write(self, vals):
         res = super().write(vals)
@@ -52,6 +69,7 @@ class SaleOrder(models.Model):
                     line.product_template_id._das_lms_cart_validation_message(
                         partner,
                         new_qty=max(1, int(line.product_uom_qty or 1)),
+                        product_product=line.product_id,
                     )
                 )
             )
@@ -76,7 +94,11 @@ class SaleOrder(models.Model):
                         partner = usr.partner_id
             except RuntimeError:
                 partner = False
-        msg = product.product_tmpl_id._das_lms_cart_validation_message(partner, new_qty=int(new_qty))
+        msg = product.product_tmpl_id._das_lms_cart_validation_message(
+            partner,
+            new_qty=int(new_qty),
+            product_product=product,
+        )
         if msg:
             raise UserError(msg)
         self._das_lms_validate_course_cart_rules()
@@ -89,9 +111,12 @@ class SaleOrder(models.Model):
             if not partner:
                 continue
             for line in order.order_line:
+                if line.display_type or not line.product_id:
+                    continue
                 msg = line.product_template_id._das_lms_cart_validation_message(
                     partner,
                     new_qty=max(1, int(line.product_uom_qty or 1)),
+                    product_product=line.product_id,
                 )
                 if msg:
                     raise UserError(msg)

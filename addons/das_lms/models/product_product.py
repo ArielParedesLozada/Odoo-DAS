@@ -30,7 +30,7 @@ class ProductProduct(models.Model):
             partner = user.partner_id
             if not partner:
                 return res
-            msg = tmpl._das_lms_cart_validation_message(partner, new_qty=1)
+            msg = tmpl._das_lms_cart_validation_message(partner, new_qty=1, product_product=self)
             return not bool(msg)
         except Exception:
             _logger.exception(
