@@ -159,10 +159,19 @@ class CourseEnrollment(models.Model):
     )
 
     course_website_url = fields.Char(
-        related='course_id.website_url',
         string='Curso en web',
+        compute='_compute_course_website_url',
         readonly=True,
+        help='Ruta pública del curso (/slides/...). Evita dominios absolutos obsoletos de web.base.url.',
     )
+
+    @api.depends('course_id', 'course_id.website_url')
+    def _compute_course_website_url(self):
+        for rec in self:
+            channel = rec.course_id
+            rec.course_website_url = (
+                channel.sudo()._das_lms_public_course_href() if channel else False
+            )
 
     @api.depends('student_id', 'student_id.user_ids', 'student_id.user_ids.share')
     def _compute_is_das_student(self):

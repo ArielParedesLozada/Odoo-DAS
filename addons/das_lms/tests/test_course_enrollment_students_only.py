@@ -60,6 +60,21 @@ class TestCourseEnrollmentStudentsOnly(TransactionCase):
         self.assertEqual(len(student_rows), 1)
         self.assertTrue(student_rows.is_das_student)
 
+    def test_course_website_url_uses_relative_path(self):
+        channel = self.env['slide.channel'].create({
+            'name': 'Curso URL',
+            'website_url': 'http://forward-funeral-functional-percent.trycloudflare.com/slides/legacy-slug',
+        })
+        scp = self.env['slide.channel.partner'].create({
+            'channel_id': channel.id,
+            'partner_id': self.student_partner.id,
+        })
+        enrollment = self.env['course.enrollment'].search([
+            ('channel_partner_id', '=', scp.id),
+        ], limit=1)
+        self.assertTrue(enrollment.course_website_url.startswith('/slides/'))
+        self.assertNotIn('trycloudflare', enrollment.course_website_url or '')
+
     def test_dashboard_ignores_instructor_members(self):
         self.env['slide.channel.partner'].create({
             'channel_id': self.channel.id,
