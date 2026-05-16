@@ -11,6 +11,10 @@ from odoo.http import request
 class DasLmsWebsiteSlides(WebsiteSaleSlides):
     """Restringe eLearning en web para portal: solo cursos con slide.channel.partner activo."""
 
+    def _das_lms_portal_can_open_lessons(self, channel):
+        """Lecciones y contenidos: inscrito + calendario académico DAS (bloqueo antes del inicio)."""
+        return request.env['slide.channel']._das_lms_portal_can_access_course_lessons(channel)
+
     def _das_lms_restrict_portal_elearning(self):
         user = request.env.user
         if user._is_public():
@@ -201,7 +205,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if (
             self._das_lms_restrict_portal_elearning()
             and slide.channel_id
-            and not self._das_lms_portal_can_study(slide.channel_id)
+            and not self._das_lms_portal_can_open_lessons(slide.channel_id)
         ):
             return self._das_lms_portal_course_access_response(slide.channel_id)
         return super().slide_view(slide, **kwargs)
@@ -218,7 +222,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if (
             self._das_lms_restrict_portal_elearning()
             and slide.channel_id
-            and not self._das_lms_portal_can_study(slide.channel_id)
+            and not self._das_lms_portal_can_open_lessons(slide.channel_id)
         ):
             return werkzeug.exceptions.Forbidden()
         return super().slide_get_pdf_content(slide)
@@ -227,7 +231,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slide_shared_view(self, slide_id, **kwargs):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].sudo().browse(int(slide_id)).exists()
-            if slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return self._das_lms_portal_course_access_response(slide.channel_id)
         return super().slide_shared_view(slide_id, **kwargs)
 
@@ -235,7 +239,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slide_get_image(self, slide_id, field='image_128', width=0, height=0, crop=False):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].search([('id', '=', int(slide_id))], limit=1)
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return werkzeug.exceptions.Forbidden()
         return super().slide_get_image(slide_id, field=field, width=width, height=height, crop=crop)
 
@@ -243,8 +247,13 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def get_html_content(self, slide_id):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].browse(int(slide_id)).exists()
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
-                return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
+                ch = slide.channel_id.sudo()
+                msg = _('No estás inscrito en este curso.')
+                if self._das_lms_portal_can_study(ch) and ch.das_academic_status == 'proximo' and ch.das_start_date:
+                    ds = ch.das_start_date.strftime('%d/%m/%Y')
+                    msg = _('Este curso inicia el %s. El contenido estará disponible desde esa fecha.') % ds
+                return {'error': 'slide_access', 'error_message': msg}
         return super().get_html_content(slide_id)
 
     @http.route(
@@ -258,7 +267,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if (
             self._das_lms_restrict_portal_elearning()
             and slide.channel_id
-            and not self._das_lms_portal_can_study(slide.channel_id)
+            and not self._das_lms_portal_can_open_lessons(slide.channel_id)
         ):
             return self._das_lms_portal_course_access_response(slide.channel_id)
         return super().slide_set_completed_and_redirect(slide, next_slide_id=next_slide_id)
@@ -267,7 +276,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slide_set_completed(self, slide_id):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].browse(int(slide_id)).exists()
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
         return super().slide_set_completed(slide_id)
 
@@ -282,7 +291,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if (
             self._das_lms_restrict_portal_elearning()
             and slide.channel_id
-            and not self._das_lms_portal_can_study(slide.channel_id)
+            and not self._das_lms_portal_can_open_lessons(slide.channel_id)
         ):
             return self._das_lms_portal_course_access_response(slide.channel_id)
         return super().slide_set_uncompleted_and_redirect(slide)
@@ -291,7 +300,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slide_set_uncompleted(self, slide_id):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].browse(int(slide_id)).exists()
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
         return super().slide_set_uncompleted(slide_id)
 
@@ -300,7 +309,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if self._das_lms_restrict_portal_elearning():
             fetch_res = self._fetch_slide(slide_id)
             slide = fetch_res.get('slide')
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
         return super().slide_quiz_get(slide_id)
 
@@ -309,7 +318,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if self._das_lms_restrict_portal_elearning():
             fetch_res = self._fetch_slide(slide_id)
             slide = fetch_res.get('slide')
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
         return super().slide_quiz_reset(slide_id)
 
@@ -318,7 +327,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         if self._das_lms_restrict_portal_elearning():
             fetch_res = self._fetch_slide(slide_id)
             slide = fetch_res.get('slide')
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return {'error': 'slide_access', 'error_message': _('No estás inscrito en este curso.')}
         return super().slide_quiz_submit(slide_id, answer_ids)
 
@@ -326,7 +335,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slides_embed(self, slide_id, page='1', **kw):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].browse(int(slide_id)).exists()
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return request.render('website_slides.embed_slide_forbidden', {})
         return super().slides_embed(slide_id, page=page, **kw)
 
@@ -334,7 +343,7 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def slides_embed_external(self, slide_id, page='1', **kw):
         if self._das_lms_restrict_portal_elearning():
             slide = request.env['slide.slide'].browse(int(slide_id)).exists()
-            if slide and slide.channel_id and not self._das_lms_portal_can_study(slide.channel_id):
+            if slide and slide.channel_id and not self._das_lms_portal_can_open_lessons(slide.channel_id):
                 return request.render('website_slides.embed_slide_forbidden', {})
         return super().slides_embed_external(slide_id, page=page, **kw)
 

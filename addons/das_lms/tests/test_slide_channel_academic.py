@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo.exceptions import ValidationError
+from odoo import fields
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
@@ -46,3 +47,59 @@ class TestDasLmsSlideChannelAcademic(TransactionCase):
         ], limit=1)
         self.assertTrue(enrollment)
         self.assertEqual(enrollment.modality, 'mixto')
+
+    def test_das_academic_status_proximo_and_can_study(self):
+        today = fields.Date.context_today(self.env.user)
+        ch = self.env['slide.channel'].create({
+            'name': 'Curso próximo',
+            'das_start_date': fields.Date.add(today, days=5),
+            'das_end_date': fields.Date.add(today, days=60),
+        })
+        self.assertEqual(ch.das_academic_status, 'proximo')
+        self.assertTrue(ch.das_can_sell)
+        self.assertFalse(ch.das_can_study)
+
+    def test_das_academic_status_finalizado_blocks_new_member(self):
+        today = fields.Date.context_today(self.env.user)
+        ch = self.env['slide.channel'].create({
+            'name': 'Curso fin',
+            'das_start_date': fields.Date.add(today, days=-120),
+            'das_end_date': fields.Date.add(today, days=-2),
+        })
+        self.assertEqual(ch.das_academic_status, 'finalizado')
+        self.assertFalse(ch.das_can_sell)
+        self.assertTrue(ch.das_can_study)
+        partner = self.env['res.partner'].create({'name': 'Nuevo alumno'})
+        with self.assertRaises(UserError):
+            self.env['slide.channel.partner'].create({
+                'channel_id': ch.id,
+                'partner_id': partner.id,
+            })
+
+    def test_portal_lesson_access_proximo_member_blocked(self):
+        from odoo.tests.common import new_test_user
+
+        today = fields.Date.context_today(self.env.user)
+        portal_user = new_test_user(
+            self.env,
+            'portal_proximo_user',
+            email='portal_proximo@test.example.com',
+            groups='base.group_portal',
+        )
+        ch = self.env['slide.channel'].create({
+            'name': 'Curso portal próximo',
+            'das_start_date': fields.Date.add(today, days=5),
+            'das_end_date': fields.Date.add(today, days=40),
+        })
+        self.env['slide.channel.partner'].create({
+            'channel_id': ch.id,
+            'partner_id': portal_user.partner_id.id,
+            'member_status': 'joined',
+        })
+        ch_portal = ch.with_user(portal_user)
+        self.assertTrue(
+            self.env['slide.channel']._das_lms_portal_can_study_channel(ch_portal),
+        )
+        self.assertFalse(
+            self.env['slide.channel']._das_lms_portal_can_access_course_lessons(ch_portal),
+        )

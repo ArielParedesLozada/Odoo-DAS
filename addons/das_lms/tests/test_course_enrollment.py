@@ -98,6 +98,9 @@ class TestDasLmsEnrollment(TransactionCase):
         dash = self.env['das.lms.academic.dashboard'].create({})
         self.assertGreaterEqual(dash.total_enrollments, 1)
         self.assertTrue(dash.line_ids)
+        self.assertGreaterEqual(dash.count_courses_proximo, 0)
+        self.assertGreaterEqual(dash.count_courses_en_curso, 0)
+        self.assertGreaterEqual(dash.count_courses_finalizado, 0)
 
     def test_advanced_analytics_panel(self):
         partner = self.env['res.partner'].create({'name': 'Ana Panel'})

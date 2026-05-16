@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class ProductTemplate(models.Model):
@@ -43,3 +43,22 @@ class ProductTemplate(models.Model):
         self.ensure_one()
         channel = self._das_lms_linked_slide_channel()
         return channel.website_url if channel else '#'
+
+    def _das_lms_course_sale_blocked(self):
+        """True si el curso vinculado está finalizado académicamente (no nuevas inscripciones)."""
+        self.ensure_one()
+        channel = self._das_lms_linked_slide_channel()
+        return bool(channel and channel.das_academic_status == 'finalizado')
+
+    def _das_lms_course_sale_notice_html(self):
+        """Texto informativo para la ficha del producto (venta / anticipo)."""
+        self.ensure_one()
+        channel = self._das_lms_linked_slide_channel()
+        if not channel:
+            return ''
+        if channel.das_academic_status == 'finalizado':
+            return _('Este curso ya finalizó y no acepta nuevas inscripciones.')
+        if channel.das_academic_status == 'proximo' and channel.das_start_date:
+            ds = channel.das_start_date.strftime('%d/%m/%Y')
+            return _('El curso inicia el %s. Puede inscribirse anticipadamente.') % ds
+        return ''

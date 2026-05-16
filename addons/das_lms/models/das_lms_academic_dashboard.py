@@ -31,6 +31,21 @@ class DasLmsAcademicDashboard(models.TransientModel):
         digits=(16, 1),
         readonly=True,
     )
+    count_courses_proximo = fields.Integer(
+        string='Cursos próximos',
+        readonly=True,
+        help='Cursos con inscritos cuyo ciclo académico DAS está «Próximo a iniciar».',
+    )
+    count_courses_en_curso = fields.Integer(
+        string='Cursos en curso',
+        readonly=True,
+        help='Cursos con inscritos en periodo lectivo activo según fechas DAS.',
+    )
+    count_courses_finalizado = fields.Integer(
+        string='Cursos finalizados',
+        readonly=True,
+        help='Cursos con inscritos cuyo ciclo académico DAS ya finalizó.',
+    )
 
     line_ids = fields.One2many(
         'das.lms.dashboard.course.line',
@@ -76,6 +91,9 @@ class DasLmsAcademicDashboard(models.TransientModel):
         'count_en_progreso',
         'count_completados',
         'count_inactivos',
+        'count_courses_proximo',
+        'count_courses_en_curso',
+        'count_courses_finalizado',
     )
     def _compute_dashboard_visuals(self):
         for rec in self:
@@ -252,6 +270,19 @@ class DasLmsAcademicDashboard(models.TransientModel):
             res['avg_progress_general'] = round(sum(all_rec.mapped('progress')) / len(all_rec), 1)
         else:
             res['avg_progress_general'] = 0.0
+
+        n_prox = n_cur = n_fin = 0
+        for c in courses:
+            st = c.das_academic_status
+            if st == 'proximo':
+                n_prox += 1
+            elif st == 'en_curso':
+                n_cur += 1
+            elif st == 'finalizado':
+                n_fin += 1
+        res['count_courses_proximo'] = n_prox
+        res['count_courses_en_curso'] = n_cur
+        res['count_courses_finalizado'] = n_fin
 
         line_commands = []
         line_dicts = []

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, models
+from odoo import _, api, models
+from odoo.exceptions import UserError
 
 
 class SlideChannelPartner(models.Model):
@@ -7,6 +8,16 @@ class SlideChannelPartner(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.context.get('das_lms_bypass_academic_close'):
+            for vals in vals_list:
+                cid = vals.get('channel_id')
+                if not cid:
+                    continue
+                channel = self.env['slide.channel'].browse(cid).exists()
+                if channel and channel.das_academic_status == 'finalizado':
+                    raise UserError(
+                        _('Este curso ya finalizó y no acepta nuevas inscripciones.')
+                    )
         records = super().create(vals_list)
         records._das_lms_sync_enrollment_mirror()
         return records

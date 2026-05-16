@@ -35,6 +35,18 @@
                                 <span class="o_das_lms_exec-pill__lbl">Activos</span>
                                 <span class="o_das_lms_exec-pill__val"><field name="active_students" readonly="1" nolabel="1"/></span>
                             </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">Próximos</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_proximo" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">En curso</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_en_curso" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">Finalizados</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_finalizado" readonly="1" nolabel="1"/></span>
+                            </div>
                         </div>
                     </div>
 

@@ -109,6 +109,15 @@ $o-das-card: #ffffff;
         color: #fff;
     }
 
+    .o_das_lms_exec-pill--cycle {
+        min-width: 5.25rem;
+        padding: 0.45rem 0.65rem;
+    }
+
+    .o_das_lms_exec-pill--cycle .o_das_lms_exec-pill__val {
+        font-size: 1rem;
+    }
+
     /* Section headings — minimal */
     .o_das_lms_section-heading {
         margin: 2.25rem 0 0.85rem;

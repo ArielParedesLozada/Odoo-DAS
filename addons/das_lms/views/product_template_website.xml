@@ -13,9 +13,23 @@
                     Acceder al curso
                 </a>
             </div>
+            <div
+                t-if="product._das_lms_course_sale_blocked()"
+                class="alert alert-warning border-0 shadow-sm mb-3 py-2 px-3 o_das_lms_product_academic_notice"
+                role="status"
+            >
+                <span t-out="product._das_lms_course_sale_notice_html()"/>
+            </div>
+            <div
+                t-if="not product._das_lms_course_sale_blocked() and product._das_lms_course_sale_notice_html()"
+                class="alert alert-info border-0 shadow-sm mb-3 py-2 px-3 o_das_lms_product_academic_notice"
+                role="status"
+            >
+                <span t-out="product._das_lms_course_sale_notice_html()"/>
+            </div>
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="attributes">
-            <attribute name="t-attf-class">{{'d-none' if combination_info['prevent_zero_price_sale'] or product._das_lms_is_enrolled_in_course() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
+            <attribute name="t-attf-class">{{'d-none' if combination_info['prevent_zero_price_sale'] or product._das_lms_is_enrolled_in_course() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
         </xpath>
     </template>
 </odoo>
