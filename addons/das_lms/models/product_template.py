@@ -385,4 +385,10 @@ class ProductTemplate(models.Model):
             hide = False
         data.setdefault('das_lms_hide_add_to_cart', hide)
         data['das_lms_hide_add_to_cart'] = hide
+
+        pp = product_or_template if getattr(product_or_template, '_name', None) == 'product.product' else None
+        try:
+            data['das_lms_course_qty_fixed'] = bool(self._das_lms_get_related_channel(product_product=pp))
+        except Exception:
+            data['das_lms_course_qty_fixed'] = False
         return data

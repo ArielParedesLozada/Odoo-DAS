@@ -6,6 +6,22 @@ from odoo.exceptions import UserError
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    def _cart_update(self, product_id, line_id=None, add_qty=0, set_qty=0, **kwargs):
+        """Propaga avisos del carrito (p. ej. cantidad LMS forzada a 1) a ``shop_warning`` en la página."""
+        res = super()._cart_update(
+            product_id=product_id,
+            line_id=line_id,
+            add_qty=add_qty,
+            set_qty=set_qty,
+            **kwargs,
+        )
+        warn = res.get('warning')
+        if warn:
+            prev = (self.shop_warning or '').strip()
+            merged = '\n'.join(x for x in (prev, warn) if x)
+            self.write({'shop_warning': merged})
+        return res
+
     def _action_confirm(self):
         """No inscribir en eLearning al confirmar (website_sale_slides); solo al validar factura."""
         return super(
@@ -77,12 +93,22 @@ class SaleOrder(models.Model):
                 bad.unlink()
 
     def _verify_updated_quantity(self, order_line, product_id, new_qty, **kwargs):
-        new_qty, warning = super()._verify_updated_quantity(order_line, product_id, new_qty, **kwargs)
-        if new_qty <= 0:
-            return new_qty, warning
+        """Cantidad LMS: forzar 1 en tienda con aviso amistoso (sin UserError por solo cantidad > 1)."""
         product = self.env['product.product'].browse(product_id).exists()
-        if not product:
+        qty_warning = ''
+        if product:
+            channel = product.product_tmpl_id._das_lms_get_related_channel(product_product=product)
+            if channel and int(new_qty) > 1:
+                new_qty = 1
+                qty_warning = _('Solo puedes comprar 1 unidad por cada curso.')
+
+        new_qty, warning = super()._verify_updated_quantity(order_line, product_id, new_qty, **kwargs)
+        if qty_warning:
+            warning = '\n'.join(x for x in (warning, qty_warning) if x)
+
+        if new_qty <= 0 or not product:
             return new_qty, warning
+
         partner = self.partner_id
         if not partner:
             try:
@@ -94,6 +120,7 @@ class SaleOrder(models.Model):
                         partner = usr.partner_id
             except RuntimeError:
                 partner = False
+
         msg = product.product_tmpl_id._das_lms_cart_validation_message(
             partner,
             new_qty=int(new_qty),

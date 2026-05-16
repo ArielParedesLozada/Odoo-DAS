@@ -66,7 +66,7 @@
     <!-- Cantidad: misma regla que carrito (website_sale.product_quantity inserta este bloque). -->
     <template id="product_quantity_das_lms_hide_enrolled" inherit_id="website_sale.product_quantity" priority="120">
         <xpath expr="//div[contains(@t-attf-class, 'css_quantity')]" position="attributes">
-            <attribute name="t-attf-class">css_quantity input-group {{'d-none' if combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} me-2 mb-2 align-middle</attribute>
+            <attribute name="t-attf-class">css_quantity input-group {{'d-none' if combination_info.get('prevent_zero_price_sale') or combination_info.get('das_lms_course_qty_fixed') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} me-2 mb-2 align-middle</attribute>
         </xpath>
     </template>
 </odoo>
