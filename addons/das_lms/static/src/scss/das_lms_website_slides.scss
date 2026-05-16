@@ -56,3 +56,16 @@ body.o_wslides_body .o_wslides_course_sidebar .o_das_lms_sidebar_hours-total {
     background: #94a3b8;
     color: #fff;
 }
+
+/* Tienda (/shop/product): si LMS marca la ficha, no mostrar compra aunque sale_variant_mixin fuerce clases Bootstrap. */
+section#product_detail[data-das-lms-hide-shop="1"] {
+    #add_to_cart_wrap,
+    .css_quantity,
+    .product_price {
+        display: none !important;
+    }
+
+    #add_to_cart {
+        pointer-events: none !important;
+    }
+}

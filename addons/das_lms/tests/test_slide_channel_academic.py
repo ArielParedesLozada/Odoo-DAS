@@ -103,3 +103,32 @@ class TestDasLmsSlideChannelAcademic(TransactionCase):
         self.assertFalse(
             self.env['slide.channel']._das_lms_portal_can_access_course_lessons(ch_portal),
         )
+
+    def test_product_shows_enrolled_when_slide_member(self):
+        """La tienda debe alinear la compra con is_member del canal, no con una búsqueda paralela."""
+        from odoo.tests.common import new_test_user
+
+        portal_user = new_test_user(
+            self.env,
+            'portal_shop_member',
+            email='portal_shop_member@test.example.com',
+            groups='base.group_portal',
+        )
+        product_tmpl = self.env['product.template'].create({
+            'name': 'Pack curso DAS test',
+            'list_price': 100.0,
+            'sale_ok': True,
+        })
+        variant = product_tmpl.product_variant_ids[:1]
+        self.assertTrue(variant)
+        channel = self.env['slide.channel'].create({
+            'name': 'Curso venta vinculado',
+            'product_id': variant.id,
+        })
+        self.env['slide.channel.partner'].create({
+            'channel_id': channel.id,
+            'partner_id': portal_user.partner_id.id,
+            'member_status': 'joined',
+        })
+        tmpl_portal = product_tmpl.with_user(portal_user)
+        self.assertTrue(tmpl_portal._das_lms_is_enrolled_in_course())

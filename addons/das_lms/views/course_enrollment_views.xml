@@ -220,6 +220,13 @@
         action="action_course_enrollment"
         sequence="20"
     />
+    <menuitem
+        id="menu_das_lms_link_audit"
+        name="Validar vínculos producto-curso"
+        parent="menu_das_lms_root"
+        action="das_lms.action_das_lms_link_audit_wizard"
+        sequence="70"
+    />
     <record id="view_course_enrollment_pivot_das_style" model="ir.ui.view">
         <field name="name">course.enrollment.pivot.das.style</field>
         <field name="model">course.enrollment</field>

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-from urllib.parse import urlparse
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -341,18 +340,7 @@ class CourseEnrollment(models.Model):
         channel = self.course_id
         if not channel:
             return False
-        # website_url suele incluir el dominio de web.base.url / sitio (p. ej. túnel Cloudflare).
-        # act_url con URL absoluta rompe si ese dominio ya no resuelve; usar solo la ruta.
-        raw = channel.sudo().website_url
-        if not raw or raw == '#':
-            url = '/slides/%s' % self.env['ir.http']._slug(channel)
-        elif raw.startswith(('http://', 'https://')):
-            parsed = urlparse(raw)
-            url = parsed.path or '/'
-            if parsed.query:
-                url = '%s?%s' % (url, parsed.query)
-        else:
-            url = raw
+        url = channel.sudo()._das_lms_public_course_href()
         return {
             'type': 'ir.actions.act_url',
             'url': url,

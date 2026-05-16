@@ -38,4 +38,30 @@
             </div>
         </t>
     </template>
+    <template id="portal_slide_course_lessons_locked" name="DAS LMS: contenido del curso aún no disponible (calendario)">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="alert alert-info shadow-sm" role="status">
+                        <h1 class="h4 mb-2">Contenido no disponible todavía</h1>
+                        <p class="mb-0" t-if="channel and channel.das_start_date">
+                            El curso aún no inicia. Podrá acceder al contenido desde el
+                            <span t-field="channel.das_start_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>.
+                            Sigue inscrito en el curso.
+                        </p>
+                        <p class="mb-0" t-else="">
+                            Las lecciones de este curso aún no están disponibles según el calendario académico.
+                        </p>
+                    </div>
+                    <p t-if="channel" class="mt-3">
+                        <strong>Curso:</strong>
+                        <span t-field="channel.name"/>
+                    </p>
+                    <div class="mt-4">
+                        <a href="/slides" class="btn btn-primary">Mis cursos</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
 </odoo>

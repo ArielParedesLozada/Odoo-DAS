@@ -1,16 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="product_template_das_lms_cta" inherit_id="website_sale.product">
+    <!-- Marca la ficha: CSS + JS pueden ocultar carrito aunque el mixin de Odoo vuelva a poner d-inline-flex. -->
+    <template id="product_template_das_lms_cta" inherit_id="website_sale.product" priority="120">
+        <xpath expr="//section[@id='product_detail']" position="attributes">
+            <attribute name="t-att-data-das-lms-hide-shop">'1' if (combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked()) else ''</attribute>
+        </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
+            <!-- Depuración: solo si el controlador inyectó das_lms_debug_show (editor/admin web) -->
+            <div class="container px-0" t-if="das_lms_debug_show">
+                <t t-out="das_lms_debug_html"/>
+            </div>
+            <!-- Valores coherentes desde WebsiteSale._prepare_product_values (relación real producto-canal-partner). -->
             <div
-                t-if="product._das_lms_is_enrolled_in_course()"
+                t-if="das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course()"
+                class="alert alert-success border border-success-subtle shadow-sm mb-3 py-2 px-3 d-flex align-items-start"
+                role="status"
+            >
+                <i class="fa fa-check-circle fa-lg text-success me-2 mt-1 flex-shrink-0" role="presentation"/>
+                <div>
+                    <span class="d-block fw-semibold mb-1">Ya estás inscrito en este curso.</span>
+                    <span class="d-block small mb-0">
+                        Puedes continuar tu aprendizaje desde tu sección de cursos.
+                    </span>
+                </div>
+            </div>
+            <div
+                t-if="das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course()"
                 class="d-inline-flex align-items-center mb-2 me-auto"
             >
                 <a
                     t-att-href="product._das_lms_course_website_url()"
                     class="btn btn-primary flex-grow-1"
                 >
-                    Acceder al curso
+                    <i class="fa fa-play-circle me-2"/>
+                    <span t-out="product._das_lms_course_portal_cta_label()"/>
                 </a>
             </div>
             <div
@@ -29,7 +52,21 @@
             </div>
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="attributes">
-            <attribute name="t-attf-class">{{'d-none' if combination_info['prevent_zero_price_sale'] or product._das_lms_is_enrolled_in_course() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
+            <attribute name="t-attf-class">{{'d-none' if combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
+        </xpath>
+    </template>
+
+    <!-- Precio: ocultar en ficha cuando ya está inscrito (misma UX que curso activo). -->
+    <template id="product_price_das_lms_hide_enrolled" inherit_id="website_sale.product_price" priority="120">
+        <xpath expr="//div[@itemprop='offers']" position="attributes">
+            <attribute name="t-attf-class">product_price mt-2 mb-3 {{'d-none' if combination_info.get('prevent_zero_price_sale') or product._das_lms_is_enrolled_in_course() else 'd-inline-block'}}</attribute>
+        </xpath>
+    </template>
+
+    <!-- Cantidad: misma regla que carrito (website_sale.product_quantity inserta este bloque). -->
+    <template id="product_quantity_das_lms_hide_enrolled" inherit_id="website_sale.product_quantity" priority="120">
+        <xpath expr="//div[contains(@t-attf-class, 'css_quantity')]" position="attributes">
+            <attribute name="t-attf-class">css_quantity input-group {{'d-none' if combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} me-2 mb-2 align-middle</attribute>
         </xpath>
     </template>
 </odoo>

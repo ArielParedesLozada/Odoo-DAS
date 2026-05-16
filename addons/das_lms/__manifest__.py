@@ -1,23 +1,30 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'DAS LMS - Inscripciones',
-    'summary': 'Seguimiento y estadísticas de inscripciones eLearning (slide.channel.partner)',
-    'version': '18.0.4.0.0',
+    'summary':
+        'Seguimiento LMS vía slide.channel.partner; vínculo producto-curso explícito o nativo Odoo '
+        '(slide.channel.product_id / das_lms_channel_id).',
+    'version': '18.0.4.12.0',
     'category': 'Website/eLearning',
     'author': 'DAS',
     'license': 'LGPL-3',
     'depends': [
         'website_slides',
+        'sale',
+        'account',
         'website_sale',
         'website_sale_slides',
         'website',
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/das_lms_link_audit_views.xml',
         'views/das_lms_dashboard_views.xml',
         'views/course_enrollment_views.xml',
+        'views/das_lms_invoice_backfill_wizard_views.xml',
         'views/das_lms_advanced_analytics_views.xml',
         'views/slide_channel_views.xml',
+        'views/product_template_views.xml',
         'views/das_lms_slide_channel_course_website.xml',
         'views/das_lms_slide_duration_website.xml',
         'views/product_template_website.xml',
@@ -30,6 +37,7 @@
         ],
         'web.assets_frontend': [
             'das_lms/static/src/scss/das_lms_website_slides.scss',
+            'das_lms/static/src/js/das_lms_sale_variant.js',
         ],
     },
     'installable': True,
