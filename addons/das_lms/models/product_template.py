@@ -199,10 +199,100 @@ class ProductTemplate(models.Model):
             )
             return False
 
-    def _das_lms_course_portal_cta_label(self):
-        """Solo se usa en tienda cuando el usuario ya está inscrito: mismo CTA que curso en curso."""
+    def _das_lms_shop_enrolled_banner_alert_classes(self):
+        """Clases del bloque único de estado (inscrito) en ficha de tienda."""
         self.ensure_one()
         try:
+            channel = self._das_lms_get_related_channel()
+            status = getattr(channel, 'das_academic_status', None) if channel else None
+            shell = (
+                'o_das_lms_shop_enrollment_banner mb-3 py-3 px-3 shadow-sm '
+                'd-flex align-items-start rounded border'
+            )
+            if status == 'finalizado':
+                return shell + ' alert alert-secondary border-secondary-subtle'
+            if status == 'proximo':
+                return shell + ' alert alert-info border-info-subtle'
+            return shell + ' alert alert-success border-success-subtle'
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_shop_enrolled_banner_alert_classes plantilla id=%s.',
+                self.id,
+            )
+            return (
+                'o_das_lms_shop_enrollment_banner mb-3 py-3 px-3 shadow-sm '
+                'd-flex align-items-start rounded border alert alert-success border-success-subtle'
+            )
+
+    def _das_lms_shop_enrolled_banner_icon_classes(self):
+        """Icono del bloque inscrito (misma familia FA, color según estado)."""
+        self.ensure_one()
+        try:
+            channel = self._das_lms_get_related_channel()
+            status = getattr(channel, 'das_academic_status', None) if channel else None
+            if status == 'finalizado':
+                return 'fa fa-check-circle text-secondary'
+            if status == 'proximo':
+                return 'fa fa-info-circle text-info'
+            return 'fa fa-check-circle text-success'
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_shop_enrolled_banner_icon_classes plantilla id=%s.',
+                self.id,
+            )
+            return 'fa fa-check-circle text-success'
+
+    def _das_lms_shop_enrolled_banner_btn_icon_classes(self):
+        """Icono del botón dentro del bloque inscrito."""
+        self.ensure_one()
+        try:
+            channel = self._das_lms_get_related_channel()
+            status = getattr(channel, 'das_academic_status', None) if channel else None
+            if status == 'proximo':
+                return 'fa fa-info-circle me-2'
+            return 'fa fa-play-circle me-2'
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_shop_enrolled_banner_btn_icon_classes plantilla id=%s.',
+                self.id,
+            )
+            return 'fa fa-play-circle me-2'
+
+    def _das_lms_shop_enrolled_banner_title(self):
+        self.ensure_one()
+        return _('Ya estás inscrito en este curso.')
+
+    def _das_lms_shop_enrolled_banner_body(self):
+        """Descripción del bloque único inscrito (según ciclo académico)."""
+        self.ensure_one()
+        try:
+            channel = self._das_lms_get_related_channel()
+            if not channel:
+                return _('Puedes continuar tu aprendizaje desde tu sección de cursos.')
+            status = getattr(channel, 'das_academic_status', None)
+            if status == 'finalizado':
+                return _(
+                    'Este ciclo académico ya finalizó. Puedes revisar el curso desde tu sección de cursos.'
+                )
+            if status == 'proximo' and channel.das_start_date:
+                ds = channel.das_start_date.strftime('%d/%m/%Y')
+                return _('El curso inicia el %s. Podrás acceder al contenido desde esa fecha.') % ds
+            return _('Puedes continuar tu aprendizaje desde tu sección de cursos.')
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_shop_enrolled_banner_body plantilla id=%s.',
+                self.id,
+            )
+            return _('Puedes continuar tu aprendizaje desde tu sección de cursos.')
+
+    def _das_lms_course_portal_cta_label(self):
+        """Etiqueta del botón del bloque inscrito en tienda."""
+        self.ensure_one()
+        try:
+            channel = self._das_lms_get_related_channel()
+            status = getattr(channel, 'das_academic_status', None) if channel else None
+            if status == 'proximo':
+                return _('Ver información del curso')
             return _('Acceder al curso')
         except Exception:
             _logger.exception(
@@ -239,9 +329,14 @@ class ProductTemplate(models.Model):
             return False
 
     def _das_lms_course_sale_notice_html(self):
-        """Texto informativo en ficha de producto."""
+        """Texto informativo en ficha de producto (solo visitantes / no inscritos).
+
+        Si ya está inscrito, el mensaje va en el bloque único ``_das_lms_shop_enrolled_banner_*``.
+        """
         self.ensure_one()
         try:
+            if self._das_lms_is_enrolled_in_course():
+                return ''
             channel = self._das_lms_get_related_channel()
             if not channel:
                 return ''
@@ -250,10 +345,6 @@ class ProductTemplate(models.Model):
                 return _('Este curso ya finalizó y no acepta nuevas inscripciones.')
             if status == 'proximo' and channel.das_start_date:
                 ds = channel.das_start_date.strftime('%d/%m/%Y')
-                if self._das_lms_is_enrolled_in_course():
-                    return _(
-                        'El curso inicia el %s. Cuando comience el ciclo podrá acceder al contenido desde «Mis cursos».'
-                    ) % ds
                 return _('El curso inicia el %s. Puede inscribirse anticipadamente.') % ds
             return ''
         except Exception:

@@ -10,45 +10,45 @@
             <div class="container px-0" t-if="das_lms_debug_show">
                 <t t-out="das_lms_debug_html"/>
             </div>
-            <!-- Valores coherentes desde WebsiteSale._prepare_product_values (relación real producto-canal-partner). -->
+            <!-- Bloque único inscrito: verde (activo), celeste (próximo), gris (finalizado). -->
             <div
                 t-if="das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course()"
-                class="alert alert-success border border-success-subtle shadow-sm mb-3 py-2 px-3 d-flex align-items-start"
+                t-attf-class="{{ product._das_lms_shop_enrolled_banner_alert_classes() }}"
                 role="status"
             >
-                <i class="fa fa-check-circle fa-lg text-success me-2 mt-1 flex-shrink-0" role="presentation"/>
-                <div>
-                    <span class="d-block fw-semibold mb-1">Ya estás inscrito en este curso.</span>
-                    <span class="d-block small mb-0">
-                        Puedes continuar tu aprendizaje desde tu sección de cursos.
-                    </span>
+                <i
+                    t-attf-class="{{ product._das_lms_shop_enrolled_banner_icon_classes() }} fa-lg me-2 mt-1 flex-shrink-0"
+                    role="presentation"
+                />
+                <div class="flex-grow-1 min-w-0">
+                    <span class="d-block fw-semibold mb-1" t-out="product._das_lms_shop_enrolled_banner_title()"/>
+                    <span class="d-block small mb-3" t-out="product._das_lms_shop_enrolled_banner_body()"/>
+                    <a
+                        t-att-href="product._das_lms_course_website_url()"
+                        class="btn btn-primary d-inline-flex align-items-center"
+                    >
+                        <i t-attf-class="{{ product._das_lms_shop_enrolled_banner_btn_icon_classes() }}"/>
+                        <span t-out="product._das_lms_course_portal_cta_label()"/>
+                    </a>
                 </div>
             </div>
+            <!-- Visitante no inscrito: curso cerrado a ventas -->
             <div
-                t-if="das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course()"
-                class="d-inline-flex align-items-center mb-2 me-auto"
-            >
-                <a
-                    t-att-href="product._das_lms_course_website_url()"
-                    class="btn btn-primary flex-grow-1"
-                >
-                    <i class="fa fa-play-circle me-2"/>
-                    <span t-out="product._das_lms_course_portal_cta_label()"/>
-                </a>
-            </div>
-            <div
-                t-if="product._das_lms_course_sale_blocked()"
-                class="alert alert-warning border-0 shadow-sm mb-3 py-2 px-3 o_das_lms_product_academic_notice"
+                t-if="product._das_lms_course_sale_blocked() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
+                class="alert alert-warning border border-warning-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
                 role="status"
             >
-                <span t-out="product._das_lms_course_sale_notice_html()"/>
+                <i class="fa fa-exclamation-triangle fa-lg text-warning me-2 mt-1 flex-shrink-0" role="presentation"/>
+                <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
             </div>
+            <!-- Visitante no inscrito: próximo / aviso académico -->
             <div
-                t-if="not product._das_lms_course_sale_blocked() and product._das_lms_course_sale_notice_html()"
-                class="alert alert-info border-0 shadow-sm mb-3 py-2 px-3 o_das_lms_product_academic_notice"
+                t-if="not product._das_lms_course_sale_blocked() and product._das_lms_course_sale_notice_html() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
+                class="alert alert-info border border-info-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
                 role="status"
             >
-                <span t-out="product._das_lms_course_sale_notice_html()"/>
+                <i class="fa fa-info-circle fa-lg text-info me-2 mt-1 flex-shrink-0" role="presentation"/>
+                <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
             </div>
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="attributes">
