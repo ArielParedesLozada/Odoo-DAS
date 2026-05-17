@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Form View -->
+    <record id="view_course_enrollment_form_inherit_certificates" model="ir.ui.view">
+        <field name="name">course.enrollment.form.inherit.certificates</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_generate_certificate" type="object" string="Descargar Certificado" class="btn-primary" invisible="das_lms_final_status == 'pending'"/>
+            </xpath>
+            
+            <xpath expr="//field[@name='last_activity_date']" position="after">
+                <field name="das_lms_final_status"/>
+                <field name="das_lms_certificate_date" readonly="1"/>
+                <field name="das_lms_certificate_token" readonly="1" invisible="not das_lms_certificate_token"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Tree View -->
+    <record id="view_course_enrollment_tree_inherit_certificates" model="ir.ui.view">
+        <field name="name">course.enrollment.list.inherit.certificates</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='status']" position="after">
+                <field name="das_lms_final_status" widget="badge" decoration-success="das_lms_final_status == 'approved'" decoration-danger="das_lms_final_status == 'failed'" decoration-info="das_lms_final_status == 'pending'"/>
+            </xpath>
+            <xpath expr="//button[@name='action_open_student']" position="after">
+                <button name="action_generate_certificate" type="object" string="Certificado" class="btn-link" icon="fa-certificate" title="Descargar Certificado" invisible="das_lms_final_status == 'pending'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

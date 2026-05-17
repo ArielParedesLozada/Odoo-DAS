@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_slide_slide_form_inherit_das_lms_certificates" model="ir.ui.view">
+        <field name="name">slide.slide.form.inherit.das.lms.certificates</field>
+        <field name="model">slide.slide</field>
+        <field name="inherit_id" ref="website_slides.view_slide_slide_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='is_preview']" position="after">
+                <field name="das_is_final_exam"/>
+                <field name="das_is_satisfaction_survey"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
