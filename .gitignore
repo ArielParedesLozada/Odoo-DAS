@@ -1,6 +1,7 @@
 docker/volumes
 config/odoo.conf
 .env
+tmp_restore/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
