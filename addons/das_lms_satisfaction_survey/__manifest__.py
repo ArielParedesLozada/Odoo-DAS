@@ -7,8 +7,9 @@
     "depends": ["base", "survey", "website_slides", "das_lms", "das_lms_certificates"],
     "data": [
         "security/ir.model.access.csv",
+        "views/satisfaction_actions.xml",
         "views/satisfaction_survey_views.xml",
-        "views/survey_result_inherit.xml",
+        "views/satisfaction_dashboard_views.xml",
         "data/satisfaction_survey_data.xml",
     ],
     "installable": True,

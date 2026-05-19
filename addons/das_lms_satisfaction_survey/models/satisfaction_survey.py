@@ -21,6 +21,28 @@ class LmsSatisfactionSurvey(models.Model):
     )
     last_generated = fields.Datetime(string="Last Generated At", readonly=True)
 
+    answers_count = fields.Integer(string="Answers", compute="_compute_answers_count")
+
+    def _compute_answers_count(self):
+        for rec in self:
+            if rec.survey_id:
+                rec.answers_count = self.env['survey.user_input'].search_count([
+                    ('survey_id', '=', rec.survey_id.id),
+                    ('state', '=', 'done')
+                ])
+            else:
+                rec.answers_count = 0
+
+    def action_view_results(self):
+        self.ensure_one()
+        if self.survey_id:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/survey/results/{self.survey_id.id}',
+                'target': 'new',
+            }
+
+
     def action_generate_survey_and_slide(self):
         for rec in self:
             if not rec.channel_id:

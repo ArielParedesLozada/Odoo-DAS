@@ -1,35 +1,3 @@
 <odoo>
-    <template id="survey_result_inherit" inherit_id="survey.survey_result">
-
-        <xpath expr="//div[contains(@class, 'o_survey_results_actions')]" position="inside">
-
-            <t t-if="survey and user_input and user_input.survey_id">
-
-                <!-- Buscar slide -->
-                <t t-set="slide"
-                    t-value="request.env['slide.slide'].sudo().search([('survey_id','=', survey.id)], limit=1)" />
-
-                <!-- Solo si es EXAMEN FINAL -->
-                <t t-if="slide and slide.das_is_final_exam">
-
-                    <!-- Buscar encuesta del curso -->
-                    <t t-set="sat_slide"
-                        t-value="request.env['slide.slide'].sudo().search([
-                        ('channel_id','=', slide.channel_id.id),
-                        ('das_is_satisfaction_survey','=', True)
-                    ], limit=1)" />
-
-                    <t t-if="sat_slide">
-                        <a t-att-href="'/slides/slide/%s' % sat_slide.id"
-                            class="btn btn-primary mt-2">
-                            Ir a Encuesta de Satisfacción
-                        </a>
-                    </t>
-
-                </t>
-            </t>
-
-        </xpath>
-
-    </template>
+    
 </odoo>
