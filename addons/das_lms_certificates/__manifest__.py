@@ -14,6 +14,7 @@
         'views/course_enrollment_inherit_views.xml',
         'views/portal_templates_inherit.xml',
         'views/slide_slide_inherit_views.xml',
+        'views/slide_channel_inherit_views.xml',
     ],
     'installable': True,
     'application': False,
