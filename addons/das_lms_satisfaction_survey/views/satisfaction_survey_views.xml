@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_lms_satisfaction_survey_list" model="ir.ui.view">
+        <field name="name">lms.satisfaction.survey.list</field>
+        <field name="model">lms.satisfaction.survey</field>
+        <field name="arch" type="xml">
+            <list string="Encuestas de Satisfacción">
+                <field name="name"/>
+                <field name="channel_id"/>
+                <field name="survey_id"/>
+                <field name="responsible_id"/>
+                <field name="auto_generated"/>
+                <field name="last_generated"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_lms_satisfaction_survey_form" model="ir.ui.view">
+        <field name="name">lms.satisfaction.survey.form</field>
+        <field name="model">lms.satisfaction.survey</field>
+        <field name="arch" type="xml">
+            <form string="Encuesta de Satisfacción">
+                <header>
+                    <button name="action_generate_survey_and_slide" 
+                            type="object" 
+                            string="Generar Encuesta" 
+                            class="oe_highlight"
+                            invisible="survey_id"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre de Referencia..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="channel_id"/>
+                            <field name="survey_id"/>
+                        </group>
+                        <group>
+                            <field name="responsible_id"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="Metadatos (Generación Automática)">
+                            <field name="auto_generated"/>
+                            <field name="last_generated"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lms_satisfaction_survey" model="ir.actions.act_window">
+        <field name="name">Config. Encuestas de Satisfacción</field>
+        <field name="res_model">lms.satisfaction.survey</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea un nuevo registro para configurar una Encuesta de Satisfacción
+            </p>
+            <p>
+                Este modelo centraliza la creación de encuestas y las inyecta en el flujo de los cursos de Odoo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Usando sequence 60 para que quede junto o después de DAS LMS si es la misma jerarquía -->
+    <menuitem id="menu_lms_satisfaction_survey"
+              name="Encuestas (Config)"
+              action="action_lms_satisfaction_survey"
+              sequence="60"/>
+</odoo>

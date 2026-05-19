@@ -15,6 +15,10 @@ class SurveyUserInputInherit(models.Model):
                     ], limit=1)
                     
                     if slide:
+                        # Asegurar que solo procesa slides válidos del flujo
+                        if not (slide.das_is_final_exam or slide.das_is_satisfaction_survey):
+                            continue
+
                         # Find enrollment
                         enrollment = self.env['course.enrollment'].sudo().search([
                             ('course_id', '=', slide.channel_id.id),

@@ -42,6 +42,7 @@ class SlideChannelInherit(models.Model):
                     'survey_id': exam_survey.id,
                     'is_published': True,
                     'das_is_final_exam': True,
+                    'sequence': 100,
                 })
 
             # Create Satisfaction Survey
@@ -67,6 +68,7 @@ class SlideChannelInherit(models.Model):
                     'survey_id': satisfaction_survey.id,
                     'is_published': True,
                     'das_is_satisfaction_survey': True,
+                    'sequence': 200,
                 })
             
             return {
