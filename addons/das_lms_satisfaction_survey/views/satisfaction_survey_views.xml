@@ -68,7 +68,7 @@
 
     <!-- Usando sequence 60 para que quede junto o después de DAS LMS si es la misma jerarquía -->
     <menuitem id="menu_lms_satisfaction_survey"
-              name="Encuestas (Config)"
+              name="DAS LMS Encuestas"
               action="action_lms_satisfaction_survey"
               sequence="60"/>
 </odoo>

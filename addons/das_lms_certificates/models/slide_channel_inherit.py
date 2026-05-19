@@ -26,13 +26,41 @@ class SlideChannelInherit(models.Model):
                 exam_survey = self.env['survey.survey'].create({
                     'title': f'Examen Final - {record.name}',
                     'scoring_type': 'scoring_with_answers',
+                    'certification': True,
                 })
-                # Add a dummy question so it can be scored
-                self.env['survey.question'].create({
-                    'title': 'Pregunta de Prueba (Reemplazar con la pregunta real)',
+                
+                # Question 1
+                q1 = self.env['survey.question'].create({
+                    'title': '¿Qué es Odoo?',
                     'survey_id': exam_survey.id,
                     'question_type': 'simple_choice',
                 })
+                self.env['survey.question.answer'].create({'value': 'Un ERP', 'question_id': q1.id, 'is_correct': True, 'answer_score': 10})
+                self.env['survey.question.answer'].create({'value': 'Un CRM', 'question_id': q1.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'Una Base de Datos', 'question_id': q1.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'Un Sistema Operativo', 'question_id': q1.id, 'is_correct': False, 'answer_score': 0})
+
+                # Question 2
+                q2 = self.env['survey.question'].create({
+                    'title': '¿Qué módulo gestiona cursos?',
+                    'survey_id': exam_survey.id,
+                    'question_type': 'simple_choice',
+                })
+                self.env['survey.question.answer'].create({'value': 'website_slides', 'question_id': q2.id, 'is_correct': True, 'answer_score': 10})
+                self.env['survey.question.answer'].create({'value': 'hr_recruitment', 'question_id': q2.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'sale_management', 'question_id': q2.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'website_blog', 'question_id': q2.id, 'is_correct': False, 'answer_score': 0})
+
+                # Question 3
+                q3 = self.env['survey.question'].create({
+                    'title': '¿Qué hace website_slides?',
+                    'survey_id': exam_survey.id,
+                    'question_type': 'simple_choice',
+                })
+                self.env['survey.question.answer'].create({'value': 'Permite crear y gestionar eLearning', 'question_id': q3.id, 'is_correct': True, 'answer_score': 10})
+                self.env['survey.question.answer'].create({'value': 'Contabilidad avanzada', 'question_id': q3.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'Diseño de páginas web', 'question_id': q3.id, 'is_correct': False, 'answer_score': 0})
+                self.env['survey.question.answer'].create({'value': 'Gestión de inventario', 'question_id': q3.id, 'is_correct': False, 'answer_score': 0})
                 
                 # Create Slide for Final Exam
                 self.env['slide.slide'].create({
@@ -53,12 +81,33 @@ class SlideChannelInherit(models.Model):
                     'scoring_success_min': 0.0,
                     'certification': True,
                 })
-                # Add a dummy question
+                
+                # Question 1: Text box
                 self.env['survey.question'].create({
-                    'title': '¿Qué te pareció el curso? (Reemplazar con la pregunta real)',
+                    'title': '¿Qué te pareció el curso?',
                     'survey_id': satisfaction_survey.id,
                     'question_type': 'text_box',
                 })
+                
+                # Question 2: Simple choice
+                qs2 = self.env['survey.question'].create({
+                    'title': '¿Recomendarías este curso?',
+                    'survey_id': satisfaction_survey.id,
+                    'question_type': 'simple_choice',
+                })
+                self.env['survey.question.answer'].create({'value': 'Sí', 'question_id': qs2.id})
+                self.env['survey.question.answer'].create({'value': 'No', 'question_id': qs2.id})
+
+                # Question 3: Simple choice
+                qs3 = self.env['survey.question'].create({
+                    'title': 'Califica la calidad del contenido',
+                    'survey_id': satisfaction_survey.id,
+                    'question_type': 'simple_choice',
+                })
+                self.env['survey.question.answer'].create({'value': 'Excelente', 'question_id': qs3.id})
+                self.env['survey.question.answer'].create({'value': 'Bueno', 'question_id': qs3.id})
+                self.env['survey.question.answer'].create({'value': 'Regular', 'question_id': qs3.id})
+                self.env['survey.question.answer'].create({'value': 'Malo', 'question_id': qs3.id})
                 
                 # Create Slide for Satisfaction Survey
                 self.env['slide.slide'].create({
