@@ -8,6 +8,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/satisfaction_survey_views.xml",
+        "views/survey_result_inherit.xml",
         "data/satisfaction_survey_data.xml",
     ],
     "installable": True,
