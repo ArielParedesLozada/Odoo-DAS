@@ -384,6 +384,20 @@ class ProductTemplate(models.Model):
             return shell + ' alert-warning border-warning-subtle'
         return shell + ' alert-info border-info-subtle'
 
+    def _das_lms_shop_show_academic_info(self):
+        """True si el producto tiene curso LMS con datos académicos para mostrar en tienda."""
+        self.ensure_one()
+        channel = self._das_lms_get_related_channel()
+        if not channel:
+            return False
+        return bool(
+            channel.das_start_date
+            or channel.das_end_date
+            or channel.das_modality
+            or channel.das_registration_deadline
+            or (channel.das_total_hours or 0) > 0
+        )
+
     def _das_lms_course_sale_notice_stacks_cart(self):
         """Aviso arriba y botón Agregar al carrito debajo (ancho natural del botón)."""
         self.ensure_one()

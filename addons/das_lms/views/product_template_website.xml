@@ -51,6 +51,63 @@
         </xpath>
     </template>
 
+    <!-- Datos académicos del curso (fechas, modalidad, horas) en ficha de producto -->
+    <template id="product_template_das_lms_academic_info" inherit_id="website_sale.product_price" priority="115">
+        <xpath expr="//div[@itemprop='offers']" position="after">
+            <t t-set="das_lms_shop_channel" t-value="product._das_lms_get_related_channel()"/>
+            <div
+                t-if="product._das_lms_shop_show_academic_info()"
+                class="o_das_lms_shop_academic card border-0 shadow-sm mb-3 text-start"
+                role="region"
+                aria-label="Información académica del curso"
+            >
+                <div class="card-body py-3 px-3">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="o_das_lms_shop_academic__title text-uppercase small fw-bold text-muted mb-0">
+                            Calendario del curso
+                        </span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'sin_fechas'" class="badge rounded-pill text-bg-secondary">Sin fechas definidas</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'proximo'" class="badge rounded-pill text-bg-primary">Próximo a iniciar</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'en_curso'" class="badge rounded-pill text-bg-success">En curso</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'finalizado'" class="badge rounded-pill o_das_lms_badge-finished">Finalizado</span>
+                    </div>
+                    <div class="row g-2 g-md-3 small text-body">
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_start_date">
+                            <div class="o_das_lms_shop_academic__lbl">Fecha de inicio</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_start_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_end_date">
+                            <div class="o_das_lms_shop_academic__lbl">Fecha de fin</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_end_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_registration_deadline">
+                            <div class="o_das_lms_shop_academic__lbl">Cierre de inscripción</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_registration_deadline" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_modality">
+                            <div class="o_das_lms_shop_academic__lbl">Modalidad</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_modality"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="(das_lms_shop_channel.das_total_hours or 0) &gt; 0">
+                            <div class="o_das_lms_shop_academic__lbl">Carga horaria</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_total_hours"/> h
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
     <!-- Precio: ocultar en ficha cuando ya está inscrito (misma UX que curso activo). -->
     <template id="product_price_das_lms_hide_enrolled" inherit_id="website_sale.product_price" priority="120">
         <xpath expr="//div[@itemprop='offers']" position="attributes">

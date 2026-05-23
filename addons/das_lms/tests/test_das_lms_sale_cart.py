@@ -195,3 +195,29 @@ class TestDasLmsSaleCart(TransactionCase):
                 'product_uom_qty': 1,
             })
         self.assertIn('Canal dup LMS', cm.exception.args[0])
+
+    def test_shop_academic_info_visible_with_course_dates(self):
+        today = fields.Date.context_today(self.env.user)
+        tmpl = self.env['product.template'].create({
+            'name': 'Curso fechas tienda',
+            'list_price': 75.0,
+            'sale_ok': True,
+        })
+        variant = tmpl.product_variant_ids[:1]
+        self.env['slide.channel'].create({
+            'name': 'Canal fechas tienda',
+            'product_id': variant.id,
+            'das_start_date': fields.Date.add(today, days=-10),
+            'das_end_date': fields.Date.add(today, days=20),
+            'das_modality': 'grabado',
+            'das_total_hours': 40,
+        })
+        self.assertTrue(tmpl._das_lms_shop_show_academic_info())
+
+    def test_shop_academic_info_hidden_without_course(self):
+        tmpl = self.env['product.template'].create({
+            'name': 'Producto sin curso',
+            'list_price': 10.0,
+            'sale_ok': True,
+        })
+        self.assertFalse(tmpl._das_lms_shop_show_academic_info())

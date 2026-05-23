@@ -57,6 +57,30 @@ body.o_wslides_body .o_wslides_course_sidebar .o_das_lms_sidebar_hours-total {
     color: #fff;
 }
 
+/* Tienda (/shop/product): bloque académico del curso vinculado */
+section#product_detail .o_das_lms_shop_academic {
+    max-width: 100%;
+    background: rgba(248, 250, 252, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+
+section#product_detail .o_das_lms_shop_academic__title {
+    letter-spacing: 0.06em;
+}
+
+section#product_detail .o_das_lms_shop_academic__lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+}
+
+section#product_detail .o_das_lms_badge-finished {
+    background: #94a3b8;
+    color: #fff;
+}
+
 /* Tienda (/shop/product): si LMS marca la ficha, no mostrar compra aunque sale_variant_mixin fuerce clases Bootstrap. */
 /* Ficha tienda: bloque único de estado inscrito (misma caja que alert Bootstrap). */
 .o_das_lms_shop_enrollment_banner .btn.btn-primary {
