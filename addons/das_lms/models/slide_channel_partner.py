@@ -20,13 +20,9 @@ class SlideChannelPartner(models.Model):
                     if not channel:
                         continue
                     if channel.das_academic_status == 'finalizado':
-                        raise UserError(
-                            _('La inscripción ya no está disponible para este curso.')
-                        )
+                        raise UserError(channel._das_lms_registration_closed_message())
                     if not channel._das_lms_is_registration_open():
-                        raise UserError(
-                            _('La inscripción ya no está disponible para este curso.')
-                        )
+                        raise UserError(channel._das_lms_registration_closed_message())
         records = super().create(vals_list)
         records._das_lms_sync_enrollment_mirror()
         return records

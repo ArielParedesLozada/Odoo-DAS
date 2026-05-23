@@ -92,11 +92,48 @@ class ProductTemplate(models.Model):
             )
             return self.env['slide.channel'].browse()
 
+    @api.model
+    def _das_lms_shop_hidden_product_template_ids(self, partner=None):
+        """Plantillas de curso ocultas en la tienda (inicio académico ya alcanzado, no inscrito)."""
+        today = fields.Date.context_today(self)
+        Channel = self.env['slide.channel'].sudo()
+        channels = Channel.search([
+            ('das_start_date', '!=', False),
+            ('das_start_date', '<=', today),
+        ])
+        hidden = set()
+        ProductTemplate = self.env['product.template'].sudo()
+        for channel in channels:
+            if partner and channel._das_lms_user_is_enrolled(partner):
+                continue
+            if channel.product_id:
+                hidden.add(channel.product_id.product_tmpl_id.id)
+            linked = ProductTemplate.search([('das_lms_channel_id', '=', channel.id)])
+            hidden.update(linked.ids)
+        return list(hidden)
+
+    def _das_lms_shop_catalog_visible(self, partner=None):
+        """True si el producto debe listarse en /shop para el visitante dado."""
+        self.ensure_one()
+        try:
+            hidden_ids = self.env['product.template']._das_lms_shop_hidden_product_template_ids(
+                partner=partner,
+            )
+            return self.id not in hidden_ids
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_shop_catalog_visible plantilla id=%s.',
+                self.id,
+            )
+            return True
+
     def _das_lms_shop_should_hide_add_to_cart(self, partner=None):
         """Ocultar agregar al carrito en tienda (usuario actual o partner explícito)."""
         self.ensure_one()
         try:
-            if self._das_lms_course_sale_blocked():
+            if partner is None and not self.env.user._is_public():
+                partner = self.env.user.partner_id
+            if self._das_lms_course_sale_blocked(partner=partner):
                 return True
             if not partner:
                 return False
@@ -181,8 +218,10 @@ class ProductTemplate(models.Model):
                 return False
             if channel._das_lms_user_is_enrolled(partner):
                 return _('Ya estás inscrito en el curso «%s».') % channel.display_name
-            if not channel.das_registration_open:
-                return channel._das_lms_registration_notice_message(partner=partner)
+            if not channel._das_lms_is_registration_open():
+                return channel._das_lms_registration_closed_message()
+            if not channel._das_lms_is_public_catalog_visible(partner=partner):
+                return channel._das_lms_registration_closed_message()
             return False
         except Exception:
             _logger.exception(
@@ -321,12 +360,26 @@ class ProductTemplate(models.Model):
             )
             return '#'
 
-    def _das_lms_course_sale_blocked(self):
-        """Bloquear venta a nuevos alumnos si el corte de inscripción cerró o el curso finalizó."""
+    def _das_lms_course_sale_blocked(self, partner=None):
+        """Bloquear venta a nuevos alumnos si el corte cerró o el curso ya inició."""
         self.ensure_one()
         try:
             channel = self._das_lms_get_related_channel()
-            return bool(channel and not channel.das_registration_open)
+            if not channel:
+                return False
+            if partner is None:
+                if self._das_lms_is_enrolled_in_course():
+                    return False
+                partner = (
+                    self.env.user.partner_id
+                    if not self.env.user._is_public()
+                    else self.env['res.partner']
+                )
+            elif channel._das_lms_user_is_enrolled(partner):
+                return False
+            if not channel._das_lms_is_registration_open():
+                return True
+            return not channel._das_lms_is_public_catalog_visible(partner=partner or None)
         except Exception:
             _logger.exception(
                 'DAS LMS: _das_lms_course_sale_blocked plantilla id=%s.',

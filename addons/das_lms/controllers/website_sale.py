@@ -8,12 +8,31 @@ from odoo.addons.payment import utils as payment_utils
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.exceptions import UserError
 from odoo.http import request, route
+from odoo.osv import expression
 from odoo.tools.json import scriptsafe as json_scriptsafe
 
 _logger = logging.getLogger(__name__)
 
 
 class DasLmsWebsiteSale(WebsiteSale):
+    def _das_lms_current_shop_partner(self):
+        user = request.env.user
+        if user._is_public():
+            return request.env['res.partner'].browse()
+        return user.partner_id[:1]
+
+    def _get_shop_domain(self, search, category, attrib_values, search_in_description=True):
+        domains = super()._get_shop_domain(
+            search, category, attrib_values, search_in_description=search_in_description,
+        )
+        partner = self._das_lms_current_shop_partner()
+        hidden_ids = request.env['product.template']._das_lms_shop_hidden_product_template_ids(
+            partner=partner or None,
+        )
+        if hidden_ids:
+            domains = expression.AND([domains, [('id', 'not in', hidden_ids)]])
+        return domains
+
     def _prepare_product_values(self, product, category, search, **kwargs):
         values = super()._prepare_product_values(product, category, search, **kwargs)
         try:
