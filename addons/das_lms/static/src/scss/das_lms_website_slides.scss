@@ -63,6 +63,34 @@ body.o_wslides_body .o_wslides_course_sidebar .o_das_lms_sidebar_hours-total {
     align-self: flex-start;
 }
 
+/* Tienda: aviso arriba y botón Agregar al carrito debajo, tamaño compacto (sin flex-grow). */
+section#product_detail[data-das-lms-notice-stack-cart="1"] {
+    .o_das_lms_product_notice--stack {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    #add_to_cart_wrap.o_das_lms_add_to_cart--below_notice {
+        flex: 0 0 100%;
+        display: inline-flex !important;
+        width: fit-content;
+        max-width: 100%;
+        align-self: flex-start;
+        margin-top: 0.25rem !important;
+        margin-right: 0 !important;
+
+        a#add_to_cart,
+        .btn {
+            width: auto !important;
+            max-width: none;
+            flex: 0 0 auto !important;
+            flex-grow: 0 !important;
+        }
+    }
+}
+
 section#product_detail[data-das-lms-hide-shop="1"] {
     #add_to_cart_wrap,
     .css_quantity,

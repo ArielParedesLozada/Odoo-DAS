@@ -384,6 +384,14 @@ class ProductTemplate(models.Model):
             return shell + ' alert-warning border-warning-subtle'
         return shell + ' alert-info border-info-subtle'
 
+    def _das_lms_course_sale_notice_stacks_cart(self):
+        """Aviso arriba y botón Agregar al carrito debajo (ancho natural del botón)."""
+        self.ensure_one()
+        if self._das_lms_is_enrolled_in_course():
+            return False
+        kind = self._das_lms_course_sale_notice_kind()
+        return bool(kind in ('before_start', 'open') and self._das_lms_course_sale_notice_html())
+
     def _get_additionnal_combination_info(self, product_or_template, quantity, date, website):
         """Añade bandera para el mixin de variantes: ocultar carrito LMS sin depender solo del DOM inicial."""
         try:
