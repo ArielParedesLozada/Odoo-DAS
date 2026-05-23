@@ -116,6 +116,24 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
             'sale_order_ids': [Command.set([order.id])],
         })
 
+    def test_paypal_pending_creates_final_invoice_not_downpayment(self):
+        """Tx pending: factura final con importe del pedido, no anticipo en cero."""
+        self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'True')
+        order = self._create_lms_sale_order()
+        tx = self._create_payment_tx(order, self.paypal_provider)
+        tx._set_pending()
+        tx._post_process()
+
+        invoices = order.invoice_ids.filtered(
+            lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+        )
+        self.assertEqual(order.state, 'sale')
+        self.assertEqual(order.invoice_status, 'invoiced')
+        self.assertTrue(invoices)
+        self.assertFalse(invoices[:1].currency_id.is_zero(invoices[:1].amount_total))
+        self.assertEqual(order.invoice_status, 'invoiced')
+        self.assertEqual(invoices[:1].payment_state, 'paid')
+
     def test_paypal_pending_confirms_posts_invoice_and_enrolls(self):
         self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
         order = self._create_lms_sale_order()
@@ -125,6 +143,7 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
 
         invoices = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
         self.assertEqual(order.state, 'sale')
+        self.assertEqual(order.invoice_status, 'invoiced')
         self.assertTrue(invoices)
         self.assertEqual(invoices[:1].state, 'posted')
         self.assertEqual(invoices[:1].payment_state, 'paid')
@@ -139,6 +158,7 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
 
         invoices = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
         self.assertEqual(order.state, 'sale')
+        self.assertEqual(order.invoice_status, 'invoiced')
         self.assertTrue(invoices)
         self.assertEqual(invoices[:1].state, 'posted')
         self.assertEqual(invoices[:1].payment_state, 'paid')

@@ -116,14 +116,16 @@ class DasLmsWebsiteSale(WebsiteSale):
         ):
             try:
                 with request.env.cr.savepoint():
-                    tx._das_lms_finalize_paypal_lms_orders()
+                    tx._das_lms_finalize_paypal_lms_order()
             except Exception:
                 _logger.exception(
                     'DAS LMS: fallo al finalizar PayPal en confirmación pedido=%s tx=%s.',
                     order_sudo.name,
                     tx.id,
                 )
-            order_sudo.invalidate_recordset(['state', 'invoice_ids'])
+                # Evita InFailedSqlTransaction en el resto de la petición HTTP.
+                request.env.clear()
+            order_sudo.invalidate_recordset(['state', 'invoice_status', 'invoice_ids'])
         values = super()._prepare_shop_payment_confirmation_values(order)
         enrollment = order_sudo._das_lms_payment_confirmation_enrollment_data()
         values['das_lms_payment_enrollment'] = enrollment
