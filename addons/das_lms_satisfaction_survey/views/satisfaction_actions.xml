@@ -1,0 +1,12 @@
+<odoo>
+
+    <!-- ACCIÓN ANALÍTICA -->
+    <record id="action_lms_satisfaction_analysis" model="ir.actions.act_window">
+        <field name="name">Análisis de Satisfacción</field>
+        <field name="res_model">survey.user_input</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="domain">[('is_satisfaction', '=', True), ('state', '=', 'done')]</field>
+        <field name="context">{'group_by': ['channel_id']}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_lms_satisfaction_survey_user,lms.satisfaction.survey.user,model_lms_satisfaction_survey,base.group_user,1,1,1,1

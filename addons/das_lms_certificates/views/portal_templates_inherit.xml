@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="course_sidebar_das_lms_certificates" inherit_id="website_slides.course_sidebar" name="DAS LMS Certificates: sidebar">
+        <xpath expr="//table" position="inside">
+            <t t-set="enrollment" t-value="request.env['course.enrollment'].sudo().search([('course_id', '=', channel.id), ('student_id', '=', request.env.user.partner_id.id)], limit=1)"/>
+            <tr t-if="enrollment and enrollment.das_lms_final_status != 'pending'">
+                <th class="border-top-0">Certificado</th>
+                <td class="border-top-0">
+                    <t t-if="enrollment.das_lms_survey_completed">
+                        <a t-attf-href="/my/certificate/#{channel.id}" class="btn btn-primary btn-sm" target="_blank" title="Descargar Certificado">
+                            <i class="fa fa-download"/> Descargar
+                        </a>
+                    </t>
+                    <t t-else="">
+                        <span class="text-muted small">
+                            <i class="fa fa-lock"/> Completa la Encuesta de Satisfacción en el curso para desbloquear.
+                        </span>
+                    </t>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+
+    <!-- Public Certificate Validation Pages -->
+    <template id="certificate_valid_page" name="Certificado Válido">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5 text-center">
+                    <div class="alert alert-success shadow-sm" role="alert">
+                        <h1 class="h2 mb-2"><i class="fa fa-check-circle"/> Certificado Válido</h1>
+                        <p class="mb-0">Este certificado es auténtico y se encuentra registrado en nuestro sistema.</p>
+                    </div>
+                    <div class="card mt-4 mx-auto" style="max-width: 600px;">
+                        <div class="card-body text-start">
+                            <h4 class="card-title text-primary"><span t-field="enrollment.student_id.name"/></h4>
+                            <p class="card-text">
+                                <strong>Curso:</strong> <span t-field="enrollment.course_id.name"/><br/>
+                                <strong>Estado:</strong> 
+                                <t t-if="enrollment.das_lms_final_status == 'approved'">Aprobado</t>
+                                <t t-else="">Participación</t><br/>
+                                <strong>Fecha de Emisión:</strong> <span t-field="enrollment.das_lms_certificate_date"/><br/>
+                            </p>
+                            
+                            <!-- Course Syllabus (Temario) -->
+                            <hr class="mt-4 mb-4"/>
+                            <h5 class="text-secondary mb-3"><i class="fa fa-list-ul"></i> Temario del Curso</h5>
+                            <div class="list-group list-group-flush text-start">
+                                <t t-foreach="enrollment.course_id.slide_ids" t-as="slide">
+                                    <t t-if="slide.is_category">
+                                        <div class="list-group-item bg-light fw-bold mt-2 rounded border">
+                                            <t t-esc="slide.name"/>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="list-group-item border-0 border-bottom py-2 d-flex align-items-center">
+                                            <i class="fa fa-check-circle text-success me-3"></i>
+                                            <span t-esc="slide.name"/>
+                                        </div>
+                                    </t>
+                                </t>
+                                <t t-if="not enrollment.course_id.slide_ids">
+                                    <div class="list-group-item border-0 text-muted fst-italic">
+                                        El temario detallado de este curso no está disponible temporalmente.
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="certificate_invalid_page" name="Certificado Inválido">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5 text-center">
+                    <div class="alert alert-danger shadow-sm" role="alert">
+                        <h1 class="h2 mb-2"><i class="fa fa-times-circle"/> Certificado Inválido</h1>
+                        <p class="mb-0">El código proporcionado no existe en nuestro sistema o ha sido revocado.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

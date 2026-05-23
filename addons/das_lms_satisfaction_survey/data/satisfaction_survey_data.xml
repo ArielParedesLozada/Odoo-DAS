@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="lms_satisfaction_survey_demo_1" model="lms.satisfaction.survey">
+            <field name="name">Encuesta de Prueba - Curso Base</field>
+            <!-- channel_id and survey_id are intentionally omitted per user request -->
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>
