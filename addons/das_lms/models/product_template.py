@@ -181,9 +181,8 @@ class ProductTemplate(models.Model):
                 return False
             if channel._das_lms_user_is_enrolled(partner):
                 return _('Ya estás inscrito en el curso «%s».') % channel.display_name
-            status = channel.das_academic_status
-            if status == 'finalizado':
-                return _('El curso «%s» ya finalizó y no acepta nuevas inscripciones.') % channel.display_name
+            if not channel.das_registration_open:
+                return channel._das_lms_registration_notice_message(partner=partner)
             return False
         except Exception:
             _logger.exception(
@@ -323,11 +322,11 @@ class ProductTemplate(models.Model):
             return '#'
 
     def _das_lms_course_sale_blocked(self):
-        """Bloquear venta a nuevos alumnos si el ciclo académico cerró."""
+        """Bloquear venta a nuevos alumnos si el corte de inscripción cerró o el curso finalizó."""
         self.ensure_one()
         try:
             channel = self._das_lms_get_related_channel()
-            return bool(channel and getattr(channel, 'das_academic_status', None) == 'finalizado')
+            return bool(channel and not channel.das_registration_open)
         except Exception:
             _logger.exception(
                 'DAS LMS: _das_lms_course_sale_blocked plantilla id=%s.',
@@ -335,11 +334,26 @@ class ProductTemplate(models.Model):
             )
             return False
 
-    def _das_lms_course_sale_notice_html(self):
-        """Texto informativo en ficha de producto (solo visitantes / no inscritos).
+    def _das_lms_course_sale_notice_kind(self):
+        """closed | before_start | open | none — para clases CSS en tienda."""
+        self.ensure_one()
+        try:
+            if self._das_lms_is_enrolled_in_course():
+                return 'none'
+            channel = self._das_lms_get_related_channel()
+            if not channel:
+                return 'none'
+            partner = self.env.user.partner_id if not self.env.user._is_public() else None
+            return channel._das_lms_registration_notice_kind(partner=partner)
+        except Exception:
+            _logger.exception(
+                'DAS LMS: _das_lms_course_sale_notice_kind plantilla id=%s.',
+                self.id,
+            )
+            return 'none'
 
-        Si ya está inscrito, el mensaje va en el bloque único ``_das_lms_shop_enrolled_banner_*``.
-        """
+    def _das_lms_course_sale_notice_html(self):
+        """Texto informativo en ficha de producto (solo visitantes / no inscritos)."""
         self.ensure_one()
         try:
             if self._das_lms_is_enrolled_in_course():
@@ -347,19 +361,28 @@ class ProductTemplate(models.Model):
             channel = self._das_lms_get_related_channel()
             if not channel:
                 return ''
-            status = getattr(channel, 'das_academic_status', None)
-            if status == 'finalizado':
-                return _('Este curso ya finalizó y no acepta nuevas inscripciones.')
-            if status == 'proximo' and channel.das_start_date:
-                ds = channel.das_start_date.strftime('%d/%m/%Y')
-                return _('El curso inicia el %s. Puede inscribirse anticipadamente.') % ds
-            return ''
+            partner = self.env.user.partner_id if not self.env.user._is_public() else None
+            return channel._das_lms_registration_notice_message(partner=partner)
         except Exception:
             _logger.exception(
                 'DAS LMS: _das_lms_course_sale_notice_html plantilla id=%s.',
                 self.id,
             )
             return ''
+
+    def _das_lms_course_sale_notice_alert_classes(self):
+        """Clases Bootstrap del aviso de inscripción (amarillo / gris)."""
+        self.ensure_one()
+        kind = self._das_lms_course_sale_notice_kind()
+        shell = (
+            'alert border shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start '
+            'o_das_lms_product_academic_notice'
+        )
+        if kind == 'closed':
+            return shell + ' alert-secondary border-secondary-subtle'
+        if kind in ('before_start', 'open'):
+            return shell + ' alert-warning border-warning-subtle'
+        return shell + ' alert-info border-info-subtle'
 
     def _get_additionnal_combination_info(self, product_or_template, quantity, date, website):
         """Añade bandera para el mixin de variantes: ocultar carrito LMS sin depender solo del DOM inicial."""

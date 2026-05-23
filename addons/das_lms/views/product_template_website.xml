@@ -32,22 +32,16 @@
                     </a>
                 </div>
             </div>
-            <!-- Visitante no inscrito: curso cerrado a ventas -->
+            <!-- Visitante no inscrito: aviso dinámico de inscripción (amarillo / gris) -->
             <div
-                t-if="product._das_lms_course_sale_blocked() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
-                class="alert alert-warning border border-warning-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
+                t-if="product._das_lms_course_sale_notice_html() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
+                t-attf-class="{{ product._das_lms_course_sale_notice_alert_classes() }}"
                 role="status"
             >
-                <i class="fa fa-exclamation-triangle fa-lg text-warning me-2 mt-1 flex-shrink-0" role="presentation"/>
-                <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
-            </div>
-            <!-- Visitante no inscrito: próximo / aviso académico -->
-            <div
-                t-if="not product._das_lms_course_sale_blocked() and product._das_lms_course_sale_notice_html() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
-                class="alert alert-info border border-info-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
-                role="status"
-            >
-                <i class="fa fa-info-circle fa-lg text-info me-2 mt-1 flex-shrink-0" role="presentation"/>
+                <i
+                    t-attf-class="fa fa-lg me-2 mt-1 flex-shrink-0 {{ 'fa-ban text-secondary' if product._das_lms_course_sale_notice_kind() == 'closed' else 'fa-exclamation-triangle text-warning' }}"
+                    role="presentation"
+                />
                 <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
             </div>
         </xpath>

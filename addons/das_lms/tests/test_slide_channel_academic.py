@@ -83,10 +83,7 @@ class TestDasLmsSlideChannelAcademic(TransactionCase):
         self.assertTrue(ch.das_can_study)
         partner = self.env['res.partner'].create({'name': 'Nuevo alumno'})
         with self.assertRaises(UserError):
-            self.env['slide.channel.partner'].create({
-                'channel_id': ch.id,
-                'partner_id': partner.id,
-            })
+            ch._action_add_members(partner)
 
     def test_portal_lesson_access_proximo_member_blocked(self):
         from odoo.tests.common import new_test_user

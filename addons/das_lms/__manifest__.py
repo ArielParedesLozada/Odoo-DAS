@@ -4,7 +4,7 @@
     'summary':
         'Seguimiento LMS vía slide.channel.partner; vínculo producto-curso explícito o nativo Odoo '
         '(slide.channel.product_id / das_lms_channel_id).',
-    'version': '18.0.4.26.0',
+    'version': '18.0.4.27.0',
     'category': 'Website/eLearning',
     'author': 'DAS',
     'license': 'LGPL-3',

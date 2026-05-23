@@ -63,7 +63,7 @@ class TestDasLmsSaleCart(TransactionCase):
         so = self.env['sale.order'].create({'partner_id': portal.partner_id.id})
         with self.assertRaises(UserError) as cm:
             so._verify_updated_quantity(self.env['sale.order.line'], variant.id, 1)
-        self.assertIn('Canal fin LMS', cm.exception.args[0])
+        self.assertIn('ya no está disponible', cm.exception.args[0])
 
     def test_explicit_channel_must_match_product_variants(self):
         tmpl = self.env['product.template'].create({'name': 'Plantilla A', 'sale_ok': True})

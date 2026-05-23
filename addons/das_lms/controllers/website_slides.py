@@ -96,6 +96,8 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
             {
                 'channel': channel,
                 'main_object': channel,
+                'das_lms_registration_notice': channel_sudo._das_lms_registration_notice_message(),
+                'das_lms_registration_notice_kind': channel_sudo._das_lms_registration_notice_kind(),
             },
         )
 

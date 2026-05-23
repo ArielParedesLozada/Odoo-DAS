@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-from .das_lms_constants import DAS_LMS_ACADEMIC_MODALITY
+from .das_lms_constants import DAS_LMS_ACADEMIC_MODALITY, DAS_LMS_REGISTRATION_CUTOFF_DAYS_DEFAULT
 
 _logger = logging.getLogger(__name__)
 
@@ -30,6 +30,15 @@ class SlideChannel(models.Model):
         string='Fecha de fin',
         tracking=True,
         help='Fin académico oficial del curso.',
+    )
+    registration_cutoff_days = fields.Integer(
+        string='Días de corte de inscripción',
+        default=DAS_LMS_REGISTRATION_CUTOFF_DAYS_DEFAULT,
+        tracking=True,
+        help=(
+            'Número de días antes de la fecha de fin en que se cierra la inscripción. '
+            'Ejemplo: 2 → no se puede inscribir desde dos días antes del fin del curso.'
+        ),
     )
     das_modality = fields.Selection(
         DAS_LMS_ACADEMIC_MODALITY,
@@ -90,7 +99,19 @@ class SlideChannel(models.Model):
         string='Permite nuevas inscripciones (venta)',
         compute='_compute_das_academic_lifecycle',
         readonly=True,
-        help='Falso si el curso está finalizado académicamente; no afecta a alumnos ya inscritos.',
+        help='Falso si el curso finalizó o si ya pasó el corte de inscripción (fecha fin − días de corte).',
+    )
+    das_registration_deadline = fields.Date(
+        string='Último día de inscripción',
+        compute='_compute_das_academic_lifecycle',
+        readonly=True,
+        help='Fecha límite para nuevas inscripciones: fecha de fin menos días de corte.',
+    )
+    das_registration_open = fields.Boolean(
+        string='Inscripción abierta',
+        compute='_compute_das_academic_lifecycle',
+        readonly=True,
+        help='Indica si aún se aceptan nuevas inscripciones según el calendario y el corte configurado.',
     )
     das_can_study = fields.Boolean(
         string='Contenidos desbloqueados (calendario)',
@@ -104,7 +125,7 @@ class SlideChannel(models.Model):
         for rec in self:
             rec.das_total_hours = (rec.das_autonomous_hours or 0.0) + (rec.das_teacher_contact_hours or 0.0)
 
-    @api.depends('das_start_date', 'das_end_date')
+    @api.depends('das_start_date', 'das_end_date', 'registration_cutoff_days')
     def _compute_das_academic_lifecycle(self):
         for channel in self:
             today = fields.Date.context_today(channel)
@@ -126,15 +147,22 @@ class SlideChannel(models.Model):
                 # Solo fecha fin
                 status = 'en_curso' if today <= end else 'finalizado'
 
+            deadline = channel._das_lms_registration_deadline_date()
+            registration_open = channel._das_lms_is_registration_open(
+                today=today, status=status, deadline=deadline,
+            )
+
             channel.das_academic_status = status
             channel.das_is_before_start = status == 'proximo'
             channel.das_is_running = status == 'en_curso'
             channel.das_is_finished = status == 'finalizado'
-            channel.das_can_sell = status != 'finalizado'
+            channel.das_registration_deadline = deadline
+            channel.das_registration_open = registration_open
+            channel.das_can_sell = registration_open
             # Inscritos pueden repasar contenido tras el fin; antes del inicio el material queda cerrado.
             channel.das_can_study = status in ('sin_fechas', 'en_curso', 'finalizado')
 
-    @api.constrains('das_start_date', 'das_end_date')
+    @api.constrains('das_start_date', 'das_end_date', 'registration_cutoff_days')
     def _check_das_academic_dates(self):
         for rec in self:
             if rec.das_start_date and rec.das_end_date and rec.das_end_date < rec.das_start_date:
@@ -142,6 +170,25 @@ class SlideChannel(models.Model):
                     _('La fecha de fin no puede ser anterior a la fecha de inicio en el curso «%s».')
                     % (rec.display_name,)
                 )
+            if rec.registration_cutoff_days is not None and rec.registration_cutoff_days < 0:
+                raise ValidationError(
+                    _('Los días de corte de inscripción no pueden ser negativos en el curso «%s».')
+                    % (rec.display_name,)
+                )
+            if (
+                rec.das_end_date
+                and rec.registration_cutoff_days
+                and rec.registration_cutoff_days > 0
+            ):
+                deadline = rec._das_lms_registration_deadline_date()
+                if rec.das_start_date and deadline and deadline < rec.das_start_date:
+                    _logger.warning(
+                        'DAS LMS: curso id=%s «%s» tiene corte de inscripción (%s) anterior al inicio (%s).',
+                        rec.id,
+                        rec.display_name,
+                        deadline,
+                        rec.das_start_date,
+                    )
 
     @api.constrains('das_autonomous_hours', 'das_teacher_contact_hours')
     def _check_das_hours_non_negative(self):
@@ -166,9 +213,27 @@ class SlideChannel(models.Model):
         return super()._filter_add_members(target_partners, raise_on_access=raise_on_access)
 
     def _action_add_members(self, target_partners, member_status='joined', raise_on_access=False):
-        """Evita la alta automática al confirmar pedido (website_sale_slides); la inscripción va por factura."""
+        """Evita la alta automática al confirmar pedido; valida corte de inscripción en altas comerciales."""
         if self.env.context.get('das_lms_skip_slide_channel_auto_enroll'):
             return self.env['slide.channel.partner'].browse()
+        if not self.env.context.get('das_lms_bypass_academic_close'):
+            for channel in self:
+                if channel.das_academic_status == 'finalizado':
+                    responsible = channel.user_id.partner_id if channel.user_id else self.env['res.partner']
+                    if target_partners - responsible:
+                        raise UserError(
+                            _('La inscripción ya no está disponible para el curso «%s».')
+                            % channel.display_name
+                        )
+                    continue
+                if channel._das_lms_is_registration_open():
+                    continue
+                responsible = channel.user_id.partner_id if channel.user_id else self.env['res.partner']
+                if target_partners - responsible:
+                    raise UserError(
+                        _('La inscripción ya no está disponible para el curso «%s».')
+                        % channel.display_name
+                    )
         return super()._action_add_members(
             target_partners, member_status=member_status, raise_on_access=raise_on_access
         )
@@ -196,6 +261,12 @@ class SlideChannel(models.Model):
         )
         if existing:
             return existing
+        if not self.env.context.get('das_lms_bypass_registration_close'):
+            if not self._das_lms_is_registration_open():
+                raise ValidationError(
+                    _('La inscripción ya no está disponible para el curso «%s».')
+                    % self.display_name
+                )
         partner.ensure_one()
         _logger.info(
             'DAS LMS enroll_partner start channel=%s partner=%s commercial_root=%s academic_status=%s '
@@ -252,7 +323,7 @@ class SlideChannel(models.Model):
             partner = partner or self.env.user.partner_id
             if self._das_lms_user_is_enrolled(partner):
                 return False
-            if getattr(self, 'das_academic_status', None) == 'finalizado':
+            if not self.das_registration_open:
                 return False
             return True
         except Exception:
@@ -261,6 +332,59 @@ class SlideChannel(models.Model):
                 self.id,
             )
             return True
+
+    def _das_lms_registration_deadline_date(self):
+        """Último día calendario en que se aceptan nuevas inscripciones."""
+        self.ensure_one()
+        if not self.das_end_date:
+            return False
+        cutoff = self.registration_cutoff_days or 0
+        return fields.Date.subtract(self.das_end_date, days=cutoff)
+
+    def _das_lms_is_registration_open(self, today=None, status=None, deadline=None):
+        """True si hoy aún se pueden crear nuevas inscripciones comerciales."""
+        self.ensure_one()
+        today = today or fields.Date.context_today(self)
+        status = status if status is not None else self.das_academic_status
+        if status == 'finalizado':
+            return False
+        deadline = deadline if deadline is not None else self._das_lms_registration_deadline_date()
+        if deadline:
+            return today <= deadline
+        return True
+
+    def _das_lms_registration_notice_kind(self, partner=None):
+        """Tipo de aviso para visitantes: closed | before_start | open | none."""
+        self.ensure_one()
+        if partner and self._das_lms_user_is_enrolled(partner):
+            return 'none'
+        today = fields.Date.context_today(self)
+        if not self._das_lms_is_registration_open(today=today):
+            return 'closed'
+        if self.das_start_date and today < self.das_start_date:
+            return 'before_start'
+        if self.das_academic_status in ('en_curso', 'sin_fechas') or (
+            self.das_start_date and today >= self.das_start_date
+        ):
+            return 'open'
+        if self.das_academic_status == 'proximo':
+            return 'before_start'
+        return 'none'
+
+    def _das_lms_registration_notice_message(self, partner=None):
+        """Mensaje dinámico de inscripción para tienda, portal y backend."""
+        self.ensure_one()
+        kind = self._das_lms_registration_notice_kind(partner=partner)
+        if kind == 'closed':
+            return _('La inscripción ya no está disponible para este curso.')
+        if kind == 'before_start':
+            return _('El curso aún no ha comenzado. Inscríbete ahora.')
+        if kind == 'open':
+            cutoff = self.registration_cutoff_days or DAS_LMS_REGISTRATION_CUTOFF_DAYS_DEFAULT
+            return _(
+                'El curso está en curso. Inscríbete hasta %(days)s días antes de finalizar.'
+            ) % {'days': cutoff}
+        return ''
 
     def _das_lms_public_course_href(self):
         """Ruta para enlazar el curso desde la web (/slides/...) sin dominio absoluto.
