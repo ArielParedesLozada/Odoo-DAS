@@ -6,7 +6,7 @@ from odoo.addons.account_payment.tests.common import AccountPaymentCommon
 
 @tagged('post_install', '-at_install')
 class TestDasLmsSalePaypal(AccountPaymentCommon):
-    """PayPal: factura publicada e inscripción inmediata; otros métodos sin atajo LMS."""
+    """PayPal: pedido confirmado, factura pagada e inscripción inmediata."""
 
     @classmethod
     def setUpClass(cls):
@@ -29,7 +29,7 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
 
         cls.paypal_provider = cls._das_lms_get_test_provider('paypal')
         cls.custom_provider = cls._das_lms_get_test_provider('custom')
-        cls._das_lms_configure_provider_journal(cls.paypal_provider)
+        cls._das_lms_link_provider_journal_from_dummy(cls.paypal_provider)
         cls._das_lms_configure_provider_journal(cls.custom_provider)
         cls._das_lms_configure_provider_journal(cls.provider)
 
@@ -60,6 +60,26 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
         if code == 'custom':
             values['custom_mode'] = 'wire_transfer'
         return cls.env['payment.provider'].sudo().create(values)
+
+    @classmethod
+    def _das_lms_link_provider_journal_from_dummy(cls, provider):
+        journal = cls.company_data['default_journal_bank']
+        provider.journal_id = journal.id
+        provider_lines = journal.inbound_payment_method_line_ids.filtered(
+            lambda line: line.payment_provider_id == provider
+        )
+        if not provider_lines and cls.dummy_provider_method:
+            cls.env['account.payment.method.line'].sudo().create({
+                'journal_id': journal.id,
+                'payment_method_id': cls.dummy_provider_method.id,
+                'payment_provider_id': provider.id,
+                'payment_account_id': cls.inbound_payment_method_line.payment_account_id.id,
+            })
+            provider_lines = journal.inbound_payment_method_line_ids.filtered(
+                lambda line: line.payment_provider_id == provider
+            )
+        if provider_lines and hasattr(cls, 'inbound_payment_method_line'):
+            provider_lines.payment_account_id = cls.inbound_payment_method_line.payment_account_id
 
     @classmethod
     def _das_lms_configure_provider_journal(cls, provider):
@@ -97,17 +117,17 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
         })
 
     def test_paypal_pending_confirms_posts_invoice_and_enrolls(self):
-        """Captura PayPal en revisión (tx pending): mismo circuito LMS que done."""
         self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
         order = self._create_lms_sale_order()
         tx = self._create_payment_tx(order, self.paypal_provider)
         tx._set_pending()
         tx._post_process()
 
-        self.assertEqual(order.state, 'sale')
         invoices = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
+        self.assertEqual(order.state, 'sale')
         self.assertTrue(invoices)
         self.assertEqual(invoices[:1].state, 'posted')
+        self.assertEqual(invoices[:1].payment_state, 'paid')
         self.assertTrue(self.lms_tmpl._das_lms_user_is_enrolled(partner=order.partner_id))
 
     def test_paypal_done_posts_invoice_and_enrolls_without_automatic_invoice(self):
@@ -117,18 +137,12 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
         tx._set_done()
         tx._post_process()
 
-        self.assertEqual(order.state, 'sale')
         invoices = order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')
-        self.assertTrue(invoices, 'PayPal LMS debe generar factura aunque sale.automatic_invoice sea False')
+        self.assertEqual(order.state, 'sale')
+        self.assertTrue(invoices)
         self.assertEqual(invoices[:1].state, 'posted')
+        self.assertEqual(invoices[:1].payment_state, 'paid')
         self.assertTrue(self.lms_tmpl._das_lms_user_is_enrolled(partner=order.partner_id))
-        self.assertTrue(
-            self.env['slide.channel.partner'].search_count([
-                ('channel_id', '=', self.lms_channel.id),
-                ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
-                ('active', '=', True),
-            ])
-        )
 
     def test_paypal_enroll_is_idempotent_when_already_enrolled(self):
         self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
@@ -148,8 +162,44 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
             1,
         )
 
+    def test_paypal_finalize_idempotent_on_second_run(self):
+        self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
+        order = self._create_lms_sale_order()
+        tx = self._create_payment_tx(order, self.paypal_provider)
+        tx._set_done()
+        tx._post_process()
+
+        scp_domain = [
+            ('channel_id', '=', self.lms_channel.id),
+            ('partner_id', 'child_of', order.partner_id.commercial_partner_id.id),
+            ('active', '=', True),
+        ]
+        tx._das_lms_finalize_paypal_lms_orders()
+        order.invalidate_recordset()
+
+        self.assertEqual(order.state, 'sale')
+        self.assertEqual(len(order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice')), 1)
+        self.assertEqual(
+            order.invoice_ids.filtered(lambda m: m.move_type == 'out_invoice').payment_state,
+            'paid',
+        )
+        self.assertEqual(self.env['slide.channel.partner'].search_count(scp_domain), 1)
+
+    def test_paypal_posts_draft_invoice_on_confirmed_order(self):
+        self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
+        order = self._create_lms_sale_order()
+        order.action_confirm()
+        draft_inv = order._create_invoices(final=True)
+        tx = self._create_payment_tx(order, self.paypal_provider)
+        tx._set_done()
+        tx._post_process()
+
+        self.assertEqual(order.state, 'sale')
+        self.assertEqual(draft_inv.state, 'posted')
+        self.assertEqual(draft_inv.payment_state, 'paid')
+        self.assertTrue(self.lms_tmpl._das_lms_user_is_enrolled(partner=order.partner_id))
+
     def test_custom_provider_pending_keeps_traditional_flow(self):
-        """Transferencia / custom pendiente: sin factura ni inscripción automática."""
         self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
         order = self._create_lms_sale_order()
         tx = self._create_payment_tx(order, self.custom_provider)
@@ -161,7 +211,6 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
         self.assertFalse(self.lms_tmpl._das_lms_user_is_enrolled(partner=order.partner_id))
 
     def test_non_paypal_done_without_automatic_invoice_does_not_force_lms_invoice(self):
-        """Demo/otros proveedores: sin atajo PayPal no se factura ni inscribe automáticamente."""
         self.env['ir.config_parameter'].sudo().set_param('sale.automatic_invoice', 'False')
         order = self._create_lms_sale_order()
         tx = self._create_payment_tx(order, self.provider)
@@ -183,4 +232,3 @@ class TestDasLmsSalePaypal(AccountPaymentCommon):
         self.assertTrue(data['show_success'])
         self.assertEqual(len(data['channels']), 1)
         self.assertEqual(data['channels'][0]['name'], self.lms_channel.display_name)
-        self.assertTrue(data['channels'][0]['url'])

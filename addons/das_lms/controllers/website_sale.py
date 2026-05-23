@@ -115,22 +115,26 @@ class DasLmsWebsiteSale(WebsiteSale):
             and order_sudo._das_lms_get_lms_sale_lines()
         ):
             try:
-                tx._das_lms_finalize_paypal_lms_orders()
+                with request.env.cr.savepoint():
+                    tx._das_lms_finalize_paypal_lms_orders()
             except Exception:
                 _logger.exception(
                     'DAS LMS: fallo al finalizar PayPal en confirmación pedido=%s tx=%s.',
                     order_sudo.name,
                     tx.id,
                 )
+            order_sudo.invalidate_recordset(['state', 'invoice_ids'])
         values = super()._prepare_shop_payment_confirmation_values(order)
         enrollment = order_sudo._das_lms_payment_confirmation_enrollment_data()
         values['das_lms_payment_enrollment'] = enrollment
-        values['das_lms_paypal_instant_enrollment'] = bool(
+        paypal_lms_ok = bool(
             tx
             and tx.provider_code == 'paypal'
             and tx.state in ('pending', 'done')
             and enrollment.get('show_success')
         )
+        values['das_lms_paypal_instant_enrollment'] = paypal_lms_ok
+        values['das_lms_paypal_hide_pending_status'] = paypal_lms_ok
         return values
 
     @route(['/shop/cart/update'], type='http', auth='public', methods=['POST'], website=True)

@@ -170,6 +170,8 @@ class SaleOrder(models.Model):
         return new_qty, warning
 
     def action_confirm(self):
+        if self.env.context.get('das_lms_paypal_post_payment_confirm'):
+            return super().action_confirm()
         for order in self:
             order._das_lms_validate_course_cart_rules()
             partner = order.partner_id
