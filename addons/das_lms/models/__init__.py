@@ -9,6 +9,7 @@ from . import product_template
 from . import product_product
 from . import sale_order
 from . import sale_order_line
+from . import payment_transaction
 from . import das_lms_invoice_enroll_backfill
 from . import account_move
 from . import das_lms_link_audit

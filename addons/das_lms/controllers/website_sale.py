@@ -105,6 +105,34 @@ class DasLmsWebsiteSale(WebsiteSale):
 
         return out
 
+    def _prepare_shop_payment_confirmation_values(self, order):
+        order_sudo = order.sudo()
+        tx = order_sudo.get_portal_last_transaction()
+        if (
+            tx
+            and tx.provider_code == 'paypal'
+            and tx.state in ('pending', 'done')
+            and order_sudo._das_lms_get_lms_sale_lines()
+        ):
+            try:
+                tx._das_lms_finalize_paypal_lms_orders()
+            except Exception:
+                _logger.exception(
+                    'DAS LMS: fallo al finalizar PayPal en confirmación pedido=%s tx=%s.',
+                    order_sudo.name,
+                    tx.id,
+                )
+        values = super()._prepare_shop_payment_confirmation_values(order)
+        enrollment = order_sudo._das_lms_payment_confirmation_enrollment_data()
+        values['das_lms_payment_enrollment'] = enrollment
+        values['das_lms_paypal_instant_enrollment'] = bool(
+            tx
+            and tx.provider_code == 'paypal'
+            and tx.state in ('pending', 'done')
+            and enrollment.get('show_success')
+        )
+        return values
+
     @route(['/shop/cart/update'], type='http', auth='public', methods=['POST'], website=True)
     def cart_update(
         self,

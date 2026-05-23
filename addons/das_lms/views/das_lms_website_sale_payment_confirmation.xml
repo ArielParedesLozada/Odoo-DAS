@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="website_sale_confirmation_das_lms_enrolled" inherit_id="website_sale.confirmation" priority="120">
+        <xpath expr="//t[@t-call='website_sale.payment_confirmation_status']" position="after">
+            <t t-if="das_lms_payment_enrollment and das_lms_payment_enrollment.get('show_success')">
+                <t t-foreach="das_lms_payment_enrollment.get('channels', [])" t-as="lms_course">
+                    <div
+                        class="alert alert-success border border-success-subtle shadow-sm mt-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_payment_enrollment_success"
+                        role="status"
+                    >
+                        <i class="fa fa-check-circle fa-lg text-success me-2 mt-1 flex-shrink-0" role="presentation"/>
+                        <div class="flex-grow-1 min-w-0">
+                            <span class="d-block fw-semibold mb-1">
+                                Ya estás inscrito en este curso
+                            </span>
+                            <span class="d-block small mb-3" t-out="lms_course.get('name')"/>
+                            <a
+                                t-if="lms_course.get('url')"
+                                t-att-href="lms_course.get('url')"
+                                class="btn btn-primary d-inline-flex align-items-center"
+                            >
+                                <i class="fa fa-graduation-cap me-2" role="presentation"/>
+                                <span t-out="lms_course.get('cta_label') or 'Acceder al curso'"/>
+                            </a>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>
