@@ -1,0 +1,480 @@
+/* DAS Email Preferences — onboarding / portal */
+
+.o_das_email_preferences_portal {
+    font-family: var(--font-sans-serif, "Segoe UI", system-ui, -apple-system, sans-serif);
+    color: #1e293b;
+    background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 45%, #f1f5f9 100%);
+    min-height: 60vh;
+
+    .o_das_pref_shell {
+        background: #fff;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow:
+            0 4px 6px -1px rgba(15, 23, 42, 0.06),
+            0 20px 50px -12px rgba(30, 64, 175, 0.12);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+
+    .o_das_pref_aside {
+        background: linear-gradient(165deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+        color: #fff;
+        display: flex;
+    }
+
+    .o_das_pref_aside__inner {
+        padding: 2.5rem 2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        @media (min-width: 992px) {
+            padding: 3rem 2.25rem;
+        }
+    }
+
+    .o_das_pref_brand {
+        margin-bottom: 1.75rem;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .o_das_pref_brand__logo {
+        display: block;
+        width: auto;
+        max-width: 10.5rem;
+        height: auto;
+        margin: 0 auto;
+        padding: 0;
+        background: none;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .o_das_pref_aside__title {
+        font-size: clamp(1.5rem, 3vw, 1.95rem);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
+        color: #fff;
+        width: 100%;
+        max-width: 18rem;
+    }
+
+    .o_das_pref_aside__text {
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: rgba(255, 255, 255, 0.88);
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 20rem;
+    }
+
+    .o_das_pref_aside__list {
+        list-style: none;
+        padding: 0;
+        margin: 0 auto 1.25rem;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.92);
+        width: 100%;
+        max-width: 16rem;
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    .o_das_pref_aside__note {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 0.5rem;
+        padding: 0.65rem 0.85rem;
+        margin: 0;
+        width: 100%;
+        max-width: 20rem;
+    }
+
+    .o_das_pref_main__inner {
+        padding: 1.75rem 1.5rem 2rem;
+
+        @media (min-width: 992px) {
+            padding: 2rem 2.25rem 2.25rem;
+        }
+    }
+
+    /* Bloques del formulario (cajas con sombra) */
+    .o_das_pref_block {
+        margin-bottom: 1.25rem;
+        padding: 1.25rem 1.35rem;
+        background: #fff;
+        border: 1px solid #e8eef5;
+        border-radius: 0.85rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+
+        &--optional {
+            background: #f8fafc;
+            border-style: dashed;
+        }
+
+        &--legal {
+            background: #fafbff;
+            border-color: #e0e7ff;
+        }
+    }
+
+    .o_das_pref_block__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .o_das_pref_block__icon {
+        flex-shrink: 0;
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+
+        &--interests { background: #eff6ff; color: #2563eb; }
+        &--birthday { background: #fdf2f8; color: #db2777; }
+        &--experience { background: #f0fdf4; color: #059669; }
+        &--courses { background: #fff7ed; color: #ea580c; }
+        &--legal { background: #f5f3ff; color: #7c3aed; }
+    }
+
+    .o_das_pref_block__title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.25rem;
+    }
+
+    .o_das_pref_block__help {
+        font-size: 0.82rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.55;
+    }
+
+    .o_das_pref_optional {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748b;
+        background: #e2e8f0;
+        padding: 0.15rem 0.45rem;
+        border-radius: 0.2rem;
+        margin-left: 0.35rem;
+        vertical-align: middle;
+    }
+
+    .o_das_pref_block__body {
+        padding-left: 0.15rem;
+    }
+
+    /* Secciones del formulario */
+    .o_das_pref_section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+
+        &:last-of-type {
+            border-bottom: none;
+            margin-bottom: 1rem;
+            padding-bottom: 0;
+        }
+
+        &--optional .o_das_pref_section__body {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px dashed #e2e8f0;
+        }
+
+        &--legal .o_das_pref_section__body {
+            background: #fafafa;
+            border-radius: 0.75rem;
+            padding: 0.25rem 1rem;
+            border: 1px solid #f1f5f9;
+        }
+    }
+
+    .o_das_pref_section__head {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .o_das_pref_section__icon {
+        flex-shrink: 0;
+        width: 2.35rem;
+        height: 2.35rem;
+        border-radius: 0.6rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+
+        &--interests { background: #eff6ff; color: #2563eb; }
+        &--birthday { background: #fdf2f8; color: #db2777; }
+        &--comm { background: #ecfdf5; color: #059669; }
+        &--courses { background: #fff7ed; color: #ea580c; }
+        &--legal { background: #f5f3ff; color: #7c3aed; }
+    }
+
+    .o_das_pref_section__title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0 0 0.2rem;
+    }
+
+    .o_das_pref_section__desc {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    .o_das_pref_optional {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748b;
+        background: #e2e8f0;
+        padding: 0.15rem 0.45rem;
+        border-radius: 0.2rem;
+        margin-left: 0.35rem;
+        vertical-align: middle;
+    }
+
+    .o_das_pref_field__label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #334155;
+        margin-bottom: 0.35rem;
+    }
+
+    .o_das_pref_field__hint {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 0.35rem;
+    }
+
+  .o_das_pref_channel {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        padding: 0.75rem 1rem;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: 0.6rem;
+        margin-bottom: 0.75rem;
+
+        &__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #047857;
+            background: #fff;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            border: 1px solid #6ee7b7;
+        }
+
+        &__hint {
+            font-size: 0.78rem;
+            color: #059669;
+        }
+    }
+
+    .o_das_pref_chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .o_das_pref_chip {
+        margin: 0;
+        cursor: pointer;
+
+        &__input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        &__text {
+            display: inline-block;
+            padding: 0.45rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #475569;
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 2rem;
+            transition: all 0.18s ease;
+        }
+
+        &__input:focus-visible + .o_das_pref_chip__text {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
+        &__input:checked + .o_das_pref_chip__text {
+            color: #1d4ed8;
+            background: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 1px 2px rgba(37, 99, 235, 0.12);
+        }
+
+        &:hover .o_das_pref_chip__text {
+            border-color: #94a3b8;
+        }
+
+        &--category .o_das_pref_chip__text {
+            border-radius: 0.5rem;
+        }
+
+        &--category .o_das_pref_chip__input:checked + .o_das_pref_chip__text {
+            color: #c2410c;
+            background: #fff7ed;
+            border-color: #fb923c;
+        }
+    }
+
+    .o_das_pref_date,
+    .o_das_pref_select {
+        max-width: 100%;
+        border-radius: 0.5rem;
+        border-color: #cbd5e1;
+        font-size: 0.95rem;
+        padding: 0.55rem 0.85rem;
+
+        &:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    .o_das_pref_date {
+        max-width: 18rem;
+    }
+
+    .o_das_pref_checkrow {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        padding: 0.75rem 0;
+        margin: 0;
+        font-size: 0.875rem;
+        color: #334155;
+        cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .form-check-input {
+            margin-top: 0.15rem;
+            flex-shrink: 0;
+        }
+    }
+
+    .o_das_pref_footer {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f1f5f9;
+        margin-top: 0.5rem;
+
+        @media (min-width: 576px) {
+            flex-direction: row;
+            align-items: center;
+        }
+    }
+
+    .o_das_pref_btn-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.65rem;
+        min-height: 3rem;
+        padding: 0 2.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff !important;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+        border: none !important;
+        border-radius: 0.6rem;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4);
+            color: #fff !important;
+        }
+    }
+
+    .o_das_pref_link-back {
+        font-size: 0.875rem;
+        color: #64748b;
+        text-decoration: none;
+        text-align: center;
+
+        &:hover {
+            color: #2563eb;
+        }
+    }
+
+    .o_das_pref_alert {
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 1.25rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .o_das_email_preferences_portal {
+        .o_das_pref_aside__inner {
+            padding: 2rem 1.5rem;
+        }
+
+        .o_das_pref_brand__logo {
+            max-width: 9rem;
+        }
+
+        .o_das_pref_date {
+            max-width: 100%;
+        }
+    }
+}

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_email_preferences_form" name="Preferencias de comunicación">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-set="fv" t-value="form_values or {}"/>
+            <t t-set="sel_interests" t-value="fv.get('interest_ids') if fv.get('interest_ids') is not None else preference.interest_ids.ids"/>
+            <t t-set="sel_categories" t-value="fv.get('course_category_ids') if fv.get('course_category_ids') is not None else preference.course_category_ids.ids"/>
+            <t t-set="val_birthday" t-value="fv.get('birthday') or preference.birthday"/>
+            <t t-set="val_experience" t-value="fv.get('experience_level') if 'experience_level' in fv else preference.experience_level"/>
+            <t t-set="val_terms" t-value="fv.get('terms_accepted') if 'terms_accepted' in fv else preference.terms_accepted"/>
+            <t t-set="val_privacy" t-value="fv.get('privacy_accepted') if 'privacy_accepted' in fv else preference.privacy_accepted"/>
+
+            <div class="o_portal_wrap o_das_email_preferences_portal">
+                <div class="container py-4 py-lg-5">
+                    <div class="row justify-content-center">
+                        <div class="col-12 col-xl-11">
+                            <div class="o_das_pref_shell">
+                                <div class="row g-0">
+                                    <!-- Panel lateral -->
+                                    <div class="col-lg-4 o_das_pref_aside">
+                                        <div class="o_das_pref_aside__inner">
+                                            <div class="o_das_pref_brand">
+                                                <img
+                                                    src="/das_email_preferences/static/src/img/Logo.png"
+                                                    alt="Academia Virtual de Tecnología"
+                                                    class="o_das_pref_brand__logo"
+                                                />
+                                            </div>
+                                            <h1 class="o_das_pref_aside__title">
+                                                <t t-if="onboarding">Personaliza tu experiencia</t>
+                                                <t t-else="">Tus preferencias</t>
+                                            </h1>
+                                            <p class="o_das_pref_aside__text">
+                                                <t t-if="onboarding">
+                                                    Cuéntanos tus intereses para recomendarte cursos
+                                                    y enviarte campañas personalizadas por correo electrónico.
+                                                </t>
+                                                <t t-else="">
+                                                    Mantén actualizados tus datos para campañas
+                                                    de Email Marketing personalizadas.
+                                                </t>
+                                            </p>
+                                            <ul class="o_das_pref_aside__list">
+                                                <li><i class="fa fa-tags" aria-hidden="true"/> Temas de interés</li>
+                                                <li><i class="fa fa-birthday-cake" aria-hidden="true"/> Fecha de cumpleaños</li>
+                                                <li><i class="fa fa-signal" aria-hidden="true"/> Nivel de experiencia</li>
+                                                <li><i class="fa fa-book" aria-hidden="true"/> Categorías de cursos</li>
+                                                <li><i class="fa fa-shield" aria-hidden="true"/> Términos y privacidad</li>
+                                            </ul>
+                                            <p t-if="onboarding" class="o_das_pref_aside__note">
+                                                <i class="fa fa-info-circle" aria-hidden="true"/>
+                                                Completa los campos obligatorios (*) para continuar.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Formulario -->
+                                    <div class="col-lg-8 o_das_pref_main">
+                                        <div class="o_das_pref_main__inner">
+                                            <div t-if="error_message" class="alert alert-danger o_das_pref_alert" role="alert">
+                                                <i class="fa fa-exclamation-circle me-2" aria-hidden="true"/>
+                                                <span t-out="error_message"/>
+                                            </div>
+
+                                            <form
+                                                action="/my/email-preferences/submit"
+                                                method="post"
+                                                class="o_das_email_preferences_form"
+                                            >
+                                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                <input type="hidden" name="redirect" t-att-value="redirect_url"/>
+
+                                                <!-- 1. Intereses (obligatorio) -->
+                                                <section class="o_das_pref_block o_das_pref_block--required">
+                                                    <header class="o_das_pref_block__head">
+                                                        <span class="o_das_pref_block__icon o_das_pref_block__icon--interests" aria-hidden="true">
+                                                            <i class="fa fa-tags"/>
+                                                        </span>
+                                                        <div>
+                                                            <h2 class="o_das_pref_block__title">
+                                                                Temas de interés
+                                                                <span class="text-danger">*</span>
+                                                            </h2>
+                                                            <p class="o_das_pref_block__help">
+                                                                Selecciona todas las áreas que te interesen. Personalizaremos
+                                                                tus campañas de correo según tus gustos.
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                    <div class="o_das_pref_block__body">
+                                                        <div class="o_das_pref_chips">
+                                                        <t t-foreach="interests" t-as="interest">
+                                                            <label class="o_das_pref_chip" t-att-for="'interest_%s' % interest.id">
+                                                                <input
+                                                                    class="o_das_pref_chip__input"
+                                                                    type="checkbox"
+                                                                    name="interest_ids"
+                                                                    t-att-id="'interest_%s' % interest.id"
+                                                                    t-att-value="interest.id"
+                                                                    t-att-checked="interest.id in sel_interests and 'checked' or None"
+                                                                />
+                                                                <span class="o_das_pref_chip__text" t-out="interest.name"/>
+                                                            </label>
+                                                        </t>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                <!-- 2. Cumpleaños (obligatorio) -->
+                                                <section class="o_das_pref_block o_das_pref_block--required">
+                                                    <header class="o_das_pref_block__head">
+                                                        <span class="o_das_pref_block__icon o_das_pref_block__icon--birthday" aria-hidden="true">
+                                                            <i class="fa fa-birthday-cake"/>
+                                                        </span>
+                                                        <div>
+                                                            <h2 class="o_das_pref_block__title">
+                                                                Fecha de cumpleaños
+                                                                <span class="text-danger">*</span>
+                                                            </h2>
+                                                            <p class="o_das_pref_block__help">
+                                                                Usa el calendario para elegir tu fecha. Debes tener al menos 13 años.
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                    <div class="o_das_pref_block__body">
+                                                        <input
+                                                            type="date"
+                                                            class="form-control o_das_pref_date"
+                                                            name="birthday"
+                                                            id="birthday"
+                                                            required="required"
+                                                            title="Selecciona tu fecha de nacimiento"
+                                                            t-att-value="val_birthday"
+                                                        />
+                                                    </div>
+                                                </section>
+
+                                                <!-- 3. Nivel de experiencia (opcional) -->
+                                                <section class="o_das_pref_block o_das_pref_block--optional">
+                                                    <header class="o_das_pref_block__head">
+                                                        <span class="o_das_pref_block__icon o_das_pref_block__icon--experience" aria-hidden="true">
+                                                            <i class="fa fa-signal"/>
+                                                        </span>
+                                                        <div>
+                                                            <h2 class="o_das_pref_block__title">
+                                                                Nivel de experiencia
+                                                                <span class="o_das_pref_optional">Opcional</span>
+                                                            </h2>
+                                                            <p class="o_das_pref_block__help">
+                                                                Nos ayuda a recomendarte cursos acordes a tu perfil académico.
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                    <div class="o_das_pref_block__body">
+                                                        <select class="form-select o_das_pref_select" name="experience_level" id="experience_level"
+                                                            title="Selecciona tu nivel de experiencia">
+                                                            <option value="">— Selecciona tu nivel —</option>
+                                                            <t t-foreach="experience_levels" t-as="level">
+                                                                <option
+                                                                    t-att-value="level[0]"
+                                                                    t-att-selected="val_experience == level[0] and 'selected' or None"
+                                                                >
+                                                                    <t t-out="level[1]"/>
+                                                                </option>
+                                                            </t>
+                                                        </select>
+                                                    </div>
+                                                </section>
+
+                                                <!-- 4. Categorías de cursos (opcional) -->
+                                                <section class="o_das_pref_block o_das_pref_block--optional">
+                                                    <header class="o_das_pref_block__head">
+                                                        <span class="o_das_pref_block__icon o_das_pref_block__icon--courses" aria-hidden="true">
+                                                            <i class="fa fa-book"/>
+                                                        </span>
+                                                        <div>
+                                                            <h2 class="o_das_pref_block__title">
+                                                                Categorías de cursos preferidas
+                                                                <span class="o_das_pref_optional">Opcional</span>
+                                                            </h2>
+                                                            <p class="o_das_pref_block__help">
+                                                                Elige eLearning, certificaciones, talleres en vivo u otras categorías de tu interés.
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                    <div class="o_das_pref_block__body">
+                                                        <div class="o_das_pref_chips o_das_pref_chips--categories">
+                                                            <t t-foreach="course_categories" t-as="category">
+                                                                <label class="o_das_pref_chip o_das_pref_chip--category" t-att-for="'category_%s' % category.id">
+                                                                    <input
+                                                                        class="o_das_pref_chip__input"
+                                                                        type="checkbox"
+                                                                        name="course_category_ids"
+                                                                        t-att-id="'category_%s' % category.id"
+                                                                        t-att-value="category.id"
+                                                                        t-att-checked="category.id in sel_categories and 'checked' or None"
+                                                                    />
+                                                                    <span class="o_das_pref_chip__text" t-out="category.name"/>
+                                                                </label>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                <!-- 5. Legal (obligatorio) -->
+                                                <section class="o_das_pref_block o_das_pref_block--legal">
+                                                    <header class="o_das_pref_block__head">
+                                                        <span class="o_das_pref_block__icon o_das_pref_block__icon--legal" aria-hidden="true">
+                                                            <i class="fa fa-shield"/>
+                                                        </span>
+                                                        <div>
+                                                            <h2 class="o_das_pref_block__title">
+                                                                Términos y privacidad
+                                                                <span class="text-danger">*</span>
+                                                            </h2>
+                                                            <p class="o_das_pref_block__help">
+                                                                Debes aceptar ambos documentos para usar la plataforma y recibir comunicaciones por email.
+                                                            </p>
+                                                        </div>
+                                                    </header>
+                                                    <div class="o_das_pref_block__body">
+                                                    <label class="o_das_pref_checkrow" for="terms_accepted">
+                                                        <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            name="terms_accepted"
+                                                            id="terms_accepted"
+                                                            value="1"
+                                                            required="required"
+                                                            t-att-checked="val_terms and 'checked' or None"
+                                                        />
+                                                        <span>Acepto los términos y condiciones</span>
+                                                    </label>
+                                                    <label class="o_das_pref_checkrow" for="privacy_accepted">
+                                                        <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            name="privacy_accepted"
+                                                            id="privacy_accepted"
+                                                            value="1"
+                                                            required="required"
+                                                            t-att-checked="val_privacy and 'checked' or None"
+                                                        />
+                                                        <span>Acepto la política de privacidad</span>
+                                                        </label>
+                                                    </div>
+                                                </section>
+
+                                                <div class="o_das_pref_footer">
+                                                    <button type="submit" class="btn o_das_pref_btn-submit w-100 w-sm-auto">
+                                                        <span>
+                                                            <t t-if="onboarding">Guardar y continuar</t>
+                                                            <t t-else="">Guardar cambios</t>
+                                                        </span>
+                                                        <i class="fa fa-arrow-right" aria-hidden="true"/>
+                                                    </button>
+                                                    <a t-if="not onboarding" href="/my" class="o_das_pref_link-back">
+                                                        Volver a mi cuenta
+                                                    </a>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Odoo 18: tarjeta en portal_client_category, junto a métodos de pago -->
+    <template id="portal_my_home_email_preferences_link" inherit_id="portal.portal_my_home" priority="61">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/mass_mailing/static/description/icon.svg'"/>
+                <t t-set="title">Preferencias de comunicación</t>
+                <t t-set="text">Intereses, cumpleaños y correos de marketing</t>
+                <t t-set="url" t-value="'/my/email-preferences/edit'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_breadcrumbs_email_preferences" inherit_id="portal.portal_breadcrumbs" priority="50">
+        <xpath expr="//li[@class='breadcrumb-item ms-1']" position="after">
+            <li t-if="page_name == 'email_preferences'" class="breadcrumb-item">
+                Preferencias de comunicación
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_side_content_email_preferences" inherit_id="portal.side_content" priority="50">
+        <xpath expr="//a[@href='/my/account']" position="after">
+            <a role="button" href="/my/email-preferences/edit" class="btn btn-link p-0 mt-2">
+                <i class="fa fa-envelope-o" aria-hidden="true"/> Preferencias de comunicación
+            </a>
+        </xpath>
+    </template>
+
+    <template id="portal_my_details_email_preferences" inherit_id="portal.portal_my_details" priority="50">
+        <xpath expr="//div[hasclass('o_portal_details')]" position="before">
+            <div class="col-12 mb-4">
+                <div class="card border-0 bg-light">
+                    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+                        <div>
+                            <h5 class="card-title mb-1">Preferencias de comunicación</h5>
+                            <p class="card-text text-muted mb-0 small">
+                                Actualiza tus intereses, cumpleaños y aceptación legal para el correo de marketing.
+                            </p>
+                        </div>
+                        <a href="/my/email-preferences/edit" class="btn btn-outline-primary">
+                            <i class="fa fa-pencil me-1" aria-hidden="true"/> Editar preferencias
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

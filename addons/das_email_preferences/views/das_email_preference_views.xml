@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="das_email_preference_view_tree" model="ir.ui.view">
+        <field name="name">das.email.preference.list</field>
+        <field name="model">das.email.preference</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id"/>
+                <field name="user_id" optional="show"/>
+                <field name="birthday"/>
+                <field name="interest_ids" widget="many2many_tags"/>
+                <field name="comm_email"/>
+                <field name="comm_sms"/>
+                <field name="comm_push"/>
+                <field name="completed"/>
+                <field name="completed_on"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="das_email_preference_view_search" model="ir.ui.view">
+        <field name="name">das.email.preference.search</field>
+        <field name="model">das.email.preference</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="interest_ids"/>
+                <filter string="Completadas" name="completed" domain="[('completed', '=', True)]"/>
+                <filter string="Pendientes" name="pending" domain="[('completed', '=', False)]"/>
+                <filter string="Acepta email" name="comm_email" domain="[('comm_email', '=', True)]"/>
+                <filter string="Acepta SMS" name="comm_sms" domain="[('comm_sms', '=', True)]"/>
+                <filter string="Acepta push" name="comm_push" domain="[('comm_push', '=', True)]"/>
+                <group expand="0" string="Agrupar por">
+                    <filter string="Nivel experiencia" name="group_experience" context="{'group_by': 'experience_level'}"/>
+                    <filter string="Frecuencia" name="group_frequency" context="{'group_by': 'communication_frequency'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="das_email_preference_view_form" model="ir.ui.view">
+        <field name="name">das.email.preference.form</field>
+        <field name="model">das.email.preference</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="completed" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Usuario">
+                            <field name="partner_id"/>
+                            <field name="user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Auditoría">
+                            <field name="completed_on"/>
+                            <field name="completed_ip"/>
+                        </group>
+                    </group>
+                    <group string="Preferencias obligatorias">
+                        <group>
+                            <field name="interest_ids" widget="many2many_tags"/>
+                            <field name="birthday"/>
+                        </group>
+                        <group string="Canales de comunicación">
+                            <field name="comm_email"/>
+                            <field name="comm_sms"/>
+                            <field name="comm_push"/>
+                        </group>
+                    </group>
+                    <group string="Opcionales">
+                        <group>
+                            <field name="experience_level"/>
+                            <field name="communication_frequency"/>
+                        </group>
+                        <group>
+                            <field name="course_category_ids" widget="many2many_tags"/>
+                            <field name="terms_accepted"/>
+                            <field name="privacy_accepted"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="das_email_preference_action" model="ir.actions.act_window">
+        <field name="name">Preferencias de usuarios</field>
+        <field name="res_model">das.email.preference</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="das_email_preference_view_search"/>
+        <field name="context">{'search_default_completed': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Consulta las preferencias de comunicación capturadas en el registro.
+            </p>
+            <p>
+                Usa estos datos para segmentar campañas de Email Marketing por intereses,
+                cumpleaños, canales y frecuencia deseada.
+            </p>
+        </field>
+    </record>
+</odoo>

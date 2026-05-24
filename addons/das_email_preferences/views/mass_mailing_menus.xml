@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_das_email_preferences_root"
+        name="Preferencias usuarios"
+        parent="mass_mailing.mass_mailing_menu_root"
+        sequence="45"
+        groups="das_email_preferences.group_das_email_preferences_marketing"/>
+
+    <menuitem
+        id="menu_das_email_preference_records"
+        name="Registros de preferencias"
+        parent="menu_das_email_preferences_root"
+        action="das_email_preference_action"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_das_email_interest_config"
+        name="Intereses"
+        parent="menu_das_email_preferences_root"
+        action="das_email_interest_action"
+        sequence="20"/>
+</odoo>
