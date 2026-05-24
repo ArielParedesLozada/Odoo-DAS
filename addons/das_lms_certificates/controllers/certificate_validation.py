@@ -45,8 +45,21 @@ class CertificateValidationController(http.Controller):
             )
         )
 
-        if not enrollment or enrollment.das_lms_final_status == "pending":
+        # VALIDACIÓN COMPLETA
+        if not enrollment:
             return request.redirect("/slides")
+
+        if enrollment.das_lms_final_status == "pending":
+            return request.render(
+                "http_routing.403",
+                {"error_message": _("Debes completar el examen final.")},
+            )
+
+        if not enrollment.das_lms_survey_completed:
+            return request.render(
+                "http_routing.403",
+                {"error_message": _("Debes completar la encuesta de satisfacción.")},
+            )
 
         pdf, _ = (
             request.env["ir.actions.report"]
@@ -55,15 +68,18 @@ class CertificateValidationController(http.Controller):
                 "das_lms_certificates.action_report_course_certificate", [enrollment.id]
             )
         )
-        pdfhttpheaders = [
-            ("Content-Type", "application/pdf"),
-            ("Content-Length", len(pdf)),
-            (
-                "Content-Disposition",
-                'attachment; filename="Certificado_%s.pdf"' % channel_id,
-            ),
-        ]
-        return request.make_response(pdf, headers=pdfhttpheaders)
+
+        return request.make_response(
+            pdf,
+            headers=[
+                ("Content-Type", "application/pdf"),
+                ("Content-Length", len(pdf)),
+                (
+                    "Content-Disposition",
+                    f'attachment; filename="Certificado_{channel_id}.pdf"',
+                ),
+            ],
+        )
 
 
 class SurveyInherit(survey_main.Survey):
@@ -104,15 +120,12 @@ class SurveyInherit(survey_main.Survey):
             .sudo()
             .search([("survey_id", "=", int(survey_id))], limit=1)
         )
-        # 🚫 NO interceptar encuestas de satisfacción
-        if slide and slide.das_is_satisfaction_survey:
-            return super(SurveyInherit, self).survey_get_certification(
-                survey_id, **kwargs
-            )
-
         # If we have an attempt and it's either our "Examen Final" or "Encuesta de Satisfacción" slide
-        # SOLO el examen final puede generar certificado
-        if attempt and slide and slide.das_is_final_exam:
+        if (
+            attempt
+            and slide
+            and (slide.das_is_final_exam or slide.das_is_satisfaction_survey)
+        ):
             enrollment = (
                 request.env["course.enrollment"]
                 .sudo()
@@ -177,7 +190,56 @@ class SurveyInherit(survey_main.Survey):
                 return request.make_response(pdf, headers=pdfhttpheaders)
 
         # If it is NOT our Examen Final, let Odoo do its normal native thing
-        return super(SurveyInherit, self).survey_get_certification(survey_id, **kwargs)
+        return request.redirect("/slides")
+
+    @http.route(
+        ["/survey/submit/<string:survey_token>/<string:answer_token>"],
+        type="json",
+        auth="public",
+        website=True,
+    )
+    def survey_submit(self, survey_token, answer_token, **post):
+        res = super(SurveyInherit, self).survey_submit(
+            survey_token, answer_token, **post
+        )
+
+        # Buscar el intento actual para ver si acaba de finalizar
+        user_input = (
+            request.env["survey.user_input"]
+            .sudo()
+            .search([("access_token", "=", answer_token)], limit=1)
+        )
+        if user_input and user_input.state == "done":
+            # Verificar si este survey corresponde al Examen Final
+            slide = (
+                request.env["slide.slide"]
+                .sudo()
+                .search(
+                    [
+                        ("survey_id", "=", user_input.survey_id.id),
+                        ("das_is_final_exam", "=", True),
+                    ],
+                    limit=1,
+                )
+            )
+            if slide:
+                # Buscar la encuesta de satisfacción
+                sat_slide = (
+                    request.env["slide.slide"]
+                    .sudo()
+                    .search(
+                        [
+                            ("channel_id", "=", slide.channel_id.id),
+                            ("das_is_satisfaction_survey", "=", True),
+                        ],
+                        limit=1,
+                    )
+                )
+                if sat_slide and isinstance(res, dict):
+                    # Forzar la redirección a la encuesta de satisfacción
+                    res["redirect"] = f"/slides/slide/{sat_slide.id}"
+
+        return res
 
     @http.route(
         ["/survey/start/<string:survey_token>"],
@@ -191,18 +253,12 @@ class SurveyInherit(survey_main.Survey):
             .sudo()
             .search([("access_token", "=", survey_token)], limit=1)
         )
+
         if survey:
-            # Check if this survey is tied to a satisfaction survey slide
             slide = (
                 request.env["slide.slide"]
                 .sudo()
-                .search(
-                    [
-                        ("survey_id", "=", survey.id),
-                        ("das_is_satisfaction_survey", "=", True),
-                    ],
-                    limit=1,
-                )
+                .search([("survey_id", "=", survey.id)], limit=1)
             )
 
             if slide and not request.env.user._is_public():
@@ -218,18 +274,79 @@ class SurveyInherit(survey_main.Survey):
                     )
                 )
 
-                if not enrollment or enrollment.das_lms_final_status != "approved":
-                    # Raise UserError or redirect with a warning (Redirection is safer for UX)
-                    # Redirecting to the slide channel page with a fragment or just a simple alert page
-                    return request.render(
-                        "http_routing.403",
-                        {
-                            "error_message": _(
-                                "Acceso Denegado: Debe aprobar el examen final antes de acceder a la encuesta de satisfacción."
-                            )
-                        },
-                    )
+                # 🔒 BLOQUEO ENCUESTA SIN EXAMEN
+                if slide.das_is_satisfaction_survey:
+                    if not enrollment or enrollment.das_lms_final_status == "pending":
+                        return request.render(
+                            "http_routing.403",
+                            {
+                                "error_message": _(
+                                    "Acceso Denegado: Debes completar el examen final antes de acceder a la encuesta."
+                                )
+                            },
+                        )
+        # 🔥 ANTES de llamar al super
+        if slide and slide.das_is_satisfaction_survey:
+            old_attempts = (
+                request.env["survey.user_input"]
+                .sudo()
+                .search(
+                    [
+                        ("survey_id", "=", survey.id),
+                        ("partner_id", "=", request.env.user.partner_id.id),
+                        ("state", "=", "done"),
+                    ]
+                )
+            )
 
+        # ✅ CRÍTICO: SIEMPRE retornar al core
         return super(SurveyInherit, self).survey_start(
-            survey_token, answer_token, email, **post
+            survey_token, answer_token=answer_token, email=email, **post
         )
+
+    @http.route(
+        ["/survey/results/<string:answer_token>"],
+        type="http",
+        auth="public",
+        website=True,
+    )
+    def survey_results(self, answer_token, **kwargs):
+        user_input = (
+            request.env["survey.user_input"]
+            .sudo()
+            .search(
+                [("access_token", "=", answer_token)],
+                limit=1,
+            )
+        )
+
+        if user_input:
+            slide = (
+                request.env["slide.slide"]
+                .sudo()
+                .search(
+                    [
+                        ("survey_id", "=", user_input.survey_id.id),
+                        ("das_is_final_exam", "=", True),
+                    ],
+                    limit=1,
+                )
+            )
+
+            if slide:
+                sat_slide = (
+                    request.env["slide.slide"]
+                    .sudo()
+                    .search(
+                        [
+                            ("channel_id", "=", slide.channel_id.id),
+                            ("das_is_satisfaction_survey", "=", True),
+                        ],
+                        limit=1,
+                    )
+                )
+
+                if sat_slide:
+                    return request.redirect(f"/slides/slide/{sat_slide.id}")
+
+        return super().survey_results(answer_token, **kwargs)
