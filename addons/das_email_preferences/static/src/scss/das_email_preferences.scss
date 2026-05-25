@@ -337,6 +337,78 @@
         vertical-align: middle;
     }
 
+    .o_das_pref_suggested {
+        display: inline-block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #047857;
+        background: #d1fae5;
+        padding: 0.15rem 0.45rem;
+        border-radius: 0.2rem;
+        margin-left: 0.35rem;
+        vertical-align: middle;
+    }
+
+    .o_das_pref_block--experience {
+        background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
+        border-color: #bbf7d0;
+    }
+
+    .o_das_pref_level_cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+
+        @media (min-width: 576px) {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .o_das_pref_level_card {
+        margin: 0;
+        cursor: pointer;
+
+        &__input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        &__label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0.65rem 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            color: #475569;
+            background: #fff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.65rem;
+            transition: all 0.18s ease;
+        }
+
+        &__input:focus-visible + .o_das_pref_level_card__label {
+            outline: 2px solid #059669;
+            outline-offset: 2px;
+        }
+
+        &__input:checked + .o_das_pref_level_card__label {
+            color: #047857;
+            background: #ecfdf5;
+            border-color: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+        }
+
+        &:hover .o_das_pref_level_card__label {
+            border-color: #6ee7b7;
+        }
+    }
+
     .o_das_pref_block__body {
         padding-left: 0.15rem;
     }

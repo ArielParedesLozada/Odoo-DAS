@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import Command, _, models
+from odoo import Command, _, fields, models
 from odoo.exceptions import UserError
 
 from .das_email_template_layout import das_email_render, das_email_subject
@@ -7,6 +7,18 @@ from .das_email_template_layout import das_email_render, das_email_subject
 
 class MailingList(models.Model):
     _inherit = 'mailing.list'
+
+    das_is_reference_segment = fields.Boolean(
+        string='Segmento de referencia DAS',
+        compute='_compute_das_is_reference_segment',
+        help='Las listas DAS · … no disparan campañas automáticas; solo envío manual y estadísticas.',
+    )
+
+    def _compute_das_is_reference_segment(self):
+        for lst in self:
+            lst.das_is_reference_segment = bool(
+                lst.name and lst.name.startswith('DAS ·')
+            )
 
     def _das_list_variant(self):
         """Tipo de plantilla según el nombre de la lista."""

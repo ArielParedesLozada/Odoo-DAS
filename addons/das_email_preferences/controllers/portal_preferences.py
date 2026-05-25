@@ -7,8 +7,8 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
-# Niveles expuestos en el portal (extensible).
-PORTAL_EXPERIENCE_CODES = ('beginner', 'intermediate', 'advanced')
+# Niveles expuestos en el portal (sin selector de frecuencia: solo email).
+PORTAL_EXPERIENCE_CODES = ('beginner', 'intermediate', 'advanced', 'expert')
 
 
 class DasEmailPreferencesPortal(http.Controller):

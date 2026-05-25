@@ -5,7 +5,7 @@
         'Campañas automáticas de Email Marketing basadas en preferencias de usuario '
         'y calendario académico DAS LMS (cumpleaños, promociones, newsletter).'
     ),
-    'version': '18.0.1.4.6',
+    'version': '18.0.1.5.2',
     'category': 'Marketing/Email Marketing',
     'author': 'DAS',
     'license': 'LGPL-3',

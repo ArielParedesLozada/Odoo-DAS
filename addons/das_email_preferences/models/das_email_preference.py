@@ -182,7 +182,8 @@ class DasEmailPreference(models.Model):
             'comm_sms': False,
             'comm_push': False,
             'experience_level': values.get('experience_level') or False,
-            'communication_frequency': values.get('communication_frequency') or 'weekly',
+            # Sin selector en portal: frecuencia por defecto semanal (crons respetan el campo en BD).
+            'communication_frequency': 'weekly',
             'course_category_ids': [(6, 0, values.get('course_category_ids', []))],
             'terms_accepted': bool(values.get('terms_accepted')),
             'privacy_accepted': bool(values.get('privacy_accepted')),

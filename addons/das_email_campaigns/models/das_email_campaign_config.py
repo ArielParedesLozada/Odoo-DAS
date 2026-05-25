@@ -83,3 +83,28 @@ class DasEmailCampaignConfig(models.Model):
     @api.model
     def cron_run_monthly_campaigns(self):
         return self.env['das.email.campaign.runner'].cron_run_monthly_campaigns()
+
+    @api.model
+    def _das_required_campaign_codes(self):
+        return ('birthday', 'upcoming', 'new_courses', 'experience', 'newsletter')
+
+    @api.model
+    def _das_ensure_active_campaign_configs(self):
+        """Garantiza al menos las 5 campañas automáticas activas."""
+        required = self._das_required_campaign_codes()
+        configs = self.sudo().search([('code', 'in', required), ('active', '=', True)])
+        found = set(configs.mapped('code'))
+        missing = set(required) - found
+        if missing:
+            inactive = self.sudo().search([('code', 'in', list(missing)), ('active', '=', False)])
+            if inactive:
+                inactive.write({'active': True})
+            still_missing = set(required) - set(
+                self.sudo().search([('code', 'in', required), ('active', '=', True)]).mapped('code')
+            )
+            if still_missing:
+                _logger.warning(
+                    'DAS campaigns: faltan configuraciones activas para: %s',
+                    ', '.join(sorted(still_missing)),
+                )
+        return self.sudo().search([('code', 'in', required), ('active', '=', True)])

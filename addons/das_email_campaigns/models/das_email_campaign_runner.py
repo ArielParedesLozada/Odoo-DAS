@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from collections import defaultdict
 from datetime import timedelta
 
 from odoo import _, api, fields, models
@@ -13,13 +14,12 @@ from .das_email_template_layout import (
 
 _logger = logging.getLogger(__name__)
 
-# Campañas permitidas por frecuencia de comunicación del usuario.
 _FREQUENCY_ALLOWED = {
     'new_courses': {'daily', 'weekly', 'biweekly', 'monthly', 'promotions'},
     'experience': {'daily', 'weekly', 'biweekly', 'monthly', 'promotions'},
     'upcoming': {'daily', 'weekly', 'biweekly', 'monthly', 'promotions', 'minimal'},
     'newsletter': {'daily', 'weekly', 'biweekly', 'monthly'},
-    'birthday': None,  # siempre permitido si comm_email
+    'birthday': None,
 }
 
 _EXPERIENCE_LABELS = {
@@ -29,10 +29,20 @@ _EXPERIENCE_LABELS = {
     'expert': 'Experto',
 }
 
+_LEVEL_RANK = {
+    'beginner': 1,
+    'intermediate': 2,
+    'advanced': 3,
+    'expert': 4,
+}
+
 
 class DasEmailCampaignRunner(models.AbstractModel):
     _name = 'das.email.campaign.runner'
     _description = 'Motor de campañas automáticas DAS Email Marketing'
+
+    # Las mailing.list «DAS · …» son solo referencia/envío manual.
+    # La segmentación automática usa res.partner (das_interest_ids, categorías, nivel, frecuencia).
 
     # -------------------------------------------------------------------------
     # Utilidades de periodo e idempotencia
@@ -107,9 +117,43 @@ class DasEmailCampaignRunner(models.AbstractModel):
         )
 
     @api.model
+    def _partner_preference_segment_key(self, partner):
+        """Agrupa contactos con mismas preferencias para personalizar el bloque de cursos."""
+        return (
+            partner.das_experience_level or '',
+            tuple(sorted(partner.das_interest_ids.ids)),
+            tuple(sorted(partner.das_course_category_ids.ids)),
+        )
+
+    @api.model
+    def _group_partners_by_preference_segment(self, partners):
+        groups = defaultdict(list)
+        for partner in partners:
+            groups[self._partner_preference_segment_key(partner)].append(partner.id)
+        return groups
+
+    @api.model
+    def _clear_failed_logs_for_retry(self, partner_ids, config, period_key, channel_id=None):
+        """Permite reintentar envíos fallidos sin violar la restricción única."""
+        if not partner_ids:
+            return
+        domain = [
+            ('config_id', '=', config.id),
+            ('period_key', '=', period_key),
+            ('partner_id', 'in', partner_ids),
+            ('state', '=', 'failed'),
+        ]
+        if channel_id:
+            domain.append(('channel_ref_id', '=', channel_id))
+        else:
+            domain.append(('channel_ref_id', '=', 0))
+        self.env['das.email.campaign.log'].sudo().search(domain).unlink()
+
+    @api.model
     def _exclude_logged_partners(self, partner_ids, config, period_key, channel_id=None):
         if not partner_ids:
             return []
+        self._clear_failed_logs_for_retry(partner_ids, config, period_key, channel_id)
         domain = [
             ('config_id', '=', config.id),
             ('period_key', '=', period_key),
@@ -145,19 +189,81 @@ class DasEmailCampaignRunner(models.AbstractModel):
         return Partner.search(expression.AND([domain, match_domain]))
 
     @api.model
-    def _render_partner_body(self, template, partner, extra_ctx=None):
-        ctx = dict(extra_ctx or {}, object=partner)
-        if template:
-            return template.sudo()._render_field('body_html', [partner.id], compute_lang=True)[partner.id]
-        return ''
+    def _channel_matches_partner(self, channel, partner):
+        return partner in self._partners_for_channel(channel)
 
     @api.model
-    def _das_build_campaign_body(self, variant, channels=None, channels_title='Cursos destacados'):
+    def _channel_matches_experience_level(self, channel, level):
+        """Curso adecuado si su nivel está en rango ±1 del nivel del usuario."""
+        if not level:
+            return True
+        if not channel.das_experience_level:
+            return True
+        ch_rank = _LEVEL_RANK.get(channel.das_experience_level, 2)
+        user_rank = _LEVEL_RANK.get(level, 2)
+        return (user_rank - 1) <= ch_rank <= (user_rank + 1)
+
+    @api.model
+    def _channels_for_partner(self, partner, extra_domain=None, limit=5, level_filter=None):
+        """Cursos publicados que coinciden con intereses/categorías del contacto."""
+        Channel = self.env['slide.channel'].sudo()
+        domain = [('website_published', '=', True)]
+        if extra_domain:
+            domain = expression.AND([domain, extra_domain])
+        channels = Channel.search(domain, order='das_email_published_date desc, create_date desc', limit=80)
+        matched = Channel.browse()
+        level = level_filter or partner.das_experience_level
+        for channel in channels:
+            if not self._channel_matches_partner(channel, partner):
+                continue
+            if level and not self._channel_matches_experience_level(channel, level):
+                continue
+            matched |= channel
+            if len(matched) >= limit:
+                break
+        return matched
+
+    @api.model
+    def _search_new_course_channels(self, config):
+        today = self._today()
+        window = config.new_course_window_days or 14
+        since = today - timedelta(days=window)
+        Channel = self.env['slide.channel'].sudo()
+        candidates = Channel.search([
+            ('website_published', '=', True),
+            '|',
+            ('das_email_published_date', '>=', since),
+            '&',
+            ('das_email_published_date', '=', False),
+            ('create_date', '>=', fields.Datetime.to_string(
+                fields.Datetime.to_datetime(since)
+            )),
+        ], order='das_email_published_date desc, create_date desc')
+        return candidates.filtered(lambda c: c._das_is_new_since(since))
+
+    @api.model
+    def _campaign_subject(self, config, variant, default_subject):
+        if config.mail_template_id and config.mail_template_id.subject:
+            return config.mail_template_id.subject
+        return default_subject
+
+    @api.model
+    def _das_build_campaign_body(
+        self, variant, channels=None, channels_title='Cursos destacados',
+        dynamic_courses=False, courses_limit=5,
+    ):
         extra = ''
         if channels:
             ch = channels if hasattr(channels, '_name') else self.env['slide.channel'].browse(channels)
             extra = das_email_render_course_cards_html(ch, self.env, title=channels_title)
-        return das_email_render(variant, self.env, extra_html=extra)
+        return das_email_render(
+            variant,
+            self.env,
+            extra_html=extra,
+            dynamic_courses=dynamic_courses and not channels,
+            courses_title=channels_title,
+            courses_limit=courses_limit,
+        )
 
     @api.model
     def _create_mailing_and_logs(self, config, subject, body_html, partner_ids, period_key, channel=None):
@@ -223,7 +329,7 @@ class DasEmailCampaignRunner(models.AbstractModel):
         )
         if not partner_ids:
             return 0
-        subject = das_email_subject('birthday')
+        subject = self._campaign_subject(config, 'birthday', das_email_subject('birthday'))
         body = self._das_build_campaign_body('birthday')
         self._create_mailing_and_logs(config, subject, body, partner_ids, period_key)
         return len(partner_ids)
@@ -267,14 +373,7 @@ class DasEmailCampaignRunner(models.AbstractModel):
     def _run_new_courses(self, config):
         today = self._today()
         period_key = self._period_key_for_config(config, today)
-        window = config.new_course_window_days or 14
-        since = today - timedelta(days=window)
-        since_dt = fields.Datetime.to_datetime(since)
-        Channel = self.env['slide.channel'].sudo()
-        channels = Channel.search([
-            ('website_published', '=', True),
-            ('create_date', '>=', fields.Datetime.to_string(since_dt)),
-        ])
+        channels = self._search_new_course_channels(config)
         total = 0
         for channel in channels:
             partners = self._partners_for_channel(channel)
@@ -300,33 +399,28 @@ class DasEmailCampaignRunner(models.AbstractModel):
     def _run_experience(self, config):
         today = self._today()
         period_key = self._period_key_for_config(config, today)
-        Channel = self.env['slide.channel'].sudo()
-        channels = Channel.search([('website_published', '=', True)], limit=20, order='create_date desc')
-        if not channels:
-            return 0
         Partner = self.env['res.partner'].sudo()
-        total = 0
-        for level in ('beginner', 'intermediate', 'advanced', 'expert'):
-            partners = Partner.search(expression.AND([
-                self._base_partner_domain(),
-                [('das_experience_level', '=', level)],
-            ]))
-            partners = self._filter_partners_by_frequency(
-                partners, config.code, config.cron_interval,
-            )
-            partner_ids = self._exclude_logged_partners(partners.ids, config, period_key)
-            if not partner_ids:
-                continue
-            level_label = _(_EXPERIENCE_LABELS.get(level, level))
-            subject = _('💡 Cursos ideales para nivel %(level)s', level=level_label)
-            body = self._das_build_campaign_body(
-                'experience',
-                channels=channels[:5],
-                channels_title=_('Recomendados para nivel %s') % level_label,
-            )
-            self._create_mailing_and_logs(config, subject, body, partner_ids, period_key)
-            total += len(partner_ids)
-        return total
+        partners = Partner.search(expression.AND([
+            self._base_partner_domain(),
+            [('das_experience_level', '!=', False)],
+        ]))
+        partners = self._filter_partners_by_frequency(
+            partners, config.code, config.cron_interval,
+        )
+        partner_ids = self._exclude_logged_partners(partners.ids, config, period_key)
+        if not partner_ids:
+            return 0
+        subject = self._campaign_subject(
+            config, 'experience', das_email_subject('experience'),
+        )
+        body = self._das_build_campaign_body(
+            'experience',
+            dynamic_courses=True,
+            channels_title=_('Recomendados para tu perfil'),
+            courses_limit=5,
+        )
+        self._create_mailing_and_logs(config, subject, body, partner_ids, period_key)
+        return len(partner_ids)
 
     @api.model
     def _run_newsletter(self, config):
@@ -340,25 +434,21 @@ class DasEmailCampaignRunner(models.AbstractModel):
         partner_ids = self._exclude_logged_partners(partners.ids, config, period_key)
         if not partner_ids:
             return 0
-        Channel = self.env['slide.channel'].sudo()
-        recent = Channel.search(
-            [('website_published', '=', True)],
-            limit=10,
-            order='create_date desc',
-        )
-        recent = Channel.search(
-            [('website_published', '=', True)],
-            limit=10,
-            order='create_date desc',
-        )
         if config.cron_interval == 'monthly':
-            subject = _('📬 Newsletter mensual · Academia Virtual DAS')
+            subject = self._campaign_subject(
+                config, 'newsletter', _('📬 Newsletter mensual · Academia Virtual DAS'),
+            )
             title = _('Destacados del mes')
         else:
-            subject = _('📬 Newsletter semanal · Academia Virtual DAS')
+            subject = self._campaign_subject(
+                config, 'newsletter', _('📬 Newsletter semanal · Academia Virtual DAS'),
+            )
             title = _('Destacados de la semana')
         body = self._das_build_campaign_body(
-            'newsletter', channels=recent, channels_title=title,
+            'newsletter',
+            dynamic_courses=True,
+            channels_title=title,
+            courses_limit=10,
         )
         self._create_mailing_and_logs(config, subject, body, partner_ids, period_key)
         return len(partner_ids)
@@ -399,6 +489,7 @@ class DasEmailCampaignRunner(models.AbstractModel):
     @api.model
     def cron_run_daily_campaigns(self):
         Config = self.env['das.email.campaign.config'].sudo()
+        Config._das_ensure_active_campaign_configs()
         configs = Config.search([
             ('active', '=', True),
             ('cron_interval', '=', 'daily'),
@@ -410,6 +501,7 @@ class DasEmailCampaignRunner(models.AbstractModel):
     @api.model
     def cron_run_weekly_campaigns(self):
         Config = self.env['das.email.campaign.config'].sudo()
+        Config._das_ensure_active_campaign_configs()
         configs = Config.search([
             ('active', '=', True),
             ('cron_interval', '=', 'weekly'),
@@ -421,6 +513,7 @@ class DasEmailCampaignRunner(models.AbstractModel):
     @api.model
     def cron_run_monthly_campaigns(self):
         Config = self.env['das.email.campaign.config'].sudo()
+        Config._das_ensure_active_campaign_configs()
         configs = Config.search([
             ('active', '=', True),
             ('cron_interval', '=', 'monthly'),

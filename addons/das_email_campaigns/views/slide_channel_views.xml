@@ -18,6 +18,8 @@
                            placeholder="eLearning, Certificaciones, Talleres…"/>
                     <field name="das_email_interest_ids" widget="many2many_tags"
                            placeholder="Tecnología, Desarrollo, Marketing…"/>
+                    <field name="das_experience_level"/>
+                    <field name="das_email_published_date" readonly="1"/>
                 </group>
             </xpath>
         </field>

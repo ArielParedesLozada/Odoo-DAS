@@ -177,7 +177,17 @@ def _bullet_cells(bullets):
     return cells
 
 
-def das_email_render(variant, env, *, extra_html='', cta_path='/slides'):
+def das_email_dynamic_courses_qweb(variant, title='Cursos destacados', limit=5):
+    """Bloque QWeb: cursos recomendados distintos por contacto al enviar."""
+    return (
+        '<tr><td style="padding:8px 20px 0;">'
+        '<t t-out="object._das_email_campaign_course_block(%s, %s, %d)"/>'
+        '</td></tr>'
+    ) % (repr(variant), repr(title), limit)
+
+
+def das_email_render(variant, env, *, extra_html='', dynamic_courses=False,
+                     courses_title='Cursos destacados', courses_limit=5, cta_path='/slides'):
     """HTML con tablas y bgcolor — compatible con Gmail, Outlook y Apple Mail."""
     logo = das_email_logo_src(env)
     content = _CONTENT.get(variant, _CONTENT['newsletter'])
@@ -228,6 +238,8 @@ def das_email_render(variant, env, *, extra_html='', cta_path='/slides'):
 
         '{extra_block}'
 
+        '{dynamic_courses_block}'
+
         # CTA
         '<tr><td align="center" style="padding:24px 28px 12px;font-family:{font};">'
         '<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="das-btn">'
@@ -262,6 +274,10 @@ def das_email_render(variant, env, *, extra_html='', cta_path='/slides'):
         lead=content['lead'],
         bullets=_bullet_cells(content['bullets']),
         extra_block=extra_html or '',
+        dynamic_courses_block=(
+            das_email_dynamic_courses_qweb(variant, courses_title, courses_limit)
+            if dynamic_courses else ''
+        ),
         btn_bg=btn_bg,
         slides=cta_path,
         cta=content['cta'],

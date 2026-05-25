@@ -2,6 +2,7 @@
 <odoo noupdate="1">
     <record id="das_email_campaign_config_birthday" model="das.email.campaign.config">
         <field name="name">Felicitación de cumpleaños</field>
+        <field name="active" eval="True"/>
         <field name="code">birthday</field>
         <field name="sequence">10</field>
         <field name="cron_interval">daily</field>

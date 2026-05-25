@@ -9,5 +9,5 @@ class DasEmailPreference(models.Model):
         res = super().action_mark_completed(ip_address=ip_address)
         for pref in self:
             if pref.partner_id:
-                pref.partner_id._das_sync_email_marketing_segments()
+                pref.partner_id._das_ensure_campaign_ready()
         return res

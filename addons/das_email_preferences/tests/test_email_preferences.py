@@ -93,6 +93,23 @@ class TestDasEmailPreferences(TransactionCase):
         self.assertTrue(pref.comm_email)
         self.assertFalse(pref.comm_sms)
         self.assertFalse(pref.comm_push)
+        self.assertEqual(pref.communication_frequency, 'weekly')
+
+    def test_submit_expert_experience_level(self):
+        user = self._create_portal_user('pref_portal_expert')
+        today = fields.Date.context_today(self.env.user)
+        pref = self.env['das.email.preference'].sudo().submit_from_portal(
+            user.partner_id,
+            {
+                'interest_ids': [self.interest_tech.id],
+                'birthday': fields.Date.add(today, years=-40),
+                'experience_level': 'expert',
+                'terms_accepted': True,
+                'privacy_accepted': True,
+            },
+        )
+        self.assertEqual(pref.experience_level, 'expert')
+        self.assertEqual(user.partner_id.das_experience_level, 'expert')
 
     def test_admin_user_exempt_from_onboarding(self):
         admin = self.env.ref('base.user_admin')

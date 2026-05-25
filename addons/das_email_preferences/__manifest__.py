@@ -2,10 +2,10 @@
 {
     'name': 'DAS - Preferencias de usuario y Email Marketing',
     'summary': (
-        'Formulario obligatorio de preferencias al crear cuenta: intereses, cumpleaños, '
-        'comunicación por email, nivel, frecuencia, categorías y aceptación legal.'
+        'Formulario obligatorio al crear cuenta: intereses, cumpleaños, nivel de experiencia '
+        'y aceptación legal. Solo comunicación por correo electrónico.'
     ),
-    'version': '18.0.2.1.7',
+    'version': '18.0.2.2.0',
     'category': 'Marketing/Email Marketing',
     'author': 'DAS',
     'license': 'LGPL-3',

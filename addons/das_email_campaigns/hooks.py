@@ -94,3 +94,7 @@ def post_init_hook(env):
         env['res.partner']._das_reconcile_all_marketing_segments()
     except Exception:
         _logger.exception('DAS email campaigns: error sincronizando segmentos de contactos.')
+    try:
+        env['das.email.campaign.config']._das_ensure_active_campaign_configs()
+    except Exception:
+        _logger.exception('DAS email campaigns: error activando configuraciones de campaña.')
