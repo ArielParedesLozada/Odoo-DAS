@@ -6,37 +6,104 @@
 
             <!-- SOLO SI ES EXAMEN FINAL -->
             <t t-if="answer.is_final_exam">
-
                 <div class="o_survey_finished mt32 mb32 text-center">
-
                     <h2 class="mb-4">
                         Evaluación final completada
                     </h2>
-
                     <div class="d-flex justify-content-center gap-3 mt-4">
-
                         <!-- Volver al curso -->
                         <a t-att-href="'/slides/%s' % answer.channel_id.id"
-                            class="btn btn-primary btn-lg">
+                            class="btn btn-primary btn-lg" target="_parent">
                             Volver al curso
                         </a>
-
                         <!-- Ir a encuesta -->
-                        <a
+                        <a class="btn btn-success btn-lg"
                             t-att-href="'/slides/slide/%s?fullscreen=1' % answer.channel_id.slide_ids.filtered(lambda s: s.das_is_satisfaction_survey)[0].id">
                             Pasar a la encuesta de satisfacción
                         </a>
-
                     </div>
-
                 </div>
-
             </t>
 
-            <!-- DEFAULT -->
-            <!-- <t t-else="">
-                <t t-call="survey.survey_fill_form_done" />
-            </t> -->
+            <!-- SOLO SI ES ENCUESTA DE SATISFACCIÓN -->
+            <t t-elif="answer.is_satisfaction">
+                <div class="o_survey_finished mt32 mb32 text-center">
+                    <h2 class="mb-4">
+                        ¡Gracias por completar la encuesta de satisfacción!
+                    </h2>
+                    <p class="lead">
+                        Tu certificado de finalización se está descargando automáticamente.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <!-- Descargar Certificado -->
+                        <a t-att-href="'/my/certificate/%s' % answer.channel_id.id"
+                            class="btn btn-success btn-lg" id="btn_download_certificate">
+                            <i class="fa fa-download"/> Descargar Certificado
+                        </a>
+                        <!-- Volver al curso -->
+                        <a t-att-href="'/slides/%s' % answer.channel_id.id"
+                            class="btn btn-primary btn-lg" target="_parent">
+                            Volver al curso
+                        </a>
+                    </div>
+                    <script type="text/javascript">
+                        try {
+                            var downloadUrl = "/my/certificate/" + "<t t-out='answer.channel_id.id'/>";
+                            // Descargar automáticamente redirigiendo el parent
+                            window.parent.location.href = downloadUrl;
+                        } catch(e) {
+                            console.error(e);
+                        }
+                    </script>
+                </div>
+            </t>
+
+            <!-- OTRAS ENCUESTAS (DEFAULT ODOO) -->
+            <t t-else="">
+                <div class="o_survey_finished mt32 mb32">
+                    <h1 class="fs-2">
+                        <t t-if="survey.scoring_type != 'no_scoring'">
+                            You scored <t t-out="answer.scoring_percentage"/>%
+                        </t>
+                        <t t-else="">Thank you!</t>
+                    </h1>
+                    <div t-field="survey.description_done" class="oe_no_empty" />
+                    <div class="row">
+                        <div class="col">
+                            <t t-if="survey.scoring_type != 'no_scoring' and survey.scoring_success_min">
+                                <t t-if="answer.scoring_success">
+                                    <div>Congratulations, you have passed the test!</div>
+
+                                    <div t-if="survey.certification" class="mt16 mb16">
+                                        <a role="button"
+                                            class="btn btn-primary btn-lg"
+                                            t-att-href="'/survey/%s/get_certification' % survey.id">
+                                            <i class="fa fa-fw fa-trophy" role="img" aria-label="Download certification" title="Download certification"/>
+                                            Download certification
+                                        </a>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div>Unfortunately, you have failed the test.</div>
+                                </t>
+                            </t>
+                            <div class="d-flex gap-3 mt-3">
+                                <t t-call="survey.survey_button_retake"/>
+                                <p t-if="survey.scoring_type != 'scoring_without_answers'">
+                                    <a role="button" class="o_survey_review btn btn-secondary btn-lg"
+                                        t-att-href="'/survey/print/%s?answer_token=%s&amp;review=True' % (survey.access_token, answer.access_token)">
+                                        Review your answers
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center" t-if="survey.certification_give_badge and answer.scoring_success">
+                            <img t-att-src="'/web/image/gamification.badge/%s/image_128' % survey.certification_badge_id.id"/>
+                            <div>You received the badge <span class="fw-bold" t-esc="survey.certification_badge_id.name"/>!</div>
+                        </div>
+                    </div>
+                </div>
+            </t>
 
         </xpath>
 

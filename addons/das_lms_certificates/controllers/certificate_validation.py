@@ -235,6 +235,14 @@ class SurveyInherit(survey_main.Survey):
                     )
                 )
 
+                # Odoo 18 returns a tuple: (correct_answers, response_dict)
+                if isinstance(res, tuple) and len(res) > 1:
+                    res_dict = res[1]
+                elif isinstance(res, dict):
+                    res_dict = res
+                else:
+                    res_dict = None
+
                 # =========================
                 # 🧪 CASO 1: EXAMEN FINAL
                 # =========================
@@ -251,8 +259,8 @@ class SurveyInherit(survey_main.Survey):
                         )
                     )
 
-                    if sat_slide and isinstance(res, dict):
-                        res["redirect"] = f"/slides/slide/{sat_slide.id}?fullscreen=1"
+                    if sat_slide and res_dict is not None:
+                        res_dict["redirect"] = f"/slides/slide/{sat_slide.id}?fullscreen=1"
 
                 # =========================
                 # 📊 CASO 2: ENCUESTA
@@ -261,14 +269,10 @@ class SurveyInherit(survey_main.Survey):
                     # Marcar encuesta como completada
                     enrollment.sudo().write({"das_lms_survey_completed": True})
 
-                    # 🔥 REDIRIGIR AL CURSO (SOLUCIÓN FINAL)
-                    if isinstance(res, dict):
-                        # Usar slug si existe (mejor UX)
-                        if hasattr(slide.channel_id, "slug") and slide.channel_id.slug:
-                            res["redirect"] = f"/slides/{slide.channel_id.slug}"
-                        else:
-                            # fallback seguro
-                            res["redirect"] = f"/slides/{slide.channel_id.id}"
+                    # No redirigimos en el backend; dejamos que muestre la página de éxito
+                    # y que nuestro script JS maneje la auto-descarga del certificado.
+                    if res_dict is not None and "redirect" in res_dict:
+                        del res_dict["redirect"]
 
         return res
 
