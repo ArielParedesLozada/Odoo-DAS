@@ -45,6 +45,10 @@ class SlideSecurityController(WebsiteSlides):
                         "http_routing.403",
                         {"error_message": _("Debes estar inscrito en el curso.")},
                     )
-
+                elif enrollment.das_lms_final_status != "pending":
+                    return request.render(
+                        "http_routing.403",
+                        {"error_message": _("Ya realizaste el examen final.")},
+                    )
         # ✅ LLAMADA REAL AL CORE
         return super().slide(slide, **kwargs)

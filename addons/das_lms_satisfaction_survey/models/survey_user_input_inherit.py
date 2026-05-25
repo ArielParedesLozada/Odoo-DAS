@@ -14,6 +14,23 @@ class SurveyUserInputInherit(models.Model):
         string="Es Encuesta de Satisfacción", compute="_compute_channel_id", store=True
     )
 
+    is_final_exam = fields.Boolean(compute="_compute_channel_id", store=True)
+    survey_redirect_url = fields.Char(compute="_compute_redirect_url")
+
+    def _compute_redirect_url(self):
+        for rec in self:
+            slide = self.env["slide.slide"].search(
+                [
+                    ("channel_id", "=", rec.channel_id.id),
+                    ("das_is_satisfaction_survey", "=", True),
+                ],
+                limit=1,
+            )
+
+            rec.survey_redirect_url = (
+                f"/slides/slide/{slide.id}?fullscreen=1" if slide else "/slides"
+            )
+
     @api.depends("survey_id")
     def _compute_channel_id(self):
         for rec in self:
@@ -26,6 +43,7 @@ class SurveyUserInputInherit(models.Model):
             if slide:
                 rec.channel_id = slide.channel_id.id
                 rec.is_satisfaction = slide.das_is_satisfaction_survey
+                rec.is_final_exam = slide.das_is_final_exam
             else:
                 rec.channel_id = False
                 rec.is_satisfaction = False
@@ -71,17 +89,12 @@ class SurveyUserInputInherit(models.Model):
                     raise UserError("Debes estar inscrito en el curso.")
 
             # 🔥 EVITAR DUPLICADOS (CLAVE)
-            existing = self.search(
-                [
-                    ("survey_id", "=", rec.survey_id.id),
-                    ("partner_id", "=", rec.partner_id.id),
-                    ("id", "!=", rec.id),
-                    ("state", "=", "done"),
-                ],
-                limit=1,
-            )
+            # 🔒 BLOQUEO POR ENROLLMENT (RECOMENDADO)
+            if slide.das_is_final_exam:
+                if enrollment.das_lms_final_status != "pending":
+                    raise UserError("Solo puedes realizar el examen final una vez.")
 
-            if existing:
-                raise UserError("Ya has completado esta evaluación.")
-
+            if slide.das_is_satisfaction_survey:
+                if enrollment.das_lms_survey_completed:
+                    raise UserError("Ya has completado la encuesta de satisfacción.")
         return records

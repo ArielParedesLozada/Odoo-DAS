@@ -157,7 +157,9 @@ class SurveyInherit(survey_main.Survey):
 
                     if sat_slide:
                         # Redirigir automáticamente al estudiante a la diapositiva de la encuesta
-                        return request.redirect(f"/slides/slide/{sat_slide.id}")
+                        return request.redirect(
+                            f"/slides/slide/{sat_slide.id}?fullscreen=1"
+                        )
                     else:
                         # Fallback en caso de que el curso no tenga configurada la encuesta
                         return request.render(
@@ -203,41 +205,70 @@ class SurveyInherit(survey_main.Survey):
             survey_token, answer_token, **post
         )
 
-        # Buscar el intento actual para ver si acaba de finalizar
         user_input = (
             request.env["survey.user_input"]
             .sudo()
             .search([("access_token", "=", answer_token)], limit=1)
         )
+
         if user_input and user_input.state == "done":
-            # Verificar si este survey corresponde al Examen Final
+            # 🔥 Buscar el slide SIN filtrar por tipo
             slide = (
                 request.env["slide.slide"]
                 .sudo()
                 .search(
-                    [
-                        ("survey_id", "=", user_input.survey_id.id),
-                        ("das_is_final_exam", "=", True),
-                    ],
+                    [("survey_id", "=", user_input.survey_id.id)],
                     limit=1,
                 )
             )
+
             if slide:
-                # Buscar la encuesta de satisfacción
-                sat_slide = (
-                    request.env["slide.slide"]
+                enrollment = (
+                    request.env["course.enrollment"]
                     .sudo()
                     .search(
                         [
-                            ("channel_id", "=", slide.channel_id.id),
-                            ("das_is_satisfaction_survey", "=", True),
+                            ("course_id", "=", slide.channel_id.id),
+                            ("student_id", "=", request.env.user.partner_id.id),
                         ],
                         limit=1,
                     )
                 )
-                if sat_slide and isinstance(res, dict):
-                    # Forzar la redirección a la encuesta de satisfacción
-                    res["redirect"] = f"/slides/slide/{sat_slide.id}"
+
+                # =========================
+                # 🧪 CASO 1: EXAMEN FINAL
+                # =========================
+                if slide.das_is_final_exam:
+                    sat_slide = (
+                        request.env["slide.slide"]
+                        .sudo()
+                        .search(
+                            [
+                                ("channel_id", "=", slide.channel_id.id),
+                                ("das_is_satisfaction_survey", "=", True),
+                            ],
+                            limit=1,
+                        )
+                    )
+
+                    if sat_slide and isinstance(res, dict):
+                        res["redirect"] = f"/slides/slide/{sat_slide.id}?fullscreen=1"
+
+                # =========================
+                # 📊 CASO 2: ENCUESTA
+                # =========================
+                elif slide.das_is_satisfaction_survey and enrollment:
+                    # Marcar encuesta como completada
+                    enrollment.sudo().write({"das_lms_survey_completed": True})
+
+                    # 🔥 REDIRIGIR AL CURSO (SOLUCIÓN FINAL)
+                    if isinstance(res, dict):
+                        # Usar slug si existe (mejor UX)
+                        if hasattr(slide.channel_id, "slug") and slide.channel_id.slug:
+                            res["redirect"] = f"/slides/{slide.channel_id.slug}"
+                        else:
+                            # fallback seguro
+                            res["redirect"] = f"/slides/{slide.channel_id.id}"
 
         return res
 
@@ -327,26 +358,47 @@ class SurveyInherit(survey_main.Survey):
                 .search(
                     [
                         ("survey_id", "=", user_input.survey_id.id),
-                        ("das_is_final_exam", "=", True),
                     ],
                     limit=1,
                 )
             )
 
-            if slide:
-                sat_slide = (
-                    request.env["slide.slide"]
+            if slide and slide.das_is_satisfaction_survey:
+                enrollment = (
+                    request.env["course.enrollment"]
                     .sudo()
                     .search(
                         [
-                            ("channel_id", "=", slide.channel_id.id),
-                            ("das_is_satisfaction_survey", "=", True),
+                            ("course_id", "=", slide.channel_id.id),
+                            ("student_id", "=", request.env.user.partner_id.id),
                         ],
                         limit=1,
                     )
                 )
 
-                if sat_slide:
-                    return request.redirect(f"/slides/slide/{sat_slide.id}")
+                if enrollment:
+                    # 🔥 Marcar encuesta como completada
+                    enrollment.sudo().write({"das_lms_survey_completed": True})
 
+                    # 🔥 Generar certificado automáticamente
+                    pdf, _ = (
+                        request.env["ir.actions.report"]
+                        .sudo()
+                        ._render_qweb_pdf(
+                            "das_lms_certificates.action_report_course_certificate",
+                            [enrollment.id],
+                        )
+                    )
+
+                    return request.make_response(
+                        pdf,
+                        headers=[
+                            ("Content-Type", "application/pdf"),
+                            ("Content-Length", len(pdf)),
+                            (
+                                "Content-Disposition",
+                                f'attachment; filename="Certificado_{enrollment.course_id.name}.pdf"',
+                            ),
+                        ],
+                    )
         return super().survey_results(answer_token, **kwargs)

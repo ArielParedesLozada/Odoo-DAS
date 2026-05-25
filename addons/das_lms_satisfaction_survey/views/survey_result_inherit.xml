@@ -1,3 +1,44 @@
 <odoo>
-    
+    <template id="survey_result_inherit_das"
+        inherit_id="survey.survey_fill_form_done">
+
+        <xpath expr="//div[hasclass('o_survey_finished')]" position="replace">
+
+            <!-- SOLO SI ES EXAMEN FINAL -->
+            <t t-if="answer.is_final_exam">
+
+                <div class="o_survey_finished mt32 mb32 text-center">
+
+                    <h2 class="mb-4">
+                        Evaluación final completada
+                    </h2>
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+
+                        <!-- Volver al curso -->
+                        <a t-att-href="'/slides/%s' % answer.channel_id.id"
+                            class="btn btn-primary btn-lg">
+                            Volver al curso
+                        </a>
+
+                        <!-- Ir a encuesta -->
+                        <a
+                            t-att-href="'/slides/slide/%s?fullscreen=1' % answer.channel_id.slide_ids.filtered(lambda s: s.das_is_satisfaction_survey)[0].id">
+                            Pasar a la encuesta de satisfacción
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </t>
+
+            <!-- DEFAULT -->
+            <!-- <t t-else="">
+                <t t-call="survey.survey_fill_form_done" />
+            </t> -->
+
+        </xpath>
+
+    </template>
 </odoo>
