@@ -4,6 +4,7 @@
     <template id="product_template_das_lms_cta" inherit_id="website_sale.product" priority="120">
         <xpath expr="//section[@id='product_detail']" position="attributes">
             <attribute name="t-att-data-das-lms-hide-shop">'1' if (combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked()) else ''</attribute>
+            <attribute name="t-att-data-das-lms-notice-stack-cart">'1' if product._das_lms_course_sale_notice_stacks_cart() else ''</attribute>
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
             <!-- Depuración: solo si el controlador inyectó das_lms_debug_show (editor/admin web) -->
@@ -32,27 +33,78 @@
                     </a>
                 </div>
             </div>
-            <!-- Visitante no inscrito: curso cerrado a ventas -->
+            <!-- Visitante no inscrito: aviso dinámico de inscripción (amarillo / gris) -->
             <div
-                t-if="product._das_lms_course_sale_blocked() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
-                class="alert alert-warning border border-warning-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
+                t-if="product._das_lms_course_sale_notice_html() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
+                t-attf-class="{{ product._das_lms_course_sale_notice_alert_classes() }} {{ 'o_das_lms_product_notice--stack w-100' if product._das_lms_course_sale_notice_stacks_cart() else '' }}"
                 role="status"
             >
-                <i class="fa fa-exclamation-triangle fa-lg text-warning me-2 mt-1 flex-shrink-0" role="presentation"/>
-                <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
-            </div>
-            <!-- Visitante no inscrito: próximo / aviso académico -->
-            <div
-                t-if="not product._das_lms_course_sale_blocked() and product._das_lms_course_sale_notice_html() and not (das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course())"
-                class="alert alert-info border border-info-subtle shadow-sm mb-3 py-3 px-3 rounded d-flex align-items-start o_das_lms_product_academic_notice"
-                role="status"
-            >
-                <i class="fa fa-info-circle fa-lg text-info me-2 mt-1 flex-shrink-0" role="presentation"/>
+                <i
+                    t-attf-class="fa fa-lg me-2 mt-1 flex-shrink-0 {{ 'fa-ban text-secondary' if product._das_lms_course_sale_notice_kind() == 'closed' else 'fa-exclamation-triangle text-warning' }}"
+                    role="presentation"
+                />
                 <span class="small mb-0" t-out="product._das_lms_course_sale_notice_html()"/>
             </div>
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="attributes">
-            <attribute name="t-attf-class">{{'d-none' if combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else 'd-inline-flex'}} align-items-center mb-2 me-auto</attribute>
+            <attribute name="t-attf-class">{{'d-none' if combination_info.get('prevent_zero_price_sale') or das_lms_hide_add_to_cart or das_lms_shop_enrolled or product._das_lms_is_enrolled_in_course() or product._das_lms_fallback_hide_shop_cart() or product._das_lms_course_sale_blocked() else ('d-inline-flex mt-2 mb-2 o_das_lms_add_to_cart--below_notice' if product._das_lms_course_sale_notice_stacks_cart() else 'd-inline-flex')}} align-items-center mb-2 me-auto</attribute>
+        </xpath>
+    </template>
+
+    <!-- Datos académicos del curso (fechas, modalidad, horas) en ficha de producto -->
+    <template id="product_template_das_lms_academic_info" inherit_id="website_sale.product_price" priority="115">
+        <xpath expr="//div[@itemprop='offers']" position="after">
+            <t t-set="das_lms_shop_channel" t-value="product._das_lms_get_related_channel()"/>
+            <div
+                t-if="product._das_lms_shop_show_academic_info()"
+                class="o_das_lms_shop_academic card border-0 shadow-sm mb-3 text-start"
+                role="region"
+                aria-label="Información académica del curso"
+            >
+                <div class="card-body py-3 px-3">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="o_das_lms_shop_academic__title text-uppercase small fw-bold text-muted mb-0">
+                            Calendario del curso
+                        </span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'sin_fechas'" class="badge rounded-pill text-bg-secondary">Sin fechas definidas</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'proximo'" class="badge rounded-pill text-bg-primary">Próximo a iniciar</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'en_curso'" class="badge rounded-pill text-bg-success">En curso</span>
+                        <span t-if="das_lms_shop_channel.das_academic_status == 'finalizado'" class="badge rounded-pill o_das_lms_badge-finished">Finalizado</span>
+                    </div>
+                    <div class="row g-2 g-md-3 small text-body">
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_start_date">
+                            <div class="o_das_lms_shop_academic__lbl">Fecha de inicio</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_start_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_end_date">
+                            <div class="o_das_lms_shop_academic__lbl">Fecha de fin</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_end_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_registration_deadline">
+                            <div class="o_das_lms_shop_academic__lbl">Cierre de inscripción</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_registration_deadline" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="das_lms_shop_channel.das_modality">
+                            <div class="o_das_lms_shop_academic__lbl">Modalidad</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_modality"/>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4" t-if="(das_lms_shop_channel.das_total_hours or 0) &gt; 0">
+                            <div class="o_das_lms_shop_academic__lbl">Carga horaria</div>
+                            <div class="fw-semibold">
+                                <span t-field="das_lms_shop_channel.das_total_hours"/> h
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </xpath>
     </template>
 

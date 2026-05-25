@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_das_email_preferences" model="ir.ui.view">
+        <field name="name">res.partner.form.das.email.preferences</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Preferencias marketing" name="das_email_preferences">
+                    <group>
+                        <field name="das_preference_completed" widget="boolean"/>
+                        <field name="das_birthday"/>
+                        <field name="das_interest_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Comunicación">
+                        <field name="das_comm_email"/>
+                        <field name="das_comm_sms"/>
+                        <field name="das_comm_push"/>
+                        <field name="das_experience_level"/>
+                        <field name="das_communication_frequency"/>
+                        <field name="das_course_category_ids" widget="many2many_tags"/>
+                    </group>
+                    <field name="das_email_preference_id" readonly="1">
+                        <list>
+                            <field name="completed"/>
+                            <field name="completed_on"/>
+                            <field name="completed_ip"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_search_das_email_preferences" model="ir.ui.view">
+        <field name="name">res.partner.search.das.email.preferences</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <separator/>
+                <filter string="Preferencias completadas" name="das_pref_completed" domain="[('das_preference_completed', '=', True)]"/>
+                <filter string="Acepta email marketing" name="das_comm_email" domain="[('das_comm_email', '=', True)]"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="das_interest_ids"/>
+                <field name="das_birthday"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

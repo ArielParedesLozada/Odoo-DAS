@@ -39,6 +39,44 @@ class SaleOrder(models.Model):
             )
         )
 
+    def _das_lms_enroll_partner_from_order(self, partner=None):
+        """Inscribe al partner en cada curso LMS del pedido (idempotente)."""
+        for order in self:
+            partner = partner or order.partner_id
+            if not partner:
+                continue
+            channels_done = set()
+            for line in order._das_lms_get_lms_sale_lines():
+                channel = line.product_id.product_tmpl_id._das_lms_get_related_channel(
+                    product_product=line.product_id
+                )
+                if not channel or channel.id in channels_done:
+                    continue
+                channels_done.add(channel.id)
+                channel._das_lms_enroll_partner(partner)
+
+    def _das_lms_payment_confirmation_enrollment_data(self, partner=None):
+        """Datos QWeb confirmación de pago: cursos LMS ya inscritos tras el checkout."""
+        self.ensure_one()
+        partner = partner or self.partner_id
+        channels = []
+        for line in self._das_lms_get_lms_sale_lines():
+            channel = line.product_id.product_tmpl_id._das_lms_get_related_channel(
+                product_product=line.product_id
+            )
+            if not channel or not channel._das_lms_user_is_enrolled(partner):
+                continue
+            channels.append({
+                'channel': channel,
+                'name': channel.display_name,
+                'url': channel._das_lms_public_course_href(),
+                'cta_label': line.product_id.product_tmpl_id._das_lms_course_portal_cta_label(),
+            })
+        return {
+            'show_success': bool(channels),
+            'channels': channels,
+        }
+
     def _das_lms_validate_course_cart_rules(self):
         """Reglas LMS por línea: cantidad 1, sin repetir curso, sin recompra ni curso cerrado."""
         for order in self:
@@ -132,6 +170,8 @@ class SaleOrder(models.Model):
         return new_qty, warning
 
     def action_confirm(self):
+        if self.env.context.get('das_lms_paypal_post_payment_confirm'):
+            return super().action_confirm()
         for order in self:
             order._das_lms_validate_course_cart_rules()
             partner = order.partner_id

@@ -47,7 +47,20 @@ function dasLmsApplyShopVisibility($parent, combination) {
         return;
     }
     if (combination && !preventZero) {
-        addToCart.removeClass("d-none").addClass("d-inline-flex");
+        const stackCart = Boolean(
+            $parent.closest('[data-das-lms-notice-stack-cart="1"]').length
+        );
+        if (stackCart) {
+            addToCart
+                .removeClass("d-none d-flex w-100")
+                .addClass("d-inline-flex mt-2 mb-2 o_das_lms_add_to_cart--below_notice me-auto");
+            addToCart.find("#add_to_cart").removeClass("flex-grow-1");
+        } else {
+            addToCart
+                .removeClass("d-none mt-2 mb-2 o_das_lms_add_to_cart--below_notice w-100 d-flex")
+                .addClass("d-inline-flex me-auto");
+            addToCart.find("#add_to_cart").addClass("flex-grow-1");
+        }
         quantity.removeClass("d-none").addClass("d-inline-flex");
         priceBox.removeClass("d-none").addClass("d-inline-block");
     }

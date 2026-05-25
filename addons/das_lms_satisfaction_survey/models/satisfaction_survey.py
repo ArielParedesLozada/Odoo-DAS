@@ -22,14 +22,18 @@ class LmsSatisfactionSurvey(models.Model):
     last_generated = fields.Datetime(string="Last Generated At", readonly=True)
 
     answers_count = fields.Integer(string="Answers", compute="_compute_answers_count")
+    template_id = fields.Many2one(
+        "survey.survey",
+        string="Plantilla de Encuesta",
+        domain="[('is_satisfaction', '=', True)]",
+    )
 
     def _compute_answers_count(self):
         for rec in self:
             if rec.survey_id:
-                rec.answers_count = self.env['survey.user_input'].search_count([
-                    ('survey_id', '=', rec.survey_id.id),
-                    ('state', '=', 'done')
-                ])
+                rec.answers_count = self.env["survey.user_input"].search_count(
+                    [("survey_id", "=", rec.survey_id.id), ("state", "=", "done")]
+                )
             else:
                 rec.answers_count = 0
 
@@ -37,39 +41,65 @@ class LmsSatisfactionSurvey(models.Model):
         self.ensure_one()
         if self.survey_id:
             return {
-                'type': 'ir.actions.act_url',
-                'url': f'/survey/results/{self.survey_id.id}',
-                'target': 'new',
+                "type": "ir.actions.act_url",
+                "url": f"/survey/results/{self.survey_id.id}",
+                "target": "new",
             }
-
 
     def action_generate_survey_and_slide(self):
         for rec in self:
             if not rec.channel_id:
                 raise UserError(_("Seleccione un curso"))
 
+            if not rec.template_id:
+                raise UserError(_("Debe seleccionar una plantilla de encuesta"))
+
             # Validación fuerte contra duplicados
-            existing = self.env['slide.slide'].search([
-                ('channel_id', '=', rec.channel_id.id),
-                ('das_is_satisfaction_survey', '=', True)
-            ], limit=1)
-            
+            existing = self.env["slide.slide"].search(
+                [
+                    ("channel_id", "=", rec.channel_id.id),
+                    ("das_is_satisfaction_survey", "=", True),
+                ],
+                limit=1,
+            )
+
             if existing:
-                raise UserError(_("Ya existe una encuesta de satisfacción para este curso."))
+                raise UserError(
+                    _("Ya existe una encuesta de satisfacción para este curso.")
+                )
 
-            # Llamar al flujo principal centralizado
-            rec.channel_id.action_generate_certification_flow()
+            # =========================
+            # 🔥 DUPLICAR PLANTILLA
+            # =========================
+            new_survey = rec.template_id.copy(
+                {
+                    "title": f"{rec.template_id.title} - {rec.channel_id.name}",
+                }
+            )
 
+            # Guardar encuesta generada
+            rec.survey_id = new_survey.id
+
+            # =========================
+            # 🔥 INYECTAR EN CONTEXTO
+            # =========================
+            rec.channel_id.with_context(
+                forced_survey_id=new_survey.id
+            ).action_generate_certification_flow()
+
+            # =========================
+            # METADATOS
+            # =========================
             rec.auto_generated = True
             rec.last_generated = fields.Datetime.now()
-            
+
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Éxito'),
-                'message': _('Flujo de certificación disparado exitosamente.'),
-                'type': 'success',
-                'sticky': False,
-            }
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Éxito"),
+                "message": _("Encuesta generada desde plantilla correctamente."),
+                "type": "success",
+                "sticky": False,
+            },
         }

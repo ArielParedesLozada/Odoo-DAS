@@ -8,16 +8,21 @@ class SlideChannelPartner(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        if not self.env.context.get('das_lms_bypass_academic_close'):
+        if (
+            not self.env.context.get('das_lms_bypass_academic_close')
+            and self.env.context.get('das_lms_allow_structured_enroll')
+        ):
             for vals in vals_list:
-                cid = vals.get('channel_id')
-                if not cid:
-                    continue
-                channel = self.env['slide.channel'].browse(cid).exists()
-                if channel and channel.das_academic_status == 'finalizado':
-                    raise UserError(
-                        _('Este curso ya finalizó y no acepta nuevas inscripciones.')
-                    )
+                    cid = vals.get('channel_id')
+                    if not cid:
+                        continue
+                    channel = self.env['slide.channel'].browse(cid).exists()
+                    if not channel:
+                        continue
+                    if channel.das_academic_status == 'finalizado':
+                        raise UserError(channel._das_lms_registration_closed_message())
+                    if not channel._das_lms_is_registration_open():
+                        raise UserError(channel._das_lms_registration_closed_message())
         records = super().create(vals_list)
         records._das_lms_sync_enrollment_mirror()
         return records

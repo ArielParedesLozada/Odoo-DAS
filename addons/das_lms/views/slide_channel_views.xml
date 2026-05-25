@@ -11,6 +11,9 @@
                         <group string="Calendario y modalidad">
                             <field name="das_start_date"/>
                             <field name="das_end_date"/>
+                            <field name="registration_cutoff_days"/>
+                            <field name="das_registration_deadline" readonly="1"/>
+                            <field name="das_registration_open" readonly="1" widget="boolean"/>
                             <field name="das_modality"/>
                         </group>
                         <group string="Carga horaria (académica)">
@@ -66,6 +69,8 @@
                 <field name="das_start_date" string="Inicio académico" optional="hide"/>
                 <field name="das_academic_status" string="Ciclo DAS" optional="hide" widget="badge"/>
                 <field name="das_modality" string="Modalidad DAS" optional="hide"/>
+                <field name="das_registration_open" string="Inscripción abierta" optional="hide"/>
+                <field name="das_registration_deadline" string="Último día inscripción" optional="hide"/>
                 <field name="das_total_hours" string="Horas totales" optional="hide"/>
             </xpath>
         </field>

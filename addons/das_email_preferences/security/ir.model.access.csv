@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_das_email_interest_public,das.email.interest público,model_das_email_interest,base.group_public,1,0,0,0
+access_das_email_interest_portal,das.email.interest portal,model_das_email_interest,base.group_portal,1,0,0,0
+access_das_email_interest_user,das.email.interest usuario,model_das_email_interest,base.group_user,1,0,0,0
+access_das_email_interest_marketing,das.email.interest marketing,model_das_email_interest,group_das_email_preferences_marketing,1,1,1,1
+access_das_email_course_category_public,das.email.course.category público,model_das_email_course_category,base.group_public,1,0,0,0
+access_das_email_course_category_portal,das.email.course.category portal,model_das_email_course_category,base.group_portal,1,0,0,0
+access_das_email_course_category_user,das.email.course.category usuario,model_das_email_course_category,base.group_user,1,0,0,0
+access_das_email_course_category_marketing,das.email.course.category marketing,model_das_email_course_category,group_das_email_preferences_marketing,1,1,1,1
+access_das_email_preference_portal,das.email.preference portal,model_das_email_preference,base.group_portal,1,1,1,0
+access_das_email_preference_user,das.email.preference usuario,model_das_email_preference,base.group_user,1,1,1,0
+access_das_email_preference_marketing,das.email.preference marketing,model_das_email_preference,group_das_email_preferences_marketing,1,1,1,1

@@ -8,5 +8,16 @@
         <field name="domain">[('is_satisfaction', '=', True), ('state', '=', 'done')]</field>
         <field name="context">{'group_by': ['channel_id']}</field>
     </record>
-
+    <!-- 🔥 ESTA TE FALTA -->
+    <record id="action_lms_survey_templates" model="ir.actions.act_window">
+        <field name="name">Plantillas</field>
+        <field name="res_model">survey.survey</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_satisfaction', '=', True)]</field>
+    </record>
+    <!-- MENÚ -->
+    <menuitem id="menu_lms_satisfaction_templates"
+        name="Plantillas"
+        parent="menu_lms_satisfaction_root"
+        action="action_lms_survey_templates" />
 </odoo>

@@ -32,6 +32,13 @@
                     <div t-if="channel.is_member and channel.das_academic_status == 'finalizado'" class="alert alert-secondary border py-2 px-3 small mb-3" role="status">
                         <strong>Curso finalizado.</strong> Conserva acceso de consulta a los materiales como alumno inscrito.
                     </div>
+                    <div
+                        t-if="not channel.is_member and channel._das_lms_registration_notice_message()"
+                        t-attf-class="alert mb-3 py-2 px-3 small {{ 'alert-secondary' if channel._das_lms_registration_notice_kind() == 'closed' else 'alert-warning' }}"
+                        role="status"
+                    >
+                        <span t-out="channel._das_lms_registration_notice_message()"/>
+                    </div>
                     <div class="o_das_lms_course_academic__title text-uppercase small fw-bold text-muted mb-2">Información académica DAS</div>
                     <div class="row g-2 g-md-3 small text-body">
                         <div class="col-6 col-md-4">
@@ -45,6 +52,13 @@
                             <div class="o_das_lms_course_academic__lbl">Fecha de fin</div>
                             <div class="fw-semibold" t-if="channel.das_end_date">
                                 <span t-field="channel.das_end_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                            </div>
+                            <div class="fw-semibold text-muted" t-else="">—</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="o_das_lms_course_academic__lbl">Cierre de inscripción</div>
+                            <div class="fw-semibold" t-if="channel.das_registration_deadline">
+                                <span t-field="channel.das_registration_deadline" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
                             </div>
                             <div class="fw-semibold text-muted" t-else="">—</div>
                         </div>

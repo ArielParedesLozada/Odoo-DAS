@@ -10,6 +10,8 @@
         "views/satisfaction_actions.xml",
         "views/satisfaction_survey_views.xml",
         "views/satisfaction_dashboard_views.xml",
+        "views/survey_result_inherit.xml",
+        "views/survey_survey_views.xml",
         "data/satisfaction_survey_data.xml",
     ],
     "installable": True,

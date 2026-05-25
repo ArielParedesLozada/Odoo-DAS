@@ -8,12 +8,31 @@ from odoo.addons.payment import utils as payment_utils
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.exceptions import UserError
 from odoo.http import request, route
+from odoo.osv import expression
 from odoo.tools.json import scriptsafe as json_scriptsafe
 
 _logger = logging.getLogger(__name__)
 
 
 class DasLmsWebsiteSale(WebsiteSale):
+    def _das_lms_current_shop_partner(self):
+        user = request.env.user
+        if user._is_public():
+            return request.env['res.partner'].browse()
+        return user.partner_id[:1]
+
+    def _get_shop_domain(self, search, category, attrib_values, search_in_description=True):
+        domains = super()._get_shop_domain(
+            search, category, attrib_values, search_in_description=search_in_description,
+        )
+        partner = self._das_lms_current_shop_partner()
+        hidden_ids = request.env['product.template']._das_lms_shop_hidden_product_template_ids(
+            partner=partner or None,
+        )
+        if hidden_ids:
+            domains = expression.AND([domains, [('id', 'not in', hidden_ids)]])
+        return domains
+
     def _prepare_product_values(self, product, category, search, **kwargs):
         values = super()._prepare_product_values(product, category, search, **kwargs)
         try:
@@ -104,6 +123,40 @@ class DasLmsWebsiteSale(WebsiteSale):
                 )
 
         return out
+
+    def _prepare_shop_payment_confirmation_values(self, order):
+        order_sudo = order.sudo()
+        tx = order_sudo.get_portal_last_transaction()
+        if (
+            tx
+            and tx.provider_code == 'paypal'
+            and tx.state in ('pending', 'done')
+            and order_sudo._das_lms_get_lms_sale_lines()
+        ):
+            try:
+                with request.env.cr.savepoint():
+                    tx._das_lms_finalize_paypal_lms_order()
+            except Exception:
+                _logger.exception(
+                    'DAS LMS: fallo al finalizar PayPal en confirmación pedido=%s tx=%s.',
+                    order_sudo.name,
+                    tx.id,
+                )
+                # Evita InFailedSqlTransaction en el resto de la petición HTTP.
+                request.env.clear()
+            order_sudo.invalidate_recordset(['state', 'invoice_status', 'invoice_ids'])
+        values = super()._prepare_shop_payment_confirmation_values(order)
+        enrollment = order_sudo._das_lms_payment_confirmation_enrollment_data()
+        values['das_lms_payment_enrollment'] = enrollment
+        paypal_lms_ok = bool(
+            tx
+            and tx.provider_code == 'paypal'
+            and tx.state in ('pending', 'done')
+            and enrollment.get('show_success')
+        )
+        values['das_lms_paypal_instant_enrollment'] = paypal_lms_ok
+        values['das_lms_paypal_hide_pending_status'] = paypal_lms_ok
+        return values
 
     @route(['/shop/cart/update'], type='http', auth='public', methods=['POST'], website=True)
     def cart_update(

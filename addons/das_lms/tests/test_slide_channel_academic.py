@@ -48,6 +48,18 @@ class TestDasLmsSlideChannelAcademic(TransactionCase):
         self.assertTrue(enrollment)
         self.assertEqual(enrollment.modality, 'mixto')
 
+    def test_modality_selection_labels_renamed(self):
+        """Etiquetas de modalidad renombradas; claves técnicas sin cambio."""
+        channel_labels = dict(self.env['slide.channel']._fields['das_modality'].selection)
+        enrollment_labels = dict(self.env['course.enrollment']._fields['modality'].selection)
+        expected = {
+            'grabado': 'Virtual',
+            'en_vivo': 'Presencial',
+            'mixto': 'Híbrido',
+        }
+        self.assertEqual(channel_labels, expected)
+        self.assertEqual(enrollment_labels, expected)
+
     def test_das_academic_status_proximo_and_can_study(self):
         today = fields.Date.context_today(self.env.user)
         ch = self.env['slide.channel'].create({
@@ -71,10 +83,7 @@ class TestDasLmsSlideChannelAcademic(TransactionCase):
         self.assertTrue(ch.das_can_study)
         partner = self.env['res.partner'].create({'name': 'Nuevo alumno'})
         with self.assertRaises(UserError):
-            self.env['slide.channel.partner'].create({
-                'channel_id': ch.id,
-                'partner_id': partner.id,
-            })
+            ch._action_add_members(partner)
 
     def test_portal_lesson_access_proximo_member_blocked(self):
         from odoo.tests.common import new_test_user
