@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mailing_list_das_opted_in" model="mailing.list">
+        <field name="name">DAS · Usuarios con email activo</field>
+        <field name="is_public">False</field>
+    </record>
+
+    <!-- Listas por nivel de experiencia -->
+    <record id="mailing_list_das_level_beginner" model="mailing.list">
+        <field name="name">DAS · Nivel Básico</field>
+    </record>
+    <record id="mailing_list_das_level_intermediate" model="mailing.list">
+        <field name="name">DAS · Nivel Intermedio</field>
+    </record>
+    <record id="mailing_list_das_level_advanced" model="mailing.list">
+        <field name="name">DAS · Nivel Avanzado</field>
+    </record>
+    <record id="mailing_list_das_level_expert" model="mailing.list">
+        <field name="name">DAS · Nivel Experto</field>
+    </record>
+
+    <!-- Listas por interés -->
+    <record id="mailing_list_das_interest_technology" model="mailing.list">
+        <field name="name">DAS · Interés: Tecnología</field>
+    </record>
+    <record id="mailing_list_das_interest_development" model="mailing.list">
+        <field name="name">DAS · Interés: Desarrollo</field>
+    </record>
+    <record id="mailing_list_das_interest_design" model="mailing.list">
+        <field name="name">DAS · Interés: Diseño</field>
+    </record>
+    <record id="mailing_list_das_interest_marketing" model="mailing.list">
+        <field name="name">DAS · Interés: Marketing</field>
+    </record>
+    <record id="mailing_list_das_interest_quality" model="mailing.list">
+        <field name="name">DAS · Interés: Calidad de software</field>
+    </record>
+
+    <!-- Listas por categoría de curso -->
+    <record id="mailing_list_das_category_lms" model="mailing.list">
+        <field name="name">DAS · Categoría: Cursos eLearning</field>
+    </record>
+    <record id="mailing_list_das_category_cert" model="mailing.list">
+        <field name="name">DAS · Categoría: Certificaciones</field>
+    </record>
+    <record id="mailing_list_das_category_workshops" model="mailing.list">
+        <field name="name">DAS · Categoría: Talleres en vivo</field>
+    </record>
+</odoo>

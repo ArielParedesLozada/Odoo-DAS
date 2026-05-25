@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="das_email_campaigns_rule_marketing" model="ir.rule">
+        <field name="name">Campañas DAS: marketing ve todo</field>
+        <field name="model_id" ref="model_das_email_campaign_config"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('das_email_preferences.group_das_email_preferences_marketing'))]"/>
+    </record>
+
+    <record id="das_email_campaign_log_rule_marketing" model="ir.rule">
+        <field name="name">Log campañas DAS: marketing ve todo</field>
+        <field name="model_id" ref="model_das_email_campaign_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('das_email_preferences.group_das_email_preferences_marketing'))]"/>
+    </record>
+</odoo>

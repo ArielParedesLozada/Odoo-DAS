@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mailing_list_view_form_das_campaigns" model="ir.ui.view">
+        <field name="name">mailing.list.form.das.campaigns</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_send_mailing']" position="attributes">
+                <attribute name="string">Revisar y enviar</attribute>
+                <attribute name="title">Abre el correo con plantilla DAS precargada</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_send_mailing']" position="after">
+                <button name="action_das_preview_campaign" type="object"
+                        string="Vista previa real"
+                        class="btn-secondary"
+                        invisible="not contact_count"
+                        title="Abre el correo renderizado con nombre y logo reales"/>
+                <button name="action_send_mailing_now" type="object"
+                        string="Enviar campaña DAS ahora"
+                        class="btn-primary"
+                        invisible="not contact_count"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mailing_list_view_kanban_das_campaigns" model="ir.ui.view">
+        <field name="name">mailing.list.kanban.das.campaigns</field>
+        <field name="model">mailing.list</field>
+        <field name="inherit_id" ref="mass_mailing.mailing_list_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_send_mailing']" position="attributes">
+                <attribute name="string">Revisar y enviar</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_send_mailing']" position="after">
+                <button name="action_send_mailing_now" type="object"
+                        string="Enviar ahora"
+                        class="btn btn-primary btn-sm ms-1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

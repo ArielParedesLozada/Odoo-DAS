@@ -63,6 +63,31 @@
                                                 <span t-out="error_message"/>
                                             </div>
 
+                                            <div class="o_das_pref_email_notice" aria-label="Comunicación por correo electrónico">
+                                                <span class="o_das_pref_email_notice__icon" aria-hidden="true">
+                                                    <i class="fa fa-envelope"/>
+                                                </span>
+                                                <div>
+                                                    <strong>Solo correo electrónico</strong>
+                                                    <p>Recibirás campañas personalizadas por email. No usamos SMS ni notificaciones push.</p>
+                                                </div>
+                                            </div>
+
+                                            <ol class="o_das_pref_steps" aria-label="Pasos del formulario">
+                                                <li class="o_das_pref_steps__item o_das_pref_steps__item--active">
+                                                    <span class="o_das_pref_steps__num">1</span>
+                                                    <span>Intereses</span>
+                                                </li>
+                                                <li class="o_das_pref_steps__item o_das_pref_steps__item--active">
+                                                    <span class="o_das_pref_steps__num">2</span>
+                                                    <span>Tus datos</span>
+                                                </li>
+                                                <li class="o_das_pref_steps__item o_das_pref_steps__item--active">
+                                                    <span class="o_das_pref_steps__num">3</span>
+                                                    <span>Confirmación</span>
+                                                </li>
+                                            </ol>
+
                                             <form
                                                 action="/my/email-preferences/submit"
                                                 method="post"
@@ -136,6 +161,17 @@
                                                     </div>
                                                 </section>
 
+                                                <!-- Personalización adicional (opcional, colapsable) -->
+                                                <details class="o_das_pref_optional_group">
+                                                    <summary class="o_das_pref_optional_group__summary">
+                                                        <span class="o_das_pref_optional_group__title">
+                                                            <i class="fa fa-sliders" aria-hidden="true"/>
+                                                            Personalización adicional
+                                                        </span>
+                                                        <span class="o_das_pref_optional">Opcional</span>
+                                                    </summary>
+                                                    <div class="o_das_pref_optional_group__body">
+
                                                 <!-- 3. Nivel de experiencia (opcional) -->
                                                 <section class="o_das_pref_block o_das_pref_block--optional">
                                                     <header class="o_das_pref_block__head">
@@ -202,6 +238,9 @@
                                                         </div>
                                                     </div>
                                                 </section>
+
+                                                    </div>
+                                                </details>
 
                                                 <!-- 5. Legal (obligatorio) -->
                                                 <section class="o_das_pref_block o_das_pref_block--legal">

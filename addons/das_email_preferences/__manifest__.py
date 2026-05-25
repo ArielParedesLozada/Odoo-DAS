@@ -5,7 +5,7 @@
         'Formulario obligatorio de preferencias al crear cuenta: intereses, cumpleaños, '
         'comunicación por email, nivel, frecuencia, categorías y aceptación legal.'
     ),
-    'version': '18.0.2.1.6',
+    'version': '18.0.2.1.7',
     'category': 'Marketing/Email Marketing',
     'author': 'DAS',
     'license': 'LGPL-3',

@@ -113,6 +113,158 @@
         }
     }
 
+    .o_das_pref_email_notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1.25rem;
+        background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+        border: 1px solid #bfdbfe;
+        border-radius: 0.75rem;
+
+        &__icon {
+            flex-shrink: 0;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #2563eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        strong {
+            display: block;
+            font-size: 0.88rem;
+            color: #1e40af;
+            margin-bottom: 0.15rem;
+        }
+
+        p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.45;
+        }
+    }
+
+    .o_das_pref_steps {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.35rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.35rem;
+        counter-reset: none;
+
+        &__item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: #94a3b8;
+            text-align: center;
+            position: relative;
+
+            &:not(:last-child)::after {
+                content: "";
+                position: absolute;
+                top: 0.85rem;
+                left: calc(50% + 1rem);
+                width: calc(100% - 2rem);
+                height: 2px;
+                background: #e2e8f0;
+                z-index: 0;
+            }
+
+            &--active {
+                color: #2563eb;
+
+                .o_das_pref_steps__num {
+                    background: #2563eb;
+                    color: #fff;
+                    border-color: #2563eb;
+                }
+            }
+        }
+
+        &__num {
+            position: relative;
+            z-index: 1;
+            width: 1.65rem;
+            height: 1.65rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #cbd5e1;
+            color: #64748b;
+        }
+    }
+
+    .o_das_pref_optional_group {
+        margin-bottom: 1.25rem;
+        border: 1px dashed #cbd5e1;
+        border-radius: 0.85rem;
+        background: #f8fafc;
+        overflow: hidden;
+
+        &__summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.9rem 1.15rem;
+            cursor: pointer;
+            list-style: none;
+            user-select: none;
+
+            &::-webkit-details-marker {
+                display: none;
+            }
+
+            &::marker {
+                content: "";
+            }
+        }
+
+        &__title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        &__body {
+            padding: 0 1rem 0.5rem;
+
+            .o_das_pref_block {
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                padding: 0.75rem 0.35rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        &[open] .o_das_pref_optional_group__summary {
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 0.35rem;
+        }
+    }
+
     /* Bloques del formulario (cajas con sombra) */
     .o_das_pref_block {
         margin-bottom: 1.25rem;
