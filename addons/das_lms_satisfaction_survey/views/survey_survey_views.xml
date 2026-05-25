@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_survey_form_inherit_satisfaction" model="ir.ui.view">
+        <field name="name">survey.survey.form.inherit.satisfaction</field>
+        <field name="model">survey.survey</field>
+        <field name="inherit_id" ref="survey.survey_survey_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="inside">
+                <field name="is_satisfaction" string="Encuesta de satisfacción" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

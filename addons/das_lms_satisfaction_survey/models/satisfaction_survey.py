@@ -22,6 +22,11 @@ class LmsSatisfactionSurvey(models.Model):
     last_generated = fields.Datetime(string="Last Generated At", readonly=True)
 
     answers_count = fields.Integer(string="Answers", compute="_compute_answers_count")
+    template_id = fields.Many2one(
+        "survey.survey",
+        string="Plantilla de Encuesta",
+        domain="[('is_satisfaction', '=', True)]",
+    )
 
     def _compute_answers_count(self):
         for rec in self:
@@ -46,6 +51,9 @@ class LmsSatisfactionSurvey(models.Model):
             if not rec.channel_id:
                 raise UserError(_("Seleccione un curso"))
 
+            if not rec.template_id:
+                raise UserError(_("Debe seleccionar una plantilla de encuesta"))
+
             # Validación fuerte contra duplicados
             existing = self.env["slide.slide"].search(
                 [
@@ -60,9 +68,28 @@ class LmsSatisfactionSurvey(models.Model):
                     _("Ya existe una encuesta de satisfacción para este curso.")
                 )
 
-            # Llamar al flujo principal centralizado
-            rec.channel_id.action_generate_certification_flow()
+            # =========================
+            # 🔥 DUPLICAR PLANTILLA
+            # =========================
+            new_survey = rec.template_id.copy(
+                {
+                    "title": f"{rec.template_id.title} - {rec.channel_id.name}",
+                }
+            )
 
+            # Guardar encuesta generada
+            rec.survey_id = new_survey.id
+
+            # =========================
+            # 🔥 INYECTAR EN CONTEXTO
+            # =========================
+            rec.channel_id.with_context(
+                forced_survey_id=new_survey.id
+            ).action_generate_certification_flow()
+
+            # =========================
+            # METADATOS
+            # =========================
             rec.auto_generated = True
             rec.last_generated = fields.Datetime.now()
 
@@ -71,9 +98,8 @@ class LmsSatisfactionSurvey(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": _("Éxito"),
-                "message": _("Flujo de certificación disparado exitosamente."),
+                "message": _("Encuesta generada desde plantilla correctamente."),
                 "type": "success",
                 "sticky": False,
             },
         }
-    
