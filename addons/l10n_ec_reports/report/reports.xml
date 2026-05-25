@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_form_103" model="ir.actions.report">
+        <field name="name">Form 103 (Draft)</field>
+        <field name="model">l10n_ec.ats.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ec_reports.report_form_103</field>
+        <field name="report_file">l10n_ec_reports.report_form_103</field>
+        <field name="binding_model_id" ref="model_l10n_ec_ats_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_form_104" model="ir.actions.report">
+        <field name="name">Form 104 (Draft)</field>
+        <field name="model">l10n_ec.ats.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ec_reports.report_form_104</field>
+        <field name="report_file">l10n_ec_reports.report_form_104</field>
+        <field name="binding_model_id" ref="model_l10n_ec_ats_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

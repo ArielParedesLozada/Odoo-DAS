@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2026 Somatech.dev
+    License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+
+    CATÁLOGOS SRI ECUADOR - Datos de Instalación
+
+    Fuente: Ficha Técnica Comprobantes Electrónicos SRI
+            Catálogo ATS (Anexo Transaccional Simplificado)
+
+    Estos datos se cargan automáticamente al instalar el módulo.
+-->
+<odoo noupdate="1">
+    <!-- ================================================================= -->
+    <!-- FORMAS DE PAGO SRI                                                -->
+    <!-- Ficha Técnica Comprobantes Electrónicos                           -->
+    <!-- ================================================================= -->
+    <record id="payment_01" model="l10n_ec.payment.method">
+        <field name="code">01</field>
+        <field name="name">Sin utilización del sistema financiero (Efectivo)</field>
+    </record>
+    <record id="payment_15" model="l10n_ec.payment.method">
+        <field name="code">15</field>
+        <field name="name">Compensación de deudas</field>
+    </record>
+    <record id="payment_16" model="l10n_ec.payment.method">
+        <field name="code">16</field>
+        <field name="name">Tarjeta de débito</field>
+    </record>
+    <record id="payment_17" model="l10n_ec.payment.method">
+        <field name="code">17</field>
+        <field name="name">Dinero electrónico</field>
+    </record>
+    <record id="payment_18" model="l10n_ec.payment.method">
+        <field name="code">18</field>
+        <field name="name">Tarjeta prepago</field>
+    </record>
+    <record id="payment_19" model="l10n_ec.payment.method">
+        <field name="code">19</field>
+        <field name="name">Tarjeta de crédito</field>
+    </record>
+    <record id="payment_20" model="l10n_ec.payment.method">
+        <field name="code">20</field>
+        <field name="name">Otros con utilización del sistema financiero</field>
+    </record>
+    <record id="payment_21" model="l10n_ec.payment.method">
+        <field name="code">21</field>
+        <field name="name">Endoso de títulos</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- TIPOS DE IDENTIFICACIÓN SRI                                       -->
+    <!-- ================================================================= -->
+    <record id="ident_04" model="l10n_ec.identification.type">
+        <field name="code">04</field>
+        <field name="name">RUC</field>
+        <field name="length">13</field>
+        <field name="validation_type">ruc</field>
+    </record>
+    <record id="ident_05" model="l10n_ec.identification.type">
+        <field name="code">05</field>
+        <field name="name">Cédula de Identidad</field>
+        <field name="length">10</field>
+        <field name="validation_type">cedula</field>
+    </record>
+    <record id="ident_06" model="l10n_ec.identification.type">
+        <field name="code">06</field>
+        <field name="name">Pasaporte</field>
+        <field name="length">0</field>
+        <field name="validation_type">none</field>
+    </record>
+    <record id="ident_07" model="l10n_ec.identification.type">
+        <field name="code">07</field>
+        <field name="name">Consumidor Final</field>
+        <field name="length">13</field>
+        <field name="validation_type">none</field>
+    </record>
+    <record id="ident_08" model="l10n_ec.identification.type">
+        <field name="code">08</field>
+        <field name="name">Identificación del Exterior</field>
+        <field name="length">0</field>
+        <field name="validation_type">none</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- SUSTENTOS TRIBUTARIOS SRI (ATS)                                   -->
+    <!-- ================================================================= -->
+    <record id="sustento_01" model="l10n_ec.tax.support">
+        <field name="code">01</field>
+        <field name="name">Crédito Tributario para declaración de IVA</field>
+    </record>
+    <record id="sustento_02" model="l10n_ec.tax.support">
+        <field name="code">02</field>
+        <field name="name">Costo o Gasto para declaración de IR</field>
+    </record>
+    <record id="sustento_03" model="l10n_ec.tax.support">
+        <field name="code">03</field>
+        <field name="name">Activo Fijo - Crédito Tributario para declaración de IVA</field>
+    </record>
+    <record id="sustento_04" model="l10n_ec.tax.support">
+        <field name="code">04</field>
+        <field name="name">Activo Fijo - Costo o Gasto para declaración de IR</field>
+    </record>
+    <record id="sustento_05" model="l10n_ec.tax.support">
+        <field name="code">05</field>
+        <field name="name">Liquidación Gastos de Viaje, Hospedaje y Alimentación</field>
+    </record>
+    <record id="sustento_06" model="l10n_ec.tax.support">
+        <field name="code">06</field>
+        <field name="name">Inventario - Crédito Tributario para declaración de IVA</field>
+    </record>
+    <record id="sustento_07" model="l10n_ec.tax.support">
+        <field name="code">07</field>
+        <field name="name">Inventario - Costo o Gasto para declaración de IR</field>
+    </record>
+    <record id="sustento_08" model="l10n_ec.tax.support">
+        <field name="code">08</field>
+        <field name="name">Valor pagado para solicitar Reembolso de Gastos</field>
+    </record>
+    <record id="sustento_09" model="l10n_ec.tax.support">
+        <field name="code">09</field>
+        <field name="name">Reembolso por Siniestros</field>
+    </record>
+    <record id="sustento_10" model="l10n_ec.tax.support">
+        <field name="code">10</field>
+        <field name="name">Distribución de Dividendos, Beneficios o Utilidades</field>
+    </record>
+    <record id="sustento_00" model="l10n_ec.tax.support">
+        <field name="code">00</field>
+        <field name="name">Casos Especiales cuyo sustento no aplica a las opciones anteriores</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- TIPOS DE CONTRIBUYENTE SRI                                        -->
+    <!-- ================================================================= -->
+    <record id="contrib_persona_natural" model="l10n_ec.contributor.type">
+        <field name="code">01</field>
+        <field name="sequence">80</field>
+        <field name="name">Persona Natural No Obligada - Emite Facturas o Tickets</field>
+        <field name="obligado_contabilidad" eval="False"/>
+    </record>
+    <record id="contrib_persona_natural_obligado" model="l10n_ec.contributor.type">
+        <field name="code">02</field>
+        <field name="sequence">40</field>
+        <field name="name">Persona Natural Obligada a Llevar Contabilidad</field>
+        <field name="obligado_contabilidad" eval="True"/>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_312"/>
+        <field name="retention_vat_goods_id" ref="l10n_ec_base.ret_iva_721"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_723"/>
+    </record>
+    <record id="contrib_sociedad" model="l10n_ec.contributor.type">
+        <field name="code">03</field>
+        <field name="sequence">10</field>
+        <field name="name">Compañías - Personas Jurídicas</field>
+        <field name="obligado_contabilidad" eval="True"/>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_312"/>
+        <field name="retention_vat_goods_id" ref="l10n_ec_base.ret_iva_721"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_723"/>
+    </record>
+    <record id="contrib_especial" model="l10n_ec.contributor.type">
+        <field name="code">04</field>
+        <field name="sequence">20</field>
+        <field name="name">Contribuyentes Especiales</field>
+        <field name="obligado_contabilidad" eval="True"/>
+        <field name="special_contributor" eval="True"/>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_312"/>
+        <field name="retention_vat_goods_id" ref="l10n_ec_base.ret_iva_725"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_727"/>
+    </record>
+    <record id="contrib_rise" model="l10n_ec.contributor.type">
+        <field name="code">05</field>
+        <field name="sequence">90</field>
+        <field name="name">OTROS - Sin cálculo automático de retención de IVA</field>
+        <field name="obligado_contabilidad" eval="False"/>
+    </record>
+    <record id="contrib_rimpe_emprendedor" model="l10n_ec.contributor.type">
+        <field name="code">06</field>
+        <field name="sequence">85</field>
+        <field name="name">RIMPE Regime Entrepreneur</field>
+        <field name="obligado_contabilidad" eval="False"/>
+        <field name="rimpe" eval="True"/>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_343"/>
+    </record>
+    <record id="contrib_rimpe_negocio" model="l10n_ec.contributor.type">
+        <field name="code">07</field>
+        <field name="sequence">100</field>
+        <field name="name">Régimen RIMPE Popular Empresarial</field>
+        <field name="obligado_contabilidad" eval="False"/>
+        <field name="rimpe" eval="True"/>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_332"/>
+    </record>
+    <record id="contrib_sector_publico" model="l10n_ec.contributor.type">
+        <field name="code">08</field>
+        <field name="sequence">30</field>
+        <field name="name">Sector Público y EP</field>
+        <field name="obligado_contabilidad" eval="True"/>
+        <field name="retention_agent" eval="True"/>
+    </record>
+    <record id="contrib_persona_natural_arrendamientos" model="l10n_ec.contributor.type">
+        <field name="code">09</field>
+        <field name="sequence">50</field>
+        <field name="name">Persona Natural No Obligada - Arrendamientos</field>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_320"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_731"/>
+    </record>
+    <record id="contrib_persona_natural_profesionales" model="l10n_ec.contributor.type">
+        <field name="code">10</field>
+        <field name="sequence">60</field>
+        <field name="name">Persona Natural No Obligada - Profesionales</field>
+        <field name="retention_income_id" ref="l10n_ec_base.ret_ir_303"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_731"/>
+    </record>
+    <record id="contrib_persona_fisica_liquidaciones" model="l10n_ec.contributor.type">
+        <field name="code">11</field>
+        <field name="sequence">70</field>
+        <field name="name">Persona Física No Obligada - Liquidaciones de Compra</field>
+        <field name="retention_vat_goods_id" ref="l10n_ec_base.ret_iva_729"/>
+        <field name="retention_vat_services_id" ref="l10n_ec_base.ret_iva_729"/>
+    </record>
+</odoo>

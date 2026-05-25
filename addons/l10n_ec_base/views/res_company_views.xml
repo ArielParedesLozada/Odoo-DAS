@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_l10n_ec_root" name="Ecuador" parent="account.menu_finance_reports" sequence="100"/>
+</odoo>

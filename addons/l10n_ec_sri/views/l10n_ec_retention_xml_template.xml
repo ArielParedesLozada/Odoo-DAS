@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="xml_retention">
+<comprobanteRetencion id="comprobante" version="1.0.0">
+    <infoTributaria>
+        <ambiente><t t-esc="company.l10n_ec_sri_environment"/></ambiente>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial><t t-esc="company.name"/></razonSocial>
+        <nombreComercial><t t-esc="company.name"/></nombreComercial>
+        <ruc><t t-esc="company.vat"/></ruc>
+        <claveAcceso><t t-esc="access_key"/></claveAcceso>
+        <codDoc>07</codDoc>
+        <estab><t t-esc="record.name.split('-')[0]"/></estab>
+        <ptoEmi><t t-esc="record.name.split('-')[1]"/></ptoEmi>
+        <secuencial><t t-esc="record.name.split('-')[2]"/></secuencial>
+        <dirMatriz><t t-esc="company.street"/></dirMatriz>
+    </infoTributaria>
+    <infoCompRetencion>
+        <fechaEmision><t t-esc="formatted_date"/></fechaEmision>
+        <dirEstablecimiento><t t-esc="company.street"/></dirEstablecimiento>
+        <obligadoContabilidad><t t-if="company.l10n_ec_forced_accounting">SI</t><t t-else="">NO</t></obligadoContabilidad>
+        <tipoIdentificacionSujetoRetenido>04</tipoIdentificacionSujetoRetenido> <!-- 04=RUC, 05=Cedula -->
+        <razonSocialSujetoRetenido><t t-esc="partner.name"/></razonSocialSujetoRetenido>
+        <identificacionSujetoRetenido><t t-esc="partner.vat"/></identificacionSujetoRetenido>
+        <periodoFiscal><t t-esc="periodo_fiscal"/></periodoFiscal>
+    </infoCompRetencion>
+    <impuestos>
+        <impuesto t-foreach="record.tax_ids" t-as="line">
+            <codigo>2</codigo> <!-- 1=Renta, 2=IVA, 6=ISD -->
+            <codigoRetencion><t t-esc="line.tax_id.l10n_ec_code or '000'"/></codigoRetencion>
+            <baseImponible><t t-esc="'{:.2f}'.format(line.base_amount)"/></baseImponible>
+            <porcentajeRetener><t t-esc="line.tax_id.amount"/></porcentajeRetener>
+            <valorRetenido><t t-esc="'{:.2f}'.format(line.amount)"/></valorRetenido>
+            <codDocSustento>01</codDocSustento>
+            <numDocSustento><t t-esc="record.invoice_id.name.replace('-', '') or '001001000000001'"/></numDocSustento> <!-- Needs formatting -->
+            <fechaEmisionDocSustento><t t-esc="record.invoice_id.invoice_date.strftime('%d/%m/%Y')"/></fechaEmisionDocSustento>
+        </impuesto>
+    </impuestos>
+</comprobanteRetencion>
+</template>
+</odoo>

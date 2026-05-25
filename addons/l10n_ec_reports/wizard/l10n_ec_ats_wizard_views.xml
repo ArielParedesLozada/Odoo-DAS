@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_l10n_ec_ats_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_ec.ats.wizard.form</field>
+            <field name="model">l10n_ec.ats.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate ATS">
+                    <group>
+                        <group>
+                            <field name="date_month"/>
+                            <field name="date_year"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group invisible="not xml_data">
+                        <field name="xml_filename" invisible="1"/>
+                        <field name="xml_data" filename="xml_filename" string="Download ATS"/>
+                    </group>
+                    <footer>
+                        <button string="Generate ATS XML" name="action_generate_ats" type="object" class="btn-primary"/>
+                        <button string="Print Form 103 (Draft)" name="action_print_form103" type="object" class="btn-secondary"/>
+                        <button string="Print Form 104 (Draft)" name="action_print_form104" type="object" class="btn-secondary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_l10n_ec_ats_wizard" model="ir.actions.act_window">
+            <field name="name">ATS Generator</field>
+            <field name="res_model">l10n_ec.ats.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_l10n_ec_ats"
+                  name="ATS Report"
+                  parent="l10n_ec_base.menu_l10n_ec_root"
+                  action="action_l10n_ec_ats_wizard"
+                  sequence="30"/>
+    </data>
+</odoo>

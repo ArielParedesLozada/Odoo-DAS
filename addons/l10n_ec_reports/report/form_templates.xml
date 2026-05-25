@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_form_103">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Form 103: Withholding Tax Declarations (Draft)</h2>
+                        <p><strong>Period:</strong> <span t-esc="data['period']"/></p>
+
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Description (Concept)</th>
+                                    <th class="text-right">Tax Base</th>
+                                    <th class="text-right">Rate %</th>
+                                    <th class="text-right">Retained Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="data['retentions']" t-as="r">
+                                    <td><span t-esc="r['code']"/></td>
+                                    <td><span t-esc="r['name']"/></td>
+                                    <td class="text-right"><span t-esc="r['base']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                                    <td class="text-right"><span t-esc="r['percent']"/>%</td>
+                                    <td class="text-right"><span t-esc="r['amount']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_form_104">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Form 104: IVA &amp; ICE Declarations (Draft)</h2>
+                        <p><strong>Period:</strong> <span t-esc="data['period']"/></p>
+
+                        <h3>Sales</h3>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td>Local Sales (Excludes Fixed Assets)</td>
+                                <td class="text-right"><span t-esc="data['sales_base']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Total IVA Generated</td>
+                                <td class="text-right"><span t-esc="data['sales_iva']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                        </table>
+
+                        <h3>Purchases</h3>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td>Local Purchases (Inventory/Services)</td>
+                                <td class="text-right"><span t-esc="data['purchases_base']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                             <tr>
+                                <td>Total IVA Input</td>
+                                <td class="text-right"><span t-esc="data['purchases_iva']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                        </table>
+
+                        <h3>ICE (Consumos Especiales)</h3>
+                        <table class="table table-sm table-bordered">
+                            <tr>
+                                <td>Total ICE Payable (Sales)</td>
+                                <td class="text-right"><span t-esc="data['ice_payable']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                             <tr>
+                                <td>ICE Tax Credit (Purchases)</td>
+                                <td class="text-right"><span t-esc="data['ice_credit']" t-options='{"widget": "monetary", "display_currency": company.currency_id}'/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

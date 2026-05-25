@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_l10n_ec_retention_tree" model="ir.ui.view">
+        <field name="name">l10n_ec.retention.tree</field>
+        <field name="model">l10n_ec.retention</field>
+        <field name="arch" type="xml">
+            <list string="Withholdings">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_issue"/>
+                <field name="invoice_id"/>
+                <field name="l10n_ec_sri_status" widget="badge"
+                       decoration-success="l10n_ec_sri_status == 'authorized'"
+                       decoration-info="l10n_ec_sri_status == 'sent'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_l10n_ec_retention_form" model="ir.ui.view">
+        <field name="name">l10n_ec.retention.form</field>
+        <field name="model">l10n_ec.retention</field>
+        <field name="arch" type="xml">
+            <form string="Withholding Voucher">
+                <header>
+                    <button name="action_post" string="Confirm" type="object" class="oe_highlight" invisible="l10n_ec_sri_status != 'draft'"/>
+                    <button name="action_send_sri" string="Send to SRI" type="object" class="oe_highlight" invisible="l10n_ec_sri_status in ('sent', 'authorized', 'draft')"/>
+                    <button name="action_check_sri" string="Check Status" type="object" invisible="l10n_ec_sri_status != 'sent'"/>
+                    <field name="l10n_ec_sri_status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="invoice_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="date_issue"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Tax Lines">
+                            <field name="tax_ids">
+                                <list editable="bottom">
+                                    <field name="tax_id" domain="[('type_tax_use', '=', 'purchase')]"/>
+                                    <field name="base_amount"/>
+                                    <field name="amount"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="SRI Info">
+                             <group>
+                                <field name="l10n_ec_sri_access_key"/>
+                                <field name="l10n_ec_authorization_date"/>
+                             </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_l10n_ec_retention" model="ir.actions.act_window">
+        <field name="name">Withholdings</field>
+        <field name="res_model">l10n_ec.retention</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item (Under Accounting / Vendors) -->
+    <menuitem id="menu_l10n_ec_retention"
+              name="Withholdings (Retenciones)"
+              parent="account.menu_finance_payables"
+              action="action_l10n_ec_retention"
+              sequence="20"/>
+</odoo>

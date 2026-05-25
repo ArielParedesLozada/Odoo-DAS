@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_l10n_ec_ride" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='forced_vat']/following-sibling::div[hasclass('row')][1]" position="attributes">
+            <attribute name="t-if">not (o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key)</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+            <t t-set="layout_document_title">
+                <t t-if="not (o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key)">
+                    <span t-if="not proforma"></span>
+                    <span t-else="">PROFORMA</span>
+                    <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'">Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'">Draft Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'">Cancelled Credit Note</span>
+                    <span t-elif="o.move_type == 'in_refund'">Vendor Credit Note</span>
+                    <span t-elif="o.move_type == 'in_invoice'">Vendor Bill</span>
+                    <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+                </t>
+            </t>
+        </xpath>
+        <xpath expr="//div[@id='informations']/div[@name='origin']" position="after">
+            <t t-if="o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key"
+               t-set="l10n_ec_sale_ref"
+               t-value="o.invoice_origin and env['sale.order'].search([('name', '=', o.invoice_origin)], limit=1).client_order_ref"/>
+            <div class="col" t-if="o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key and (o.ref or l10n_ec_sale_ref)" name="l10n_ec_reference">
+                <strong>Reference</strong>
+                <div t-out="o.ref or l10n_ec_sale_ref"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@name='reference']" position="attributes">
+            <attribute name="t-if">o.ref and not (o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key)</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('oe_structure')]" position="after">
+            <div t-if="o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key"
+                 style="clear: both; padding-top: 28px; margin-bottom: 18px; font-size: 11px; color: #111;">
+                <style>
+                    .article[class*='o_company_'] > h2:empty {
+                        display: none !important;
+                        margin: 0 !important;
+                        height: 0 !important;
+                    }
+                    .l10n-ec-ride-card {
+                        border: 1px solid #222;
+                        border-radius: 6px;
+                        padding: 10px 12px;
+                        line-height: 1.35;
+                    }
+                    .l10n-ec-ride-title {
+                        font-size: 14px;
+                        font-weight: 700;
+                        letter-spacing: .02em;
+                        text-transform: uppercase;
+                        margin-bottom: 7px;
+                    }
+                    .l10n-ec-ride-label {
+                        font-weight: 700;
+                        white-space: nowrap;
+                    }
+                    .l10n-ec-ride-doc-title {
+                        font-size: 19px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        margin-bottom: 6px;
+                    }
+                    .l10n-ec-ride-muted {
+                        color: #555;
+                    }
+                    .l10n-ec-ride-heading {
+                        color: #b06800;
+                        font-size: 27px;
+                        line-height: 1.15;
+                        margin: 0 0 14px;
+                    }
+                </style>
+                <div class="l10n-ec-ride-heading">
+                    <span t-if="not proforma"></span>
+                    <span t-else="">PROFORMA</span>
+                    <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'">Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'">Draft Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'">Cancelled Credit Note</span>
+                    <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+                </div>
+                <div class="row g-2 align-items-stretch">
+                    <div class="col-5">
+                        <div class="l10n-ec-ride-card h-100">
+                            <div class="l10n-ec-ride-title">
+                                Issuer Details
+                            </div>
+                            <div><span class="l10n-ec-ride-label">R.U.C.:</span> <span t-field="o.company_id.vat"/></div>
+                            <div><span class="l10n-ec-ride-label">Legal Name:</span> <span t-field="o.company_id.name"/></div>
+                            <div t-if="o.company_id.l10n_ec_commercial_name and o.company_id.l10n_ec_commercial_name != o.company_id.name">
+                                <span class="l10n-ec-ride-label">Commercial Name:</span> <span t-field="o.company_id.l10n_ec_commercial_name"/>
+                            </div>
+                            <div t-if="o.company_id.street"><span class="l10n-ec-ride-label">Main Address:</span> <span t-field="o.company_id.street"/></div>
+                            <div t-if="o.company_id.city or o.company_id.country_id">
+                                <span class="l10n-ec-ride-label">Location:</span>
+                                <span t-if="o.company_id.city" t-field="o.company_id.city"/>
+                                <span t-if="o.company_id.country_id">, <span t-field="o.company_id.country_id.name"/></span>
+                            </div>
+                            <div>
+                                <span class="l10n-ec-ride-label">Required to keep accounting:</span>
+                                <span t-if="o.company_id.l10n_ec_forced_accounting">Yes</span>
+                                <span t-else="">No</span>
+                            </div>
+                            <div t-if="o.company_id.l10n_ec_special_resolution"><span class="l10n-ec-ride-label">Special Taxpayer:</span> <span t-field="o.company_id.l10n_ec_special_resolution"/></div>
+                        </div>
+                    </div>
+                    <div class="col-7">
+                        <div class="l10n-ec-ride-card h-100">
+                            <div class="l10n-ec-ride-doc-title">
+                                <span t-if="o.move_type == 'out_refund'">Credit Note</span>
+                                <span t-else="">Invoice</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">R.U.C.:</div>
+                                <div class="col-7"><span t-field="o.company_id.vat"/></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">Document:</div>
+                                <div class="col-7">
+                                    <span t-if="o.move_type == 'out_refund'">Credit Note</span>
+                                    <span t-else="">Invoice</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">No.:</div>
+                                <div class="col-7"><span t-field="o.name"/></div>
+                            </div>
+                            <div class="l10n-ec-ride-label" style="margin-top: 8px;">Authorization Number</div>
+                            <div class="text-break" style="font-size: 10px; margin-bottom: 7px;" t-out="o.l10n_ec_sri_access_key"/>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">Authorization Date:</div>
+                                <div class="col-7">
+                                    <span t-if="o.l10n_ec_authorization_date" t-field="o.l10n_ec_authorization_date"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">Environment:</div>
+                                <div class="col-7">
+                                    <span t-if="o.company_id.l10n_ec_sri_environment == 'production'">Production</span>
+                                    <span t-else="">Testing</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-5 l10n-ec-ride-label">Emission:</div>
+                                <div class="col-7">Normal</div>
+                            </div>
+                            <div class="l10n-ec-ride-label" style="margin-top: 8px;">Access Key</div>
+                            <div class="text-center" style="margin-top: 5px;">
+                                <img t-att-src="'/report/barcode/Code128/%s?width=600&amp;height=90&amp;humanreadable=0' % o.l10n_ec_sri_access_key"
+                                     style="width: 100%; max-height: 46px;" alt="Clave de acceso"/>
+                                <div class="text-break" style="font-size: 9px; margin-top: 2px;" t-out="o.l10n_ec_sri_access_key"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="l10n-ec-ride-card" style="margin-top: 8px;">
+                    <div class="row">
+                        <div class="col-2 l10n-ec-ride-label">Customer:</div>
+                        <div class="col-5"><span t-field="o.partner_id.name"/></div>
+                        <div class="col-2 l10n-ec-ride-label">Identification:</div>
+                        <div class="col-3"><span t-field="o.partner_id.vat"/></div>
+                    </div>
+                    <div class="row" t-if="o.partner_id.street or o.partner_id.city or o.partner_id.country_id">
+                        <div class="col-2 l10n-ec-ride-label">Address:</div>
+                        <div class="col-10">
+                            <span t-if="o.partner_id.street" t-field="o.partner_id.street"/>
+                            <span t-if="o.partner_id.city">, <span t-field="o.partner_id.city"/></span>
+                            <span t-if="o.partner_id.country_id">, <span t-field="o.partner_id.country_id.name"/></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

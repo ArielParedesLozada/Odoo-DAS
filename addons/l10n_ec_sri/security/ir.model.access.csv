@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_l10n_ec_retention,l10n_ec.retention,model_l10n_ec_retention,account.group_account_user,1,1,1,1
+access_l10n_ec_retention_line,l10n_ec.retention.line,model_l10n_ec_retention_line,account.group_account_user,1,1,1,1
+access_l10n_ec_retention_manager,l10n_ec.retention.manager,model_l10n_ec_retention,account.group_account_manager,1,1,1,1
+access_l10n_ec_retention_line_manager,l10n_ec.retention.line.manager,model_l10n_ec_retention_line,account.group_account_manager,1,1,1,1

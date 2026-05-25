@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SRI Ecuador Configuration Parameters - Datos Abiertos
+
+    Todos los valores regulatorios configurables via Ajustes.
+    NINGÚN VALOR HARDCODEADO.
+
+    Referencia: https://www.sri.gob.ec/datos-abiertos
+    Resolución: NAC-DGERCGC25-00000017
+-->
+<odoo>
+    <data noupdate="0">
+
+        <!-- ================================================================
+             SRI 2026 REGULATORY PARAMETERS
+             All values configurable, no hardcoding
+        ================================================================= -->
+
+        <!-- Consumidor Final Configuration -->
+        <record id="l10n_ec_consumidor_final_ruc" model="ir.config_parameter">
+            <field name="key">l10n_ec.consumidor_final_ruc</field>
+            <field name="value">9999999999999</field>
+        </record>
+
+        <record id="l10n_ec_consumidor_final_limit" model="ir.config_parameter">
+            <field name="key">l10n_ec.consumidor_final_limit</field>
+            <field name="value">50.00</field>
+        </record>
+
+        <!-- Annulment Rule -->
+        <record id="l10n_ec_annulment_day_limit" model="ir.config_parameter">
+            <field name="key">l10n_ec.annulment_day_limit</field>
+            <field name="value">7</field>
+        </record>
+
+        <!-- Tax Rates 2026 -->
+        <record id="l10n_ec_iva_rate" model="ir.config_parameter">
+            <field name="key">l10n_ec.iva_rate</field>
+            <field name="value">15</field>
+        </record>
+
+        <record id="l10n_ec_iva_rate_construccion" model="ir.config_parameter">
+            <field name="key">l10n_ec.iva_rate_construccion</field>
+            <field name="value">5</field>
+        </record>
+
+        <!-- Economic Parameters 2026 -->
+        <record id="l10n_ec_sbu" model="ir.config_parameter">
+            <field name="key">l10n_ec.sbu</field>
+            <field name="value">482.00</field>
+        </record>
+
+        <record id="l10n_ec_iess_aporte_personal" model="ir.config_parameter">
+            <field name="key">l10n_ec.iess_aporte_personal</field>
+            <field name="value">9.45</field>
+        </record>
+
+        <record id="l10n_ec_iess_aporte_patronal" model="ir.config_parameter">
+            <field name="key">l10n_ec.iess_aporte_patronal</field>
+            <field name="value">11.15</field>
+        </record>
+
+        <!-- ================================================================
+             SRI WEB SERVICE ENDPOINTS
+             Source: open-factura / SRI Official
+        ================================================================= -->
+
+        <!-- Ambiente de PRUEBAS (Test) -->
+        <record id="l10n_ec_sri_reception_url_test" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_reception_url_test</field>
+            <field name="value">https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl</field>
+        </record>
+
+        <record id="l10n_ec_sri_authorization_url_test" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_authorization_url_test</field>
+            <field name="value">https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl</field>
+        </record>
+
+        <!-- Ambiente de PRODUCCIÓN -->
+        <record id="l10n_ec_sri_reception_url_prod" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_reception_url_prod</field>
+            <field name="value">https://cel.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline?wsdl</field>
+        </record>
+
+        <record id="l10n_ec_sri_authorization_url_prod" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_authorization_url_prod</field>
+            <field name="value">https://cel.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline?wsdl</field>
+        </record>
+
+        <!-- RUC Consultation API -->
+        <record id="l10n_ec_sri_ruc_api_url" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_ruc_api_url</field>
+            <field name="value">https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/obtenerPorNumerosRuc</field>
+        </record>
+
+        <!-- Current Environment Setting -->
+        <record id="l10n_ec_sri_environment" model="ir.config_parameter">
+            <field name="key">l10n_ec.sri_environment</field>
+            <field name="value">test</field>
+        </record>
+
+        <!-- Auto-send to SRI on Invoice Post (2026 requirement: immediate) -->
+        <record id="l10n_ec_auto_send_sri" model="ir.config_parameter">
+            <field name="key">l10n_ec.auto_send_sri</field>
+            <field name="value">True</field>
+        </record>
+
+        <!-- ================================================================
+             SRI DOCUMENT TYPE CODES
+             Required for electronic documents
+        ================================================================= -->
+
+        <record id="l10n_ec_doc_type_factura" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.factura</field>
+            <field name="value">01</field>
+        </record>
+
+        <record id="l10n_ec_doc_type_nota_credito" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.nota_credito</field>
+            <field name="value">04</field>
+        </record>
+
+        <record id="l10n_ec_doc_type_nota_debito" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.nota_debito</field>
+            <field name="value">05</field>
+        </record>
+
+        <record id="l10n_ec_doc_type_guia_remision" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.guia_remision</field>
+            <field name="value">06</field>
+        </record>
+
+        <record id="l10n_ec_doc_type_retencion" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.retencion</field>
+            <field name="value">07</field>
+        </record>
+
+        <record id="l10n_ec_doc_type_liq_compra" model="ir.config_parameter">
+            <field name="key">l10n_ec.doc_type.liq_compra</field>
+            <field name="value">03</field>
+        </record>
+
+        <!-- ================================================================
+             TAX CALENDAR CONFIGURATION
+             Fechas de vencimiento según noveno dígito RUC
+        ================================================================= -->
+
+        <!-- Deadline day map by 9th RUC digit (JSON format) -->
+        <record id="l10n_ec_deadline_day_map" model="ir.config_parameter">
+            <field name="key">l10n_ec.deadline_day_map</field>
+            <field name="value">{"1": 10, "2": 12, "3": 14, "4": 16, "5": 18, "6": 20, "7": 22, "8": 24, "9": 26, "0": 28}</field>
+        </record>
+
+        <!-- Special Contributor deadline day -->
+        <record id="l10n_ec_special_contributor_day" model="ir.config_parameter">
+            <field name="key">l10n_ec.special_contributor_day</field>
+            <field name="value">9</field>
+        </record>
+
+        <!-- RDEP deadline map (January submission for previous year) -->
+        <record id="l10n_ec_rdep_deadline_map" model="ir.config_parameter">
+            <field name="key">l10n_ec.rdep_deadline_map</field>
+            <field name="value">{"1": "01-21", "2": "01-23", "3": "01-25", "4": "01-27", "5": "01-29", "6": "01-31", "7": "02-03", "8": "02-05", "9": "02-07", "0": "02-07"}</field>
+        </record>
+
+        <!-- IR declaration months -->
+        <record id="l10n_ec_ir_natural_month" model="ir.config_parameter">
+            <field name="key">l10n_ec.ir_natural_month</field>
+            <field name="value">3</field>
+        </record>
+
+        <record id="l10n_ec_ir_sociedades_month" model="ir.config_parameter">
+            <field name="key">l10n_ec.ir_sociedades_month</field>
+            <field name="value">4</field>
+        </record>
+
+        <!-- ================================================================
+             CUSTOMS (ADUANAS) CONFIGURATION
+        ================================================================= -->
+
+        <record id="l10n_ec_fodinfa" model="ir.config_parameter">
+            <field name="key">l10n_ec.fodinfa</field>
+            <field name="value">0.005</field>
+        </record>
+
+        <record id="l10n_ec_customs_iva" model="ir.config_parameter">
+            <field name="key">l10n_ec.customs_iva</field>
+            <field name="value">0.15</field>
+        </record>
+
+    </data>
+</odoo>
+

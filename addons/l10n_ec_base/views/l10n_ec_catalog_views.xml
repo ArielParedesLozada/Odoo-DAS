@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_l10n_ec_contributor_type_list" model="ir.ui.view">
+        <field name="name">l10n_ec.contributor.type.list</field>
+        <field name="model">l10n_ec.contributor.type</field>
+        <field name="arch" type="xml">
+            <list string="SRI Tipo de Contribuyente">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="retention_income_id"/>
+                <field name="retention_vat_goods_id"/>
+                <field name="retention_vat_services_id"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_contributor_type_form" model="ir.ui.view">
+        <field name="name">l10n_ec.contributor.type.form</field>
+        <field name="model">l10n_ec.contributor.type</field>
+        <field name="arch" type="xml">
+            <form string="SRI Tipo de Contribuyente">
+                <sheet>
+                    <group string="Tipo de Contribuyente">
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="sequence"/>
+                        <field name="active"/>
+                    </group>
+                    <group string="Retenciones Predeterminadas">
+                        <field name="retention_income_id"/>
+                        <field name="retention_vat_goods_id"/>
+                        <field name="retention_vat_services_id"/>
+                    </group>
+                    <group string="Clasificación">
+                        <field name="obligado_contabilidad"/>
+                        <field name="retention_agent"/>
+                        <field name="special_contributor"/>
+                        <field name="rimpe"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_l10n_ec_contributor_type_search" model="ir.ui.view">
+        <field name="name">l10n_ec.contributor.type.search</field>
+        <field name="model">l10n_ec.contributor.type</field>
+        <field name="arch" type="xml">
+            <search string="SRI Tipo de Contribuyente">
+                <field name="name"/>
+                <field name="retention_income_id"/>
+                <field name="retention_vat_goods_id"/>
+                <field name="retention_vat_services_id"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_l10n_ec_contributor_type" model="ir.actions.act_window">
+        <field name="name">SRI Tipo de Contribuyente</field>
+        <field name="res_model">l10n_ec.contributor.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!--
+        Odoo Accounting/Localization already provides an Ecuadorian SRI
+        configuration area in official/paid setups. If this project is migrated
+        to that full module, review this menu for duplicate "Taxpayer Type"
+        entries or conflicting action placement.
+    -->
+    <menuitem id="menu_l10n_ec_contributor_type"
+              name="SRI Tipo de Contribuyente"
+              parent="l10n_ec.sri_menu"
+              action="action_l10n_ec_contributor_type"
+              sequence="4"/>
+</odoo>
