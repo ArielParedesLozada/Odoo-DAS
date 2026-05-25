@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_das_email_campaign_config_marketing,das.email.campaign.config marketing,model_das_email_campaign_config,das_email_preferences.group_das_email_preferences_marketing,1,1,1,1
+access_das_email_campaign_log_marketing,das.email.campaign.log marketing,model_das_email_campaign_log,das_email_preferences.group_das_email_preferences_marketing,1,1,1,1
+access_das_email_campaign_config_user,das.email.campaign.config user,model_das_email_campaign_config,base.group_user,1,0,0,0
+access_das_email_campaign_log_user,das.email.campaign.log user,model_das_email_campaign_log,base.group_user,1,0,0,0

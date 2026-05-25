@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_slide_channel_form_das_email_campaigns" model="ir.ui.view">
+        <field name="name">slide.channel.form.das.email.campaigns</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="das_lms.slide_channel_view_form_das_lms"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='das_lms_academic']" position="inside">
+                <group string="Segmentación Email Marketing" name="das_email_marketing">
+                    <field name="das_email_marketing_configured" invisible="1"/>
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="das_email_marketing_configured or not website_published">
+                        <strong>Campañas automáticas:</strong>
+                        asigna al menos una categoría y un interés para que los usuarios
+                        reciban correos personalizados sobre este curso.
+                    </div>
+                    <field name="das_email_category_ids" widget="many2many_tags"
+                           placeholder="eLearning, Certificaciones, Talleres…"/>
+                    <field name="das_email_interest_ids" widget="many2many_tags"
+                           placeholder="Tecnología, Desarrollo, Marketing…"/>
+                    <field name="das_experience_level"/>
+                    <field name="das_email_published_date" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_slide_channel_tree_das_email_campaigns" model="ir.ui.view">
+        <field name="name">slide.channel.list.das.email.campaigns</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="website_slides.slide_channel_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="das_email_marketing_configured" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

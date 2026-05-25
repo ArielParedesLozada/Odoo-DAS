@@ -70,7 +70,7 @@
                 <field name="das_academic_status" string="Ciclo DAS" optional="hide" widget="badge"/>
                 <field name="das_modality" string="Modalidad DAS" optional="hide"/>
                 <field name="das_registration_open" string="Inscripción abierta" optional="hide"/>
-                <field name="das_registration_deadline" string="Cierre inscripción" optional="hide"/>
+                <field name="das_registration_deadline" string="Último día inscripción" optional="hide"/>
                 <field name="das_total_hours" string="Horas totales" optional="hide"/>
             </xpath>
         </field>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_das_email_campaigns_root"
+        name="Campañas automáticas"
+        parent="das_email_preferences.menu_das_email_preferences_root"
+        sequence="30"
+        groups="das_email_preferences.group_das_email_preferences_marketing"/>
+
+    <menuitem
+        id="menu_das_email_campaign_config"
+        name="Configuración de campañas"
+        parent="menu_das_email_campaigns_root"
+        action="das_email_campaign_config_action"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_das_email_campaign_log"
+        name="Registro de envíos"
+        parent="menu_das_email_campaigns_root"
+        action="das_email_campaign_log_action"
+        sequence="20"/>
+</odoo>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_das_birthday" model="mail.template">
+        <field name="name">DAS · Cumpleaños</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">¡Feliz cumpleaños, {{ object.name }}!</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <p>Hola <strong>{{ object.name }}</strong>,</p>
+    <p>En <strong>Academia Virtual DAS</strong> queremos desearte un muy feliz cumpleaños.</p>
+    <p>Gracias por formar parte de nuestra comunidad de aprendizaje.</p>
+    <p style="margin-top: 24px;">— Equipo Academia Virtual DAS</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_das_upcoming" model="mail.template">
+        <field name="name">DAS · Curso próximo a iniciar</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Un curso que te interesa inicia pronto</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <p>Hola <strong>{{ object.name }}</strong>,</p>
+    <p>Te recordamos que uno de los cursos alineados con tus preferencias está por comenzar:</p>
+    {{ course_block }}
+    <p style="margin-top: 20px;">Inscríbete antes de que cierre el periodo de matrícula.</p>
+    <p>— Academia Virtual DAS</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_das_new_courses" model="mail.template">
+        <field name="name">DAS · Curso nuevo</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Nuevo curso para ti en DAS</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <p>Hola <strong>{{ object.name }}</strong>,</p>
+    <p>Hemos publicado un curso nuevo que encaja con tus intereses:</p>
+    {{ course_block }}
+    <p style="margin-top: 20px;">— Academia Virtual DAS</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_das_experience" model="mail.template">
+        <field name="name">DAS · Recomendación por nivel</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Cursos recomendados para tu nivel</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <p>Hola <strong>{{ object.name }}</strong>,</p>
+    <p>Según tu nivel de experiencia, te sugerimos estos cursos:</p>
+    {{ course_block }}
+    <p style="margin-top: 20px;">— Academia Virtual DAS</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <record id="mail_template_das_newsletter" model="mail.template">
+        <field name="name">DAS · Newsletter</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="subject">Novedades en Academia Virtual DAS</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <p>Hola <strong>{{ object.name }}</strong>,</p>
+    <p>Estas son las novedades destacadas de la plataforma:</p>
+    {{ course_block }}
+    <p style="margin-top: 20px;">— Academia Virtual DAS</p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

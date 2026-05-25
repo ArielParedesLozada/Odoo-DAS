@@ -104,6 +104,23 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
     def _das_lms_portal_can_study(self, channel):
         return request.env['slide.channel']._das_lms_portal_can_study_channel(channel)
 
+    def slides_channel_all_values(self, slide_category=None, slug_tags=None, my=False, **post):
+        render_values = super().slides_channel_all_values(
+            slide_category=slide_category, slug_tags=slug_tags, my=my, **post,
+        )
+        if my:
+            return render_values
+        channels = render_values.get('channels')
+        if not channels:
+            return render_values
+        partner = request.env.user.partner_id if not request.env.user._is_public() else None
+        visible = channels.filtered(
+            lambda c: c._das_lms_is_public_catalog_visible(partner=partner),
+        )
+        render_values['channels'] = visible
+        render_values['search_count'] = len(visible)
+        return render_values
+
     @http.route('/slides', type='http', auth='public', website=True, sitemap=True, readonly=True)
     def slides_channel_home(self, **post):
         if not self._das_lms_restrict_portal_elearning():
@@ -228,16 +245,20 @@ class DasLmsWebsiteSlides(WebsiteSaleSlides):
         search=None,
         **kw,
     ):
+        ch = channel
+        if not ch and channel_id:
+            cid = channel_id
+            if cid < 0:
+                cid = abs(cid)
+            ch = request.env['slide.channel'].browse(cid).exists()
+        if ch:
+            partner = request.env.user.partner_id if not request.env.user._is_public() else None
+            ch_sudo = ch.sudo()
+            if not ch_sudo._das_lms_is_public_catalog_visible(partner=partner):
+                return self._das_lms_portal_course_access_response(ch_sudo)
         if self._das_lms_restrict_portal_elearning():
-            ch = channel
-            if not ch and channel_id:
-                cid = channel_id
-                if cid < 0:
-                    cid = abs(cid)
-                ch = request.env['slide.channel'].browse(cid).exists()
-            if ch:
-                if ch.has_access('read') and not self._das_lms_portal_can_study(ch):
-                    return self._das_lms_portal_course_access_response(ch)
+            if ch and ch.has_access('read') and not self._das_lms_portal_can_study(ch):
+                return self._das_lms_portal_course_access_response(ch)
         return super().channel(
             channel=channel,
             channel_id=channel_id,

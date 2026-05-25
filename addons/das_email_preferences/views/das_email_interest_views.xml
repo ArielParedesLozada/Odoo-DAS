@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="das_email_interest_view_tree" model="ir.ui.view">
+        <field name="name">das.email.interest.list</field>
+        <field name="model">das.email.interest</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="das_email_interest_view_form" model="ir.ui.view">
+        <field name="name">das.email.interest.form</field>
+        <field name="model">das.email.interest</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="sequence"/>
+                        <field name="color" widget="color_picker"/>
+                        <field name="active"/>
+                    </group>
+                    <field name="description" placeholder="Descripción para el equipo de marketing..."/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="das_email_interest_action" model="ir.actions.act_window">
+        <field name="name">Intereses</field>
+        <field name="res_model">das.email.interest</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
