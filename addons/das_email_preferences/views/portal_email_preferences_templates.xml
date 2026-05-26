@@ -310,12 +310,14 @@
             <t t-set="portal_client_category_enable" t-value="True"/>
         </xpath>
         <div id="portal_client_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/mass_mailing/static/description/icon.svg'"/>
-                <t t-set="title">Preferencias de comunicación</t>
-                <t t-set="text">Intereses, cumpleaños, nivel y correos personalizados</t>
-                <t t-set="url" t-value="'/my/email-preferences/edit'"/>
-                <t t-set="config_card" t-value="True"/>
+            <t t-if="request.env.user._das_is_portal_student_user()">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="icon" t-value="'/mass_mailing/static/description/icon.svg'"/>
+                    <t t-set="title">Preferencias de comunicación</t>
+                    <t t-set="text">Intereses, cumpleaños, nivel y correos personalizados</t>
+                    <t t-set="url" t-value="'/my/email-preferences/edit'"/>
+                    <t t-set="config_card" t-value="True"/>
+                </t>
             </t>
         </div>
     </template>
@@ -330,7 +332,8 @@
 
     <template id="portal_side_content_email_preferences" inherit_id="portal.side_content" priority="50">
         <xpath expr="//a[@href='/my/account']" position="after">
-            <a role="button" href="/my/email-preferences/edit" class="btn btn-link p-0 mt-2">
+            <a t-if="request.env.user._das_is_portal_student_user()"
+               role="button" href="/my/email-preferences/edit" class="btn btn-link p-0 mt-2">
                 <i class="fa fa-envelope-o" aria-hidden="true"/> Preferencias de comunicación
             </a>
         </xpath>
@@ -338,7 +341,7 @@
 
     <template id="portal_my_details_email_preferences" inherit_id="portal.portal_my_details" priority="50">
         <xpath expr="//div[hasclass('o_portal_details')]" position="before">
-            <div class="col-12 mb-4">
+            <div t-if="request.env.user._das_is_portal_student_user()" class="col-12 mb-4">
                 <div class="card border-0 bg-light">
                     <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div>

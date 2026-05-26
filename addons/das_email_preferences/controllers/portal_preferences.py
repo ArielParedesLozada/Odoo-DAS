@@ -98,8 +98,13 @@ class DasEmailPreferencesPortal(http.Controller):
         sitemap=False,
     )
     def portal_email_preferences(self, **post):
-        partner = request.env.user.partner_id
-        onboarding = request.env.user._das_must_complete_email_preferences()
+        user = request.env.user
+        if not user._das_is_portal_student_user():
+            if user.has_group('base.group_portal'):
+                return request.redirect('/my')
+            return request.redirect('/web')
+        partner = user.partner_id
+        onboarding = user._das_must_complete_email_preferences()
         return request.render(
             'das_email_preferences.portal_email_preferences_form',
             self._preferences_form_values(partner, onboarding=onboarding),
@@ -115,7 +120,12 @@ class DasEmailPreferencesPortal(http.Controller):
         sitemap=False,
     )
     def portal_email_preferences_submit(self, **post):
-        partner = request.env.user.partner_id
+        user = request.env.user
+        if not user._das_is_portal_student_user():
+            if user.has_group('base.group_portal'):
+                return request.redirect('/my')
+            return request.redirect('/web')
+        partner = user.partner_id
         Preference = request.env['das.email.preference'].sudo()
         redirect_url = self._form_get('redirect') or '/my'
         if (

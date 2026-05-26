@@ -114,3 +114,23 @@ class TestDasEmailPreferences(TransactionCase):
     def test_admin_user_exempt_from_onboarding(self):
         admin = self.env.ref('base.user_admin')
         self.assertFalse(admin._das_must_complete_email_preferences())
+        self.assertFalse(admin._das_is_portal_student_user())
+
+    def test_internal_user_exempt_from_onboarding(self):
+        user = new_test_user(
+            self.env,
+            'pref_internal_user',
+            email='pref_internal_user@test.example.com',
+            groups='base.group_user',
+        )
+        self.assertFalse(user._das_is_portal_student_user())
+        self.assertFalse(user._das_must_complete_email_preferences())
+        pref = self.env['das.email.preference'].sudo().search([
+            ('partner_id', '=', user.partner_id.id),
+        ])
+        self.assertFalse(pref)
+
+    def test_portal_student_detection(self):
+        portal = self._create_portal_user('pref_portal_detect')
+        self.assertTrue(portal._das_is_portal_student_user())
+        self.assertFalse(portal._das_email_preference_exempt_user())
