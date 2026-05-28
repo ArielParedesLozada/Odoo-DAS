@@ -5,7 +5,7 @@
         'Formulario obligatorio al crear cuenta: intereses, cumpleaños, nivel de experiencia '
         'y aceptación legal. Solo comunicación por correo electrónico.'
     ),
-    'version': '18.0.2.2.0',
+    'version': '18.0.2.3.0',
     'category': 'Marketing/Email Marketing',
     'author': 'DAS',
     'license': 'LGPL-3',
