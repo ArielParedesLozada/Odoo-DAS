@@ -117,8 +117,8 @@ class AccountMove(models.Model):
         if self.state != "posted":
             raise UserError(_("Invoice must be Posted before sending to SRI."))
 
-        certificate = self.company_id.l10n_ec_certificate_id
-        if not certificate or certificate.state != "active":
+        certificate = self.company_id.sudo().l10n_ec_certificate_id
+        if not certificate or certificate.sudo().state != "active":
             raise UserError(_("No active Electronic Signature found for this company."))
 
         # Generate the signed XML and store it immediately so the file exists
@@ -230,12 +230,13 @@ class AccountMove(models.Model):
         Internal helper to call the signer lib.
         """
         self.ensure_one()
-        certificate = self.company_id.l10n_ec_certificate_id
+        certificate = self.company_id.sudo().l10n_ec_certificate_id
         if not certificate:
             raise UserError(_("No active Electronic Signature found for this company."))
 
+        certificate_sudo = certificate.sudo()
         return self.env["l10n_ec.sri.signer"].sign_xml(
-            xml_content, certificate.content, certificate.password
+            xml_content, certificate_sudo.content, certificate_sudo.password
         )
 
     def _l10n_ec_to_odoo_datetime(self, value):

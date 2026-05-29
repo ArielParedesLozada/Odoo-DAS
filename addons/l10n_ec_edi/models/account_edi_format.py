@@ -292,8 +292,8 @@ class AccountEdiFormat(models.Model):
             xml_content = self._export_l10n_ec_edi(invoice)
 
             # Check Active Certificate (New Model Link)
-            certificate = invoice.company_id.l10n_ec_certificate_id
-            if not certificate or certificate.state != "active":
+            certificate = invoice.company_id.sudo().l10n_ec_certificate_id
+            if not certificate or certificate.sudo().state != "active":
                 res[invoice] = {
                     "error": _("SRI Error: No active Signing Certificate configured.")
                 }
@@ -303,13 +303,14 @@ class AccountEdiFormat(models.Model):
                 # Use AbstractModels from l10n_ec_edi
                 signer = self.env["l10n_ec.sri.signer"]
                 service = self.env["l10n_ec.sri.service"]
+                certificate_sudo = certificate.sudo()
 
                 # Sign
                 # The signer expect bytes, xml_content is str
                 signed_xml_bytes = signer.sign_xml(
                     xml_content.encode("utf-8"),
-                    certificate.content,  # This is binary (base64)
-                    certificate.password,
+                    certificate_sudo.content,  # This is binary (base64)
+                    certificate_sudo.password,
                 )
 
                 # Transmit

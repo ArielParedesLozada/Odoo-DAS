@@ -86,12 +86,13 @@ class L10nEcRetention(models.Model):
                 xml_content = xml_content.encode("utf-8")
 
             # 2. Sign XML (Reuse Signer)
-            certificate = ret.company_id.l10n_ec_certificate_id
+            certificate = ret.company_id.sudo().l10n_ec_certificate_id
             if not certificate:
                 raise UserError(_("No active Electronic Signature found."))
 
+            certificate_sudo = certificate.sudo()
             signed_xml = self.env["l10n_ec.sri.signer"].sign_xml(
-                xml_content, certificate.content, certificate.password
+                xml_content, certificate_sudo.content, certificate_sudo.password
             )
 
             # 3. Send to SRI

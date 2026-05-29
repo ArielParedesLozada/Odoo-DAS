@@ -252,8 +252,8 @@ class AccountMove(models.Model):
                 raise UserError(_("Invoice must be Posted before sending to SRI."))
 
             # 1. Certificate Check
-            certificate = move.company_id.l10n_ec_certificate_id
-            if not certificate or certificate.state != "active":
+            certificate = move.company_id.sudo().l10n_ec_certificate_id
+            if not certificate or certificate.sudo().state != "active":
                 raise UserError(
                     _(
                         "SRI Error: No active Signing Certificate configured for company %s"
@@ -281,11 +281,12 @@ class AccountMove(models.Model):
 
             # 4. Sign XML
             signer = self.env["l10n_ec.sri.signer"]
+            certificate_sudo = certificate.sudo()
             try:
                 signed_xml_bytes = signer.sign_xml(
                     xml_content.encode("utf-8"),
-                    certificate.content,
-                    certificate.password,
+                    certificate_sudo.content,
+                    certificate_sudo.password,
                 )
             except Exception as e:
                 raise UserError(_("Signing Error: %s") % str(e))
@@ -340,8 +341,8 @@ class AccountMove(models.Model):
                     continue
 
                 # Check if certificate is configured
-                certificate = move.company_id.l10n_ec_certificate_id
-                if not certificate or certificate.state != "active":
+                certificate = move.company_id.sudo().l10n_ec_certificate_id
+                if not certificate or certificate.sudo().state != "active":
                     # No certificate - skip auto-send, log warning
                     import logging
 
