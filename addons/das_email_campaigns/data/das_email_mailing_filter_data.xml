@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mailing_filter_das_opted_in" model="mailing.filter">
+        <field name="name">DAS · Acepta email y preferencias completas</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_preference_completed', '=', True), ('email', '!=', False)]</field>
+    </record>
+
+    <record id="mailing_filter_das_level_beginner" model="mailing.filter">
+        <field name="name">DAS · Nivel Básico</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_preference_completed', '=', True), ('das_experience_level', '=', 'beginner')]</field>
+    </record>
+
+    <record id="mailing_filter_das_level_intermediate" model="mailing.filter">
+        <field name="name">DAS · Nivel Intermedio</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_preference_completed', '=', True), ('das_experience_level', '=', 'intermediate')]</field>
+    </record>
+
+    <record id="mailing_filter_das_level_advanced" model="mailing.filter">
+        <field name="name">DAS · Nivel Avanzado</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_preference_completed', '=', True), ('das_experience_level', '=', 'advanced')]</field>
+    </record>
+
+    <record id="mailing_filter_das_level_expert" model="mailing.filter">
+        <field name="name">DAS · Nivel Experto</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_preference_completed', '=', True), ('das_experience_level', '=', 'expert')]</field>
+    </record>
+
+    <record id="mailing_filter_das_birthday_month" model="mailing.filter">
+        <field name="name">DAS · Cumpleaños este mes</field>
+        <field name="mailing_model_id" ref="base.model_res_partner"/>
+        <field name="mailing_domain">[('das_comm_email', '=', True), ('das_birthday', '!=', False)]</field>
+    </record>
+</odoo>

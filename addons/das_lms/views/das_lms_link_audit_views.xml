@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_das_lms_link_audit_wizard_form" model="ir.ui.view">
+        <field name="name">das.lms.link.audit.wizard.form</field>
+        <field name="model">das.lms.link.audit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Validar vínculos producto-curso">
+                <sheet>
+                    <div class="alert alert-info" role="status">
+                        <p class="mb-2">Revise relaciones entre <strong>slide.channel.product_id</strong> y
+                        <strong>product.template.das_lms_channel_id</strong>. No se usan nombres ni códigos.</p>
+                        <p class="small text-muted mb-0">Cada producto de curso debe tener «Curso eLearning relacionado»
+                        o un canal cuyo producto variante coincida con el de la tienda.</p>
+                    </div>
+                    <group>
+                        <button name="action_run_audit" type="object" string="Ejecutar análisis" class="btn-primary"/>
+                    </group>
+                    <field name="line_ids" colspan="4" readonly="1" nolabel="1">
+                        <list create="false" delete="false" edit="false" decoration-muted="severity == 'info'" decoration-warning="severity == 'warning'" decoration-danger="severity == 'error'">
+                            <field name="severity"/>
+                            <field name="issue_type"/>
+                            <field name="product_template_id"/>
+                            <field name="slide_channel_id"/>
+                            <field name="description"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_das_lms_link_audit_wizard" model="ir.actions.act_window">
+        <field name="name">Validar vínculos producto-curso</field>
+        <field name="res_model">das.lms.link.audit.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

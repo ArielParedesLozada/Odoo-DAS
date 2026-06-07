@@ -1,0 +1,57 @@
+<odoo>
+
+    <!-- LIST (ANTES TREE) -->
+    <record id="view_satisfaction_dashboard_list" model="ir.ui.view">
+        <field name="name">satisfaction.dashboard.list</field>
+        <field name="model">lms.satisfaction.dashboard</field>
+        <field name="arch" type="xml">
+            <list string="Dashboard Satisfacción">
+                <field name="course_id" />
+                <field name="total_responses" />
+                <field name="recommendation_yes" />
+                <field name="recommendation_no" />
+                <field name="avg_score" />
+            </list>
+        </field>
+    </record>
+
+    <!-- GRAPH -->
+    <record id="view_satisfaction_dashboard_graph" model="ir.ui.view">
+        <field name="name">satisfaction.dashboard.graph</field>
+        <field name="model">lms.satisfaction.dashboard</field>
+        <field name="arch" type="xml">
+            <graph string="Satisfacción por Curso" type="bar">
+                <field name="course_id" type="row" />
+                <field name="avg_score" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <!-- PIVOT -->
+    <record id="view_satisfaction_dashboard_pivot" model="ir.ui.view">
+        <field name="name">satisfaction.dashboard.pivot</field>
+        <field name="model">lms.satisfaction.dashboard</field>
+        <field name="arch" type="xml">
+            <pivot string="KPIs Satisfacción">
+                <field name="course_id" type="row" />
+                <field name="total_responses" type="measure" />
+                <field name="avg_score" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_satisfaction_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard Satisfacción</field>
+        <field name="res_model">lms.satisfaction.dashboard</field>
+        <field name="view_mode">graph,pivot,list</field>
+    </record>
+
+    <!-- MENU -->
+    <menuitem id="menu_satisfaction_dashboard"
+        name="Dashboard"
+        parent="menu_lms_satisfaction_root"
+        action="action_satisfaction_dashboard"
+        sequence="5" />
+
+</odoo>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_das_lms_academic_dashboard_form" model="ir.ui.view">
+        <field name="name">das.lms.academic.dashboard.form</field>
+        <field name="model">das.lms.academic.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard académico" class="o_das_lms_dashboard_form">
+                <header>
+                    <button name="action_refresh" type="object" string="Actualizar datos" class="btn-primary"/>
+                </header>
+                <sheet class="o_form_sheet o_das_lms_dashboard_sheet">
+                    <!-- 1. Header -->
+                    <div class="o_das_lms_exec_header">
+                        <div class="o_das_lms_exec_header__brand">
+                            <div class="o_das_lms_exec_header__icon">
+                                <i class="fa fa-graduation-cap" title="DAS LMS"/>
+                            </div>
+                            <div>
+                                <h1 class="o_das_lms_exec_header__title">Dashboard académico</h1>
+                                <p class="o_das_lms_exec_header__subtitle">
+                                    Vista ejecutiva de inscripciones, avance y engagement.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="o_das_lms_exec_header__meta">
+                            <div class="o_das_lms_exec-pill">
+                                <span class="o_das_lms_exec-pill__lbl">Fecha</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="header_date_display" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill">
+                                <span class="o_das_lms_exec-pill__lbl">Cursos</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="total_courses_with_students" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill">
+                                <span class="o_das_lms_exec-pill__lbl">Activos</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="active_students" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">Próximos</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_proximo" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">En curso</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_en_curso" readonly="1" nolabel="1"/></span>
+                            </div>
+                            <div class="o_das_lms_exec-pill o_das_lms_exec-pill--cycle">
+                                <span class="o_das_lms_exec-pill__lbl">Finalizados</span>
+                                <span class="o_das_lms_exec-pill__val"><field name="count_courses_finalizado" readonly="1" nolabel="1"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. KPIs (sin duplicar cursos / activos del encabezado) -->
+                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
+                        <h2>Indicadores clave</h2>
+                    </div>
+                    <div class="row g-3 mb-1 o_das_lms_kpi-cards o_das_lms_kpi-cards--executive">
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--blue">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-users o_das_lms_kpi-icon" title="Inscripciones"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">Inscripciones</div>
+                                <div class="o_das_lms_kpi-value"><field name="total_enrollments" nolabel="1" class="oe_inline"/></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--green">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-line-chart o_das_lms_kpi-icon" title="Avance"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">Avance medio</div>
+                                <div class="o_das_lms_kpi-value"><field name="avg_progress_general" nolabel="1" class="oe_inline"/> %</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--slate">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-circle-o o_das_lms_kpi-icon" title="Sin iniciar"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">Sin iniciar</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_sin_iniciar" nolabel="1" class="oe_inline"/></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--amber">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-spinner o_das_lms_kpi-icon" title="En progreso"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">En progreso</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_en_progreso" nolabel="1" class="oe_inline"/></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--teal">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-check-circle o_das_lms_kpi-icon" title="Completados"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">Completados</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_completados" nolabel="1" class="oe_inline"/></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-4 col-xl-2">
+                            <div class="o_das_lms_kpi-card o_das_lms_kpi--red">
+                                <div class="o_das_lms_kpi-card__head">
+                                    <i class="fa fa-exclamation-triangle o_das_lms_kpi-icon" title="Inactivos"/>
+                                </div>
+                                <div class="o_das_lms_kpi-title">Inactivos</div>
+                                <div class="o_das_lms_kpi-value"><field name="count_inactivos" nolabel="1" class="oe_inline"/></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Resumen visual (solo distribución + top inscritos; detalle por curso → Análisis avanzado) -->
+                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
+                        <h2>Resumen visual</h2>
+                    </div>
+                    <div class="o_das_lms_panel o_das_lms_panel--charts o_das_lms_panel--charts-wide mb-4">
+                        <field name="charts_html" colspan="2" nolabel="1" readonly="1"/>
+                    </div>
+
+                    <!-- 4. Alertas -->
+                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
+                        <h2>Alertas académicas</h2>
+                        <span class="o_das_lms_section-heading__badge">Se generan al abrir o al pulsar Actualizar; no son avisos por correo.</span>
+                    </div>
+                    <div class="o_das_lms_panel o_das_lms_panel--alerts mb-4">
+                        <field name="alert_line_ids" nolabel="1" colspan="2" class="o_das_lms_alert_field">
+                            <kanban create="false" delete="false" edit="false" class="o_das_lms_alert_kanban"
+                                records_draggable="false"
+                                decoration-danger="severity == 'danger'"
+                                decoration-warning="severity == 'warning'"
+                                decoration-info="severity == 'info'"
+                                decoration-success="severity == 'success'">
+                                <field name="title"/>
+                                <field name="body"/>
+                                <field name="severity"/>
+                                <templates>
+                                    <t t-name="card">
+                                        <div class="o_das_lms_alert-kcard">
+                                            <div class="o_das_lms_alert-kcard__icon">
+                                                <i class="fa fa-bell-o" title="Alerta"/>
+                                            </div>
+                                            <div class="o_das_lms_alert-kcard__body">
+                                                <div class="o_das_lms_alert-kcard__title"><field name="title"/></div>
+                                                <div class="o_das_lms_alert-kcard__text"><field name="body"/></div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                    </div>
+
+                    <!-- 5. Actividad reciente -->
+                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
+                        <h2>Actividad reciente</h2>
+                    </div>
+                    <div class="o_das_lms_panel o_das_lms_panel--activity mb-4">
+                        <field name="activity_html" colspan="2" nolabel="1" readonly="1"/>
+                    </div>
+
+                    <!-- 6. Accesos rápidos -->
+                    <div class="o_das_lms_section-heading o_das_lms_section-heading--minimal">
+                        <h2>Accesos rápidos</h2>
+                    </div>
+                    <div class="o_das_lms_quick-grid mb-3">
+                        <button name="action_open_enrollments" type="object" class="o_das_lms_qbtn">
+                            <i class="fa fa-list-alt o_das_lms_qbtn__icon" title="Inscripciones"/>
+                            <span class="o_das_lms_qbtn__t">Inscripciones</span>
+                        </button>
+                        <button name="action_open_analytics" type="object" class="o_das_lms_qbtn">
+                            <i class="fa fa-bar-chart o_das_lms_qbtn__icon" title="Análisis"/>
+                            <span class="o_das_lms_qbtn__t">Análisis avanzado</span>
+                        </button>
+                        <button name="action_open_elearning_courses" type="object" class="o_das_lms_qbtn">
+                            <i class="fa fa-graduation-cap o_das_lms_qbtn__icon" title="eLearning"/>
+                            <span class="o_das_lms_qbtn__t">Cursos eLearning</span>
+                        </button>
+                        <button name="action_open_sync" type="object" class="o_das_lms_qbtn"
+                            groups="base.group_system,base.group_erp_manager">
+                            <i class="fa fa-refresh o_das_lms_qbtn__icon" title="Sincronizar"/>
+                            <span class="o_das_lms_qbtn__t">Sincronizar inscripciones</span>
+                        </button>
+                    </div>
+
+                    <field name="name" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_das_lms_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">das.lms.academic.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="view_id" ref="view_das_lms_academic_dashboard_form"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Cargando panel académico…</p>
+        </field>
+    </record>
+</odoo>

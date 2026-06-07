@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_l10n_ec_edi" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.l10n.ec.edi</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Localización ecuatoriana" id="l10n_ec_edi_settings">
+                    <setting string="Facturación electrónica" help="Configura el modo de facturación electrónica para la compañía activa.">
+                        <div class="content-group">
+                            <div class="row mt8">
+                                <label for="l10n_ec_sri_environment" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_sri_environment"/>
+                            </div>
+                            <div class="text-muted mt8" invisible="l10n_ec_sri_environment != 'demo'">
+                                Modo demo local: genera clave de acceso y XML, pero no firma ni conecta con el SRI.
+                            </div>
+                            <div class="text-muted mt8" invisible="l10n_ec_sri_environment != 'test'">
+                                Modo de pruebas SRI: firma el XML y lo envía a celcer.sri.gob.ec.
+                            </div>
+                            <div class="text-muted mt8" invisible="l10n_ec_sri_environment != 'production'">
+                                Modo producción SRI: emite comprobantes reales en cel.sri.gob.ec.
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="Conexión SRI" help="La firma electrónica es obligatoria para pruebas y producción SRI. No se usa en modo demo local.">
+                        <div class="content-group">
+                            <div class="row mt8">
+                                <label for="l10n_ec_certificate_id" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_certificate_id"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_sri_reception_url" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_sri_reception_url"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_sri_authorization_url" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_sri_authorization_url"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="Procesamiento automático" help="Controla el primer intento de autorización y la cola de facturas recibidas por el SRI.">
+                        <div class="content-group">
+                            <div class="row mt8">
+                                <label for="l10n_ec_sri_first_check_delay_seconds" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_sri_first_check_delay_seconds"/>
+                                <span class="ms-2">segundos</span>
+                            </div>
+                            <div class="text-muted">
+                                Espera después de que el SRI devuelve RECIBIDA antes de consultar autorización por primera vez.
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_sri_pending_cron_interval_minutes" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_sri_pending_cron_interval_minutes"/>
+                                <span class="ms-2">minutos</span>
+                            </div>
+                            <div class="text-muted">
+                                Frecuencia del cron que reprocesa facturas pendientes en estado RECIBIDA.
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="Datos fiscales" help="Datos usados en el XML electrónico ecuatoriano.">
+                        <div class="content-group">
+                            <div class="row mt8">
+                                <label for="l10n_ec_commercial_name" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_commercial_name"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_forced_accounting" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_forced_accounting"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_withhold_agent" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_withhold_agent"/>
+                            </div>
+                            <div class="row mt8" invisible="not l10n_ec_withhold_agent">
+                                <label for="l10n_ec_withhold_resolution" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_withhold_resolution"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="l10n_ec_special_resolution" class="col-lg-4 o_light_label"/>
+                                <field name="l10n_ec_special_resolution"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,143 @@
+# -*- coding: utf-8 -*-
+from datetime import timedelta
+
+from odoo import _, api, fields, models
+
+from .course_enrollment import DAS_LMS_INACTIVE_DAYS
+
+
+class DasLmsAdvancedAnalytics(models.TransientModel):
+    """Vista analítica por curso (agregados desde course.enrollment).
+
+    Centro tabular; filtros y vistas nativas en «Filtros y vistas técnicas».
+    Sin gráficos duplicados del dashboard ejecutivo.
+    """
+
+    _name = 'das.lms.advanced.analytics'
+    _description = 'Análisis avanzado DAS LMS (panel)'
+
+    name = fields.Char(string='Título', default=lambda self: _('Análisis avanzado'), readonly=True)
+
+    header_date_display = fields.Char(string='Fecha', readonly=True)
+
+    total_enrollments = fields.Integer(string='Total inscritos', readonly=True)
+    total_courses_active = fields.Integer(string='Cursos con datos', readonly=True)
+    avg_progress_general = fields.Float(
+        string='Avance medio global (%)',
+        digits=(16, 1),
+        readonly=True,
+    )
+    count_completados = fields.Integer(string='Inscripciones completadas', readonly=True)
+
+    line_ids = fields.One2many(
+        'das.lms.analytics.course.line',
+        'analytics_id',
+        string='Por curso',
+        readonly=True,
+    )
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        Enrollment = self.env['course.enrollment'].sudo()
+        all_rec = Enrollment._das_lms_search_students([])
+
+        res['name'] = _('Análisis avanzado')
+        res['header_date_display'] = fields.Date.context_today(self).strftime('%d/%m/%Y')
+        res['total_enrollments'] = len(all_rec)
+        courses = all_rec.mapped('course_id').filtered(lambda c: c)
+        res['total_courses_active'] = len(courses)
+        res['count_completados'] = len(all_rec.filtered(lambda e: e.engagement_status == 'completado'))
+
+        if all_rec:
+            res['avg_progress_general'] = round(sum(all_rec.mapped('progress')) / len(all_rec), 1)
+        else:
+            res['avg_progress_general'] = 0.0
+
+        line_commands = []
+        for course in courses.sorted('name'):
+            sub = all_rec.filtered(lambda e, c=course: e.course_id == c)
+            if not sub:
+                continue
+            last_times = [t for t in sub.mapped('last_activity_at') if t]
+            last_activity_max = max(last_times) if last_times else False
+            ld = {
+                'course_id': course.id,
+                'total_enrolled': len(sub),
+                'count_sin_iniciar': len(sub.filtered(lambda e: e.engagement_status == 'sin_iniciar')),
+                'count_en_progreso': len(sub.filtered(lambda e: e.engagement_status == 'en_progreso')),
+                'count_completados': len(sub.filtered(lambda e: e.engagement_status == 'completado')),
+                'count_inactivos': len(sub.filtered(lambda e: e.engagement_status == 'inactivo')),
+                'avg_progress': round(sum(sub.mapped('progress')) / len(sub), 1),
+                'avg_progress_int': int(round(sum(sub.mapped('progress')) / len(sub))),
+                'last_activity_max': last_activity_max,
+            }
+            line_commands.append((0, 0, ld))
+        res['line_ids'] = line_commands
+
+        return res
+
+    def action_refresh(self):
+        return self.env['ir.actions.act_window']._for_xml_id('das_lms.action_course_enrollment_analytics')
+
+    def action_open_technical_views(self):
+        """Lista, pivot y gráficos nativos con buscador y filtros (course.enrollment)."""
+        return self.env['ir.actions.act_window']._for_xml_id('das_lms.action_course_enrollment_analytics_technical')
+
+    def action_open_dashboard(self):
+        return self.env['ir.actions.act_window']._for_xml_id('das_lms.action_das_lms_dashboard')
+
+
+class DasLmsAnalyticsCourseLine(models.TransientModel):
+    _name = 'das.lms.analytics.course.line'
+    _description = 'Línea resumen por curso (análisis avanzado DAS LMS)'
+    _order = 'course_id'
+
+    analytics_id = fields.Many2one(
+        'das.lms.advanced.analytics',
+        string='Análisis',
+        ondelete='cascade',
+        required=True,
+    )
+    course_id = fields.Many2one('slide.channel', string='Curso', readonly=True)
+    total_enrolled = fields.Integer(string='Inscritos', readonly=True)
+    count_sin_iniciar = fields.Integer(string='Sin iniciar', readonly=True)
+    count_en_progreso = fields.Integer(string='En progreso', readonly=True)
+    count_completados = fields.Integer(string='Completados', readonly=True)
+    count_inactivos = fields.Integer(string='Inactivos', readonly=True)
+    avg_progress = fields.Float(string='Avance prom. %', digits=(16, 1), readonly=True)
+    avg_progress_int = fields.Integer(string='Avance %', readonly=True)
+    last_activity_max = fields.Datetime(string='Última actividad', readonly=True)
+    course_health = fields.Selection(
+        [
+            ('ok', 'Favorable'),
+            ('watch', 'Revisar'),
+            ('risk', 'Riesgo'),
+        ],
+        string='Estado del curso',
+        compute='_compute_course_health',
+        readonly=True,
+    )
+
+    @api.depends(
+        'avg_progress',
+        'total_enrolled',
+        'count_inactivos',
+        'last_activity_max',
+    )
+    def _compute_course_health(self):
+        now = fields.Datetime.now()
+        limit = now - timedelta(days=DAS_LMS_INACTIVE_DAYS)
+        for rec in self:
+            ap = rec.avg_progress or 0.0
+            stale = (
+                rec.total_enrolled
+                and (not rec.last_activity_max or rec.last_activity_max < limit)
+            )
+            low = rec.total_enrolled >= 2 and ap < 25.0
+            if low or stale:
+                rec.course_health = 'risk'
+            elif rec.count_inactivos or ap < 50.0:
+                rec.course_health = 'watch'
+            else:
+                rec.course_health = 'ok'

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- LISTA -->
+    <record id="view_lms_satisfaction_survey_list" model="ir.ui.view">
+        <field name="name">lms.satisfaction.survey.list</field>
+        <field name="model">lms.satisfaction.survey</field>
+        <field name="arch" type="xml">
+            <list string="Encuestas de Satisfacción">
+                <field name="name" />
+                <field name="channel_id" />
+                <field name="survey_id" />
+                <field name="responsible_id" />
+                <field name="auto_generated" />
+                <field name="last_generated" />
+            </list>
+        </field>
+    </record>
+
+    <!-- FORM -->
+    <record id="view_lms_satisfaction_survey_form" model="ir.ui.view">
+        <!-- En este form deberi apoder escoger mi plantilla de encuesta -->
+        <field name="name">lms.satisfaction.survey.form</field>
+        <field name="model">lms.satisfaction.survey</field>
+        <field name="arch" type="xml">
+            <form string="Encuesta de Satisfacción">
+                <header>
+                    <button name="action_generate_survey_and_slide"
+                        type="object"
+                        string="Generar Encuesta"
+                        class="oe_highlight"
+                        invisible="survey_id" />
+                </header>
+
+                <sheet>
+
+                    <!-- BOTÓN ESTADÍSTICAS CORREGIDO -->
+                    <div class="oe_button_box" name="button_box">
+                        <button type="action"
+                            name="%(action_lms_satisfaction_analysis)d"
+                            class="oe_stat_button"
+                            icon="fa-bar-chart">
+                            <span>Ver Análisis</span>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="channel_id" />
+                            <field name="survey_id" />
+                            <field name="template_id" options="{'no_create': False}" />
+                        </group>
+
+                        <group>
+                            <field name="responsible_id" />
+                            <field name="active" />
+                        </group>
+
+                        <group string="Metadatos">
+                            <field name="auto_generated" />
+                            <field name="last_generated" />
+                        </group>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACCIÓN PRINCIPAL -->
+    <record id="action_lms_satisfaction_survey" model="ir.actions.act_window">
+        <field name="name">Config. Encuestas</field>
+        <field name="res_model">lms.satisfaction.survey</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- 🔥 ACCIÓN ANALÍTICA REAL -->
+    <record id="action_lms_satisfaction_analysis" model="ir.actions.act_window">
+        <field name="name">Análisis de Satisfacción</field>
+        <field name="res_model">survey.user_input</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="domain">[('is_satisfaction', '=', True), ('state', '=', 'done')]</field>
+        <field name="context">{'group_by': ['channel_id']}</field>
+    </record>
+
+    <!-- 📊 GRAPH -->
+    <record id="view_survey_user_input_graph_satisfaction" model="ir.ui.view">
+        <field name="name">survey.user_input.graph.satisfaction</field>
+        <field name="model">survey.user_input</field>
+        <field name="arch" type="xml">
+            <graph string="Encuestas por Curso" type="bar">
+                <field name="channel_id" type="row" />
+                <field name="id" type="measure" />
+            </graph>
+        </field>
+    </record>
+
+    <!-- 📊 PIVOT -->
+    <record id="view_survey_user_input_pivot_satisfaction" model="ir.ui.view">
+        <field name="name">survey.user_input.pivot.satisfaction</field>
+        <field name="model">survey.user_input</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis Encuestas">
+                <field name="channel_id" type="row" />
+                <field name="create_date" type="col" />
+                <field name="id" type="measure" />
+            </pivot>
+        </field>
+    </record>
+
+    <!-- MENÚ -->
+    <menuitem id="menu_lms_satisfaction_root"
+        name="DAS LMS Encuestas"
+        sequence="60" />
+
+    <menuitem id="menu_lms_satisfaction_config"
+        name="Configuración"
+        parent="menu_lms_satisfaction_root"
+        action="action_lms_satisfaction_survey" />
+
+    <menuitem id="menu_lms_satisfaction_analysis"
+        name="Análisis"
+        parent="menu_lms_satisfaction_root"
+        action="action_lms_satisfaction_analysis" />
+
+    <!-- AQUI MENU DE PLANTILLAS -->
+    <!-- ========================= -->
+    <!-- 📋 PLANTILLAS -->
+    <!-- ========================= -->
+
+    <record id="action_lms_satisfaction_templates" model="ir.actions.act_window">
+        <field name="name">Plantillas de Encuestas</field>
+        <field name="res_model">survey.survey</field>
+        <field name="view_mode">list,form</field>
+
+        <!-- 🔥 SOLO ENCUESTAS DE SATISFACCIÓN -->
+        <field name="domain">[('is_satisfaction', '=', True)]</field>
+    </record>
+
+    <menuitem id="menu_lms_satisfaction_templates"
+        name="Plantillas"
+        parent="menu_lms_satisfaction_root"
+        action="action_lms_satisfaction_templates"
+        sequence="20" />
+</odoo>

@@ -1,0 +1,155 @@
+# Translation of Odoo Server.
+# This file contains the translation of custom Ecuador SRI report terms.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-14 00:00+0000\n"
+"PO-Revision-Date: 2026-05-14 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es_EC\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Issuer Details"
+msgstr "Datos del emisor"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Legal Name:"
+msgstr "Razón Social:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Main Address:"
+msgstr "Dirección Matriz:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Commercial Name:"
+msgstr "Nombre Comercial:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Location:"
+msgstr "Ubicación:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Required to keep accounting:"
+msgstr "Obligado a llevar contabilidad:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Yes"
+msgstr "Sí"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "No"
+msgstr "No"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Special Taxpayer:"
+msgstr "Contribuyente Especial:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Document:"
+msgstr "Comprobante:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Credit Note"
+msgstr "Nota de crédito"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Draft Invoice"
+msgstr "Factura borrador"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Cancelled Invoice"
+msgstr "Factura cancelada"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Draft Credit Note"
+msgstr "Nota de crédito borrador"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Cancelled Credit Note"
+msgstr "Nota de crédito cancelada"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Reference"
+msgstr "Referencia"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Authorization Number"
+msgstr "Número de autorización"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Authorization Date:"
+msgstr "Fecha autorización:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Environment:"
+msgstr "Ambiente:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Production"
+msgstr "Producción"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Testing"
+msgstr "Pruebas"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Emission:"
+msgstr "Emisión:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Normal"
+msgstr "Normal"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Access Key"
+msgstr "Clave de acceso"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Customer:"
+msgstr "Cliente:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Identification:"
+msgstr "Identificación:"
+
+#. module: l10n_ec_sri
+#: model_terms:ir.ui.view,arch_db:l10n_ec_sri.report_invoice_document_l10n_ec_ride
+msgid "Address:"
+msgstr "Dirección:"

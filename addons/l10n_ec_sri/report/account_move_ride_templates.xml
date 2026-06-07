@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_l10n_ec_ride" inherit_id="account.report_invoice_document">
+
+        <!-- Variables modo RIDE (mismo reporte: imprimir, descargar y adjunto *-RIDE.pdf) -->
+        <xpath expr="//t[@t-set='forced_vat']" position="after">
+            <t t-set="l10n_ec_is_ride"
+               t-value="o.company_id.country_id.code == 'EC' and o.move_type in ('out_invoice', 'out_refund') and o.l10n_ec_sri_access_key"/>
+            <t t-set="l10n_ec_is_authorized"
+               t-value="l10n_ec_is_ride and (o.l10n_ec_sri_status == 'authorized' or o.l10n_ec_authorization_date)"/>
+            <t t-set="l10n_ec_doc_number"
+               t-value="o.l10n_latam_document_number or o.name"/>
+            <t t-if="l10n_ec_is_ride and o.invoice_origin"
+               t-set="l10n_ec_sale_ref"
+               t-value="env['sale.order'].search([('name', '=', o.invoice_origin)], limit=1).client_order_ref"/>
+            <t t-if="l10n_ec_is_ride" t-set="l10n_ec_partner_ref" t-value="o.ref or l10n_ec_sale_ref"/>
+        </xpath>
+
+        <!-- Ocultar encabezado estándar Odoo (dirección cliente) -->
+        <xpath expr="//t[@t-set='forced_vat']/following-sibling::div[hasclass('row')][1]" position="attributes">
+            <attribute name="t-if">not l10n_ec_is_ride</attribute>
+        </xpath>
+
+        <!-- Sin título PROFORMA / Invoice estándar -->
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+            <t t-set="layout_document_title">
+                <t t-if="not l10n_ec_is_ride">
+                    <span t-if="not proforma"></span>
+                    <span t-else="">PROFORMA</span>
+                    <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                    <span t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'posted'">Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'draft'">Draft Credit Note</span>
+                    <span t-elif="o.move_type == 'out_refund' and o.state == 'cancel'">Cancelled Credit Note</span>
+                    <span t-elif="o.move_type == 'in_refund'">Vendor Credit Note</span>
+                    <span t-elif="o.move_type == 'in_invoice'">Vendor Bill</span>
+                    <span t-if="o.name and o.name != '/'" t-field="o.name">INV/2023/0001</span>
+                </t>
+            </t>
+        </xpath>
+
+        <!-- Ocultar bloque informations estándar (fechas/referencia van al RIDE) -->
+        <xpath expr="//div[@id='informations']" position="attributes">
+            <attribute name="t-if">not l10n_ec_is_ride and (o.invoice_date or (o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted') or o.delivery_date or o.invoice_origin or o.partner_id.ref or o.ref or o.invoice_incoterm_id)</attribute>
+        </xpath>
+
+        <xpath expr="//div[@name='reference']" position="attributes">
+            <attribute name="t-if">o.ref and not l10n_ec_is_ride</attribute>
+        </xpath>
+
+        <!-- Clase contenedor para estilos RIDE -->
+        <xpath expr="//div[@class='clearfix invoice_main']" position="attributes">
+            <attribute name="t-att-class">'clearfix invoice_main o_l10n_ec_ride_report' if l10n_ec_is_ride else 'clearfix invoice_main'</attribute>
+        </xpath>
+
+        <!-- RIDE ecuatoriano unificado -->
+        <xpath expr="//div[hasclass('oe_structure')][1]" position="after">
+            <t t-if="l10n_ec_is_ride">
+                <style>
+                    div.header {
+                        display: none !important;
+                    }
+                    div.article {
+                        padding-top: 0 !important;
+                    }
+                    .o_l10n_ec_ride_report &gt; h2,
+                    .article[class*='o_company_'] &gt; h2:empty {
+                        display: none !important;
+                        margin: 0 !important;
+                        height: 0 !important;
+                        padding: 0 !important;
+                    }
+                    .l10n-ec-ride {
+                        font-family: Arial, Helvetica, sans-serif;
+                        font-size: 10pt;
+                        color: #000;
+                        line-height: 1.35;
+                    }
+                    .l10n-ec-ride-box {
+                        border: 1px solid #000;
+                        padding: 8px 10px;
+                        page-break-inside: avoid;
+                    }
+                    .l10n-ec-ride-section-title {
+                        font-size: 12pt;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        margin: 0 0 6px;
+                        letter-spacing: 0.02em;
+                    }
+                    .l10n-ec-ride-doc-title {
+                        font-size: 14pt;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        text-align: center;
+                        margin: 0 0 8px;
+                    }
+                    .l10n-ec-ride-label {
+                        font-weight: 700;
+                    }
+                    .l10n-ec-ride-row {
+                        margin-bottom: 2px;
+                    }
+                    .l10n-ec-ride-logo img {
+                        max-height: 80px;
+                        max-width: 220px;
+                        object-fit: contain;
+                    }
+                    .l10n-ec-ride-barcode img {
+                        width: 100%;
+                        max-height: 52px;
+                        display: block;
+                        margin: 4px auto 2px;
+                    }
+                    .l10n-ec-ride-access-key {
+                        font-size: 8pt;
+                        word-break: break-all;
+                        text-align: center;
+                    }
+                    .l10n-ec-ride-auth-num {
+                        font-size: 8pt;
+                        word-break: break-all;
+                        margin-bottom: 4px;
+                    }
+                    table.l10n-ec-ride-lines {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                        font-size: 10pt;
+                        page-break-inside: auto;
+                    }
+                    table.l10n-ec-ride-lines thead th {
+                        border: 1px solid #000;
+                        background: #f0f0f0;
+                        padding: 5px 6px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        font-size: 9pt;
+                    }
+                    table.l10n-ec-ride-lines tbody td {
+                        border: 1px solid #000;
+                        padding: 4px 6px;
+                        vertical-align: top;
+                    }
+                    .l10n-ec-ride-footer {
+                        border: 1px solid #000;
+                        padding: 8px 10px;
+                        margin-top: 10px;
+                        font-size: 10pt;
+                        page-break-inside: avoid;
+                    }
+                    .l10n-ec-ride-sri-legend {
+                        text-align: center;
+                        font-weight: 700;
+                        font-size: 10pt;
+                        margin-top: 8px;
+                        text-transform: uppercase;
+                    }
+                    .o_l10n_ec_ride_report #right-elements .o_total_table td:first-child {
+                        font-weight: 600;
+                    }
+                    .o_l10n_ec_ride_report #payment_term .oe_structure,
+                    .o_l10n_ec_ride_report #qrcode {
+                        display: none !important;
+                    }
+                </style>
+
+                <div class="l10n-ec-ride mb-3">
+                    <!-- Encabezado dos columnas -->
+                    <div class="row g-2" style="page-break-inside: avoid;">
+                        <div class="col-6">
+                            <div class="l10n-ec-ride-box h-100">
+                                <div class="l10n-ec-ride-section-title">Datos del emisor</div>
+                                <div class="l10n-ec-ride-logo mb-2" t-if="o.company_id.logo">
+                                    <img t-att-src="image_data_uri(o.company_id.logo)" alt="Logo"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Razón social:</span>
+                                    <span t-field="o.company_id.name"/>
+                                </div>
+                                <div class="l10n-ec-ride-row" t-if="o.company_id.l10n_ec_commercial_name">
+                                    <span class="l10n-ec-ride-label">Nombre comercial:</span>
+                                    <span t-field="o.company_id.l10n_ec_commercial_name"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">RUC:</span>
+                                    <span t-field="o.company_id.vat"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Dirección matriz:</span>
+                                    <span t-field="o.company_id.partner_id"
+                                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True, "no_tag_br": True}'/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Obligado a llevar contabilidad:</span>
+                                    <span t-if="o.company_id.l10n_ec_forced_accounting">Sí</span>
+                                    <span t-else="">No</span>
+                                </div>
+                                <div class="l10n-ec-ride-row" t-if="o.company_id.l10n_ec_special_resolution">
+                                    <span class="l10n-ec-ride-label">Contribuyente especial:</span>
+                                    <span t-field="o.company_id.l10n_ec_special_resolution"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="l10n-ec-ride-box h-100">
+                                <div class="l10n-ec-ride-doc-title">
+                                    <t t-if="o.move_type == 'out_refund'">Nota de crédito electrónica</t>
+                                    <t t-elif="l10n_ec_is_authorized">Factura electrónica</t>
+                                    <t t-elif="proforma">Proforma</t>
+                                    <t t-else="">Factura electrónica</t>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">RUC:</span>
+                                    <span t-field="o.company_id.vat"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Comprobante:</span>
+                                    <span t-if="o.move_type == 'out_refund'">Nota de crédito</span>
+                                    <span t-else="">Factura</span>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">No.:</span>
+                                    <span t-out="l10n_ec_doc_number"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Número de autorización:</span>
+                                </div>
+                                <div class="l10n-ec-ride-auth-num" t-out="o.l10n_ec_sri_access_key"/>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Fecha de autorización:</span>
+                                    <span t-if="o.l10n_ec_authorization_date"
+                                          t-field="o.l10n_ec_authorization_date"
+                                          t-options='{"widget": "datetime"}'/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Ambiente:</span>
+                                    <span t-if="o.company_id.l10n_ec_sri_environment == 'production'">Producción</span>
+                                    <span t-else="">Pruebas</span>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Emisión:</span>
+                                    <span>Normal</span>
+                                </div>
+                                <div class="l10n-ec-ride-row" style="margin-top: 6px;">
+                                    <span class="l10n-ec-ride-label">Clave de acceso</span>
+                                </div>
+                                <div class="l10n-ec-ride-barcode">
+                                    <img t-att-src="'/report/barcode/Code128/%s?width=600&amp;height=80&amp;humanreadable=0' % o.l10n_ec_sri_access_key"
+                                         alt="Código de barras"/>
+                                </div>
+                                <div class="l10n-ec-ride-access-key" t-out="o.l10n_ec_sri_access_key"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloque cliente -->
+                    <div class="l10n-ec-ride-box mt-2" style="page-break-inside: avoid;">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Cliente:</span>
+                                    <span t-field="o.partner_id.name"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Identificación:</span>
+                                    <span t-field="o.partner_id.vat"/>
+                                </div>
+                                <div class="l10n-ec-ride-row">
+                                    <span class="l10n-ec-ride-label">Dirección:</span>
+                                    <span t-field="o.partner_id"
+                                          t-options='{"widget": "contact", "fields": ["address"], "no_marker": True, "no_tag_br": True}'/>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="l10n-ec-ride-row" t-if="o.invoice_date">
+                                    <span class="l10n-ec-ride-label">Fecha de emisión:</span>
+                                    <span t-field="o.invoice_date"/>
+                                </div>
+                                <div class="l10n-ec-ride-row" t-if="l10n_ec_partner_ref">
+                                    <span class="l10n-ec-ride-label">Referencia:</span>
+                                    <span t-out="l10n_ec_partner_ref"/>
+                                </div>
+                                <div class="l10n-ec-ride-row" t-if="o.invoice_origin and not l10n_ec_partner_ref">
+                                    <span class="l10n-ec-ride-label">Origen:</span>
+                                    <span t-field="o.invoice_origin"/>
+                                </div>
+                                <div class="l10n-ec-ride-row" t-if="o.invoice_origin and l10n_ec_partner_ref">
+                                    <span class="l10n-ec-ride-label">Origen de venta:</span>
+                                    <span t-field="o.invoice_origin"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+
+        <!-- Tabla de detalle con bordes -->
+        <xpath expr="//table[@name='invoice_line_table']" position="attributes">
+            <attribute name="t-att-class">'table o_main_table l10n-ec-ride-lines' if l10n_ec_is_ride else 'o_has_total_table table o_main_table table-borderless mb-0'</attribute>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_description']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Descripción</span>
+            <span t-else="">Description</span>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_quantity']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Cantidad</span>
+            <span t-else="">Quantity</span>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_priceunit']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Precio unitario</span>
+            <span t-else="">Unit Price</span>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_discount']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Desc.%</span>
+            <span t-else="">Disc.%</span>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_taxes']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Impuestos</span>
+            <span t-else="">Taxes</span>
+        </xpath>
+        <xpath expr="//table[@name='invoice_line_table']/thead/tr/th[@name='th_subtotal']/span" position="replace">
+            <span t-if="l10n_ec_is_ride">Importe</span>
+            <span t-else="">Amount</span>
+        </xpath>
+
+        <!-- Pagos en español -->
+        <xpath expr="//table[hasclass('o_total_table')]//i[hasclass('oe_payment_label')]" position="replace">
+            <i class="oe_form_field text-end oe_payment_label">
+                <t t-if="l10n_ec_is_ride">
+                    <t t-if="payment_vals['is_refund']">Revertido el </t>
+                    <t t-else="">Pagado el </t>
+                </t>
+                <t t-else="">
+                    <t t-if="payment_vals['is_refund']">Reversed on </t>
+                    <t t-else="">Paid on </t>
+                </t>
+                <t t-out="payment_vals['date']" t-options='{"widget": "date"}'>2021-09-19</t>
+            </i>
+        </xpath>
+        <xpath expr="//table[hasclass('o_total_table')]//tr[hasclass('fw-bold')]/td[1]" position="replace">
+            <td t-if="l10n_ec_is_ride">Cantidad por pagar</td>
+            <td t-else="">Amount Due</td>
+        </xpath>
+
+        <!-- Ocultar total en letras en modo RIDE -->
+        <xpath expr="//p[.//span[@t-field='o.amount_total_words']]" position="attributes">
+            <attribute name="t-if">not l10n_ec_is_ride and o.company_id.display_invoice_amount_total_words</attribute>
+        </xpath>
+
+        <!-- Pie: forma de pago e información adicional -->
+        <xpath expr="//div[@id='payment_term']" position="before">
+            <div t-if="l10n_ec_is_ride" class="l10n-ec-ride-footer clearfix">
+                <div class="l10n-ec-ride-section-title">Forma de pago</div>
+                <div class="l10n-ec-ride-row" t-if="o.invoice_payment_term_id">
+                    <span class="l10n-ec-ride-label">Términos de pago:</span>
+                    <span t-field="o.invoice_payment_term_id.name"/>
+                    <t t-if="o.invoice_payment_term_id.note">
+                        — <span t-field="o.invoice_payment_term_id.note"/>
+                    </t>
+                </div>
+                <div class="l10n-ec-ride-row"
+                     t-if="'l10n_ec_sri_payment_id' in o._fields and o.l10n_ec_sri_payment_id">
+                    <span class="l10n-ec-ride-label">Forma de pago SRI:</span>
+                    <span t-field="o.l10n_ec_sri_payment_id.name"/>
+                </div>
+                <div class="l10n-ec-ride-row" t-if="o.payment_reference">
+                    <span class="l10n-ec-ride-label">Referencia de pago:</span>
+                    <span t-field="o.payment_reference"/>
+                    <t t-if="o.partner_bank_id">
+                        — <span t-field="o.partner_bank_id"/>
+                    </t>
+                </div>
+                <div class="l10n-ec-ride-row" t-if="not is_html_empty(o.narration)">
+                    <span class="l10n-ec-ride-label">Información adicional:</span>
+                    <span t-field="o.narration"/>
+                </div>
+                <div class="l10n-ec-ride-sri-legend">
+                    Documento autorizado por el Servicio de Rentas Internas (SRI)
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Ocultar pie estándar duplicado en modo RIDE -->
+        <xpath expr="//div[@id='payment_term']" position="attributes">
+            <attribute name="t-if">not l10n_ec_is_ride</attribute>
+        </xpath>
+
+    </template>
+
+    <!-- Etiquetas de totales en plantilla de impuestos -->
+    <template id="document_tax_totals_l10n_ec_ride" inherit_id="account.document_tax_totals_template">
+        <xpath expr="//tr[hasclass('o_subtotal')]/td/span[@t-out=&quot;subtotal['name']&quot;]" position="replace">
+            <span t-if="l10n_ec_is_ride">Subtotal</span>
+            <span t-else="" t-out="subtotal['name']">Untaxed Amount</span>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_taxes')]//span[@t-out=&quot;tax_group['group_name']&quot;][1]" position="replace">
+            <span t-if="l10n_ec_is_ride">IVA</span>
+            <span t-else="" t-out="tax_group['group_name']">Tax 15%</span>
+        </xpath>
+        <xpath expr="//tr[hasclass('o_total')]/td/strong" position="replace">
+            <strong t-if="l10n_ec_is_ride">Total</strong>
+            <strong t-else="">Total</strong>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2026 Somatech.dev
+    License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl-3.0).
+
+    DATOS INICIALES ECUADOR - Parámetros Fiscales y Laborales 2026
+
+    Fuentes oficiales:
+    - SRI: https://www.sri.gob.ec
+    - MDT: https://www.trabajo.gob.ec
+    - IESS: https://www.iess.gob.ec
+    - INEC: https://www.ecuadorencifras.gob.ec
+-->
+<odoo>
+    <!-- ================================================================= -->
+    <!-- CONFIGURACIÓN ECUADOR 2026                                        -->
+    <!-- ================================================================= -->
+    <record id="l10n_ec_config_2026" model="l10n_ec.config">
+        <field name="year">2026</field>
+        <!-- Parámetros Laborales (MDT) -->
+        <field name="sbu">482.0</field>
+        <field name="recargo_suplementaria">50.0</field>
+        <field name="recargo_extraordinaria">100.0</field>
+        <field name="recargo_nocturna">25.0</field>
+        <field name="dias_vacaciones">15</field>
+        <field name="dias_adicionales_5_anos">1</field>
+        <!-- Parámetros IESS -->
+        <field name="iess_personal">9.45</field>
+        <field name="iess_patronal">11.15</field>
+        <field name="iess_secap">0.5</field>
+        <field name="iess_iece">0.5</field>
+        <field name="iess_techo_sbu_multiplicador">25</field>
+        <field name="fondos_reserva">8.33</field>
+        <!-- Parámetros Tributarios (SRI) -->
+        <field name="iva_general">15.0</field>
+        <field name="iva_construccion">5.0</field>
+        <field name="isd">5.0</field>
+        <field name="isd_exencion">5000.0</field>
+        <field name="limite_consumidor_final">50.0</field>
+        <!-- Estadísticas INEC -->
+        <field name="canasta_basica">808.95</field>
+        <field name="canasta_vital">576.12</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- CÓDIGOS DE RETENCIÓN IR (Impuesto a la Renta)                    -->
+    <!-- ================================================================= -->
+    <record id="ret_ir_303" model="l10n_ec.retention.code">
+        <field name="code">303</field>
+        <field name="name">Honorarios, comisiones y dietas a personas naturales</field>
+        <field name="type">ir</field>
+        <field name="rate">10.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_304" model="l10n_ec.retention.code">
+        <field name="code">304</field>
+        <field name="name">Servicios predomina el intelecto</field>
+        <field name="type">ir</field>
+        <field name="rate">8.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_307" model="l10n_ec.retention.code">
+        <field name="code">307</field>
+        <field name="name">Servicios predomina la mano de obra</field>
+        <field name="type">ir</field>
+        <field name="rate">2.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_308" model="l10n_ec.retention.code">
+        <field name="code">308</field>
+        <field name="name">Servicios entre sociedades</field>
+        <field name="type">ir</field>
+        <field name="rate">2.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_309" model="l10n_ec.retention.code">
+        <field name="code">309</field>
+        <field name="name">Publicidad y comunicación</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_310" model="l10n_ec.retention.code">
+        <field name="code">310</field>
+        <field name="name">Transporte privado de pasajeros o carga</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_312" model="l10n_ec.retention.code">
+        <field name="code">312</field>
+        <field name="name">Compra de bienes muebles</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">goods</field>
+    </record>
+    <record id="ret_ir_319" model="l10n_ec.retention.code">
+        <field name="code">319</field>
+        <field name="name">Arrendamiento mercantil</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_320" model="l10n_ec.retention.code">
+        <field name="code">320</field>
+        <field name="name">Arrendamiento bienes inmuebles</field>
+        <field name="type">ir</field>
+        <field name="rate">1.75</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_322" model="l10n_ec.retention.code">
+        <field name="code">322</field>
+        <field name="name">Seguros y reaseguros</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_323" model="l10n_ec.retention.code">
+        <field name="code">323</field>
+        <field name="name">Rendimientos financieros</field>
+        <field name="type">ir</field>
+        <field name="rate">2.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_ir_340" model="l10n_ec.retention.code">
+        <field name="code">340</field>
+        <field name="name">Artes gráficas</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">both</field>
+    </record>
+    <record id="ret_ir_343" model="l10n_ec.retention.code">
+        <field name="code">343</field>
+        <field name="name">RIMPE Emprendedor - Otras Retenciones</field>
+        <field name="type">ir</field>
+        <field name="rate">1.0</field>
+        <field name="applies_to">both</field>
+    </record>
+    <record id="ret_ir_344" model="l10n_ec.retention.code">
+        <field name="code">344</field>
+        <field name="name">Dividendos distribuidos residentes</field>
+        <field name="type">ir</field>
+        <field name="rate">25.0</field>
+        <field name="applies_to">both</field>
+    </record>
+    <record id="ret_ir_332" model="l10n_ec.retention.code">
+        <field name="code">332</field>
+        <field name="name">RIMPE Popular - Otras Compras</field>
+        <field name="type">ir</field>
+        <field name="rate">0.0</field>
+        <field name="applies_to">both</field>
+    </record>
+    <record id="ret_ir_500" model="l10n_ec.retention.code">
+        <field name="code">500</field>
+        <field name="name">Pagos a paraísos fiscales</field>
+        <field name="type">ir</field>
+        <field name="rate">25.0</field>
+        <field name="applies_to">both</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- CÓDIGOS DE RETENCIÓN IVA                                          -->
+    <!-- ================================================================= -->
+    <record id="ret_iva_721" model="l10n_ec.retention.code">
+        <field name="code">721</field>
+        <field name="name">Retención IVA Bienes 10%</field>
+        <field name="type">iva</field>
+        <field name="rate">10.0</field>
+        <field name="applies_to">goods</field>
+    </record>
+    <record id="ret_iva_723" model="l10n_ec.retention.code">
+        <field name="code">723</field>
+        <field name="name">Retención IVA Servicios 20%</field>
+        <field name="type">iva</field>
+        <field name="rate">20.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_iva_725" model="l10n_ec.retention.code">
+        <field name="code">725</field>
+        <field name="name">Retención IVA Bienes 30% (Contrib. Especial)</field>
+        <field name="type">iva</field>
+        <field name="rate">30.0</field>
+        <field name="applies_to">goods</field>
+    </record>
+    <record id="ret_iva_727" model="l10n_ec.retention.code">
+        <field name="code">727</field>
+        <field name="name">Retención IVA Servicios 70% (Contrib. Especial)</field>
+        <field name="type">iva</field>
+        <field name="rate">70.0</field>
+        <field name="applies_to">services</field>
+    </record>
+    <record id="ret_iva_729" model="l10n_ec.retention.code">
+        <field name="code">729</field>
+        <field name="name">Retención IVA 100% Liquidación de Compra</field>
+        <field name="type">iva</field>
+        <field name="rate">100.0</field>
+        <field name="applies_to">both</field>
+    </record>
+    <record id="ret_iva_731" model="l10n_ec.retention.code">
+        <field name="code">731</field>
+        <field name="name">Retención IVA 100% Profesionales</field>
+        <field name="type">iva</field>
+        <field name="rate">100.0</field>
+        <field name="applies_to">services</field>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- CÓDIGOS DE IMPUESTOS SRI                                          -->
+    <!-- ================================================================= -->
+    <record id="tax_code_iva_15" model="l10n_ec.tax.code">
+        <field name="code">4</field>
+        <field name="name">IVA 15%</field>
+        <field name="rate">15.0</field>
+        <field name="tax_type">iva</field>
+    </record>
+    <record id="tax_code_iva_5" model="l10n_ec.tax.code">
+        <field name="code">5</field>
+        <field name="name">IVA 5% (Construcción)</field>
+        <field name="rate">5.0</field>
+        <field name="tax_type">iva</field>
+    </record>
+    <record id="tax_code_iva_0" model="l10n_ec.tax.code">
+        <field name="code">0</field>
+        <field name="name">IVA 0%</field>
+        <field name="rate">0.0</field>
+        <field name="tax_type">iva</field>
+    </record>
+    <record id="tax_code_iva_no_objeto" model="l10n_ec.tax.code">
+        <field name="code">6</field>
+        <field name="name">No Objeto de IVA</field>
+        <field name="rate">0.0</field>
+        <field name="tax_type">iva</field>
+    </record>
+    <record id="tax_code_iva_exento" model="l10n_ec.tax.code">
+        <field name="code">7</field>
+        <field name="name">IVA Exento</field>
+        <field name="rate">0.0</field>
+        <field name="tax_type">iva</field>
+    </record>
+</odoo>

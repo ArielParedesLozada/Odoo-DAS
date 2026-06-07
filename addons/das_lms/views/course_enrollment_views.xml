@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_course_enrollment_tree" model="ir.ui.view">
+        <field name="name">course.enrollment.list</field>
+        <field name="model">course.enrollment</field>
+        <field name="arch" type="xml">
+            <list
+                string="Inscripciones DAS LMS"
+                class="o_das_lms_enrollment_list"
+                create="false"
+                delete="false"
+                edit="false"
+                multi_edit="false"
+            >
+                <field name="engagement_status" string="Engagement" widget="badge"/>
+                <field name="student_id" string="Alumno"/>
+                <field name="student_email" string="Correo"/>
+                <field name="course_id" string="Curso" class="o_das_lms_enrollment_course_cell"/>
+                <field name="course_das_total_hours" string="Horas curso" optional="hide"/>
+                <field name="enrollment_date" string="Fecha inscripción"/>
+                <field name="modality" string="Modalidad"/>
+                <field name="status" string="Estado académico"/>
+                <field name="progress" string="Avance %" widget="progressbar" options="{'max_value': 100}"/>
+                <field name="last_activity_at" string="Última actividad"/>
+                <field name="last_sync_at" string="Última sincronización"/>
+                <button name="action_open_course" type="object" string="Curso web" class="btn-link" icon="fa-external-link" title="Abrir curso en la web"/>
+                <button name="action_open_student" type="object" string="Contacto" class="btn-link" icon="fa-user" title="Abrir ficha del alumno"/>
+                <field name="course_website_url" column_invisible="1"/>
+                <field name="student_phone" string="Teléfono" optional="hide"/>
+                <field name="course_start_date" string="Inicio del curso" optional="hide"/>
+                <field name="channel_partner_id" string="Miembro eLearning" optional="hide"/>
+                <field name="member_status" string="Estado eLearning" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_form" model="ir.ui.view">
+        <field name="name">course.enrollment.form</field>
+        <field name="model">course.enrollment</field>
+        <field name="arch" type="xml">
+            <form string="Seguimiento DAS" create="false" delete="false">
+                <header>
+                    <button name="action_open_course" type="object" string="Abrir curso en web" class="btn-primary"/>
+                    <button name="action_open_student" type="object" string="Abrir alumno" class="btn-secondary"/>
+                    <button name="action_open_channel_partner" type="object" string="Miembro eLearning" class="btn-secondary" invisible="not channel_partner_id"/>
+                </header>
+                <sheet>
+                    <group string="Datos del alumno">
+                        <group>
+                            <field name="student_id" readonly="1"/>
+                            <field name="student_email" readonly="1"/>
+                            <field name="student_phone" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Datos del curso">
+                        <group>
+                            <field name="course_id" readonly="1"/>
+                            <field name="course_das_total_hours" readonly="1"/>
+                            <field name="course_start_date" readonly="1"/>
+                            <field name="course_website_url" readonly="1" widget="url"/>
+                            <field name="enrollment_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Seguimiento académico">
+                        <group>
+                            <field name="modality"/>
+                            <field name="status"/>
+                            <field name="engagement_status" readonly="1"/>
+                            <field name="progress" readonly="1"/>
+                            <field name="last_activity_at" readonly="1"/>
+                            <field name="last_activity_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Información técnica eLearning">
+                        <group>
+                            <field name="channel_partner_id" readonly="1" options="{'no_create': True, 'no_open': False}"/>
+                            <field name="member_status" readonly="1"/>
+                            <field name="last_sync_at" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Observaciones internas">
+                        <field name="notes" nolabel="1" placeholder="Notas solo para uso interno DAS…"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_search" model="ir.ui.view">
+        <field name="name">course.enrollment.search</field>
+        <field name="model">course.enrollment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="is_das_student" invisible="1"/>
+                <field name="student_id" string="Alumno"/>
+                <field name="student_email" string="Correo"/>
+                <field name="course_id" string="Curso"/>
+                <field name="modality"/>
+                <field name="status"/>
+                <field name="engagement_status"/>
+                <separator/>
+                <filter name="filter_das_students" string="Solo alumnos" domain="[('is_das_student', '=', True)]" invisible="1"/>
+                <filter name="filter_sin_iniciar" string="Sin iniciar" domain="[('engagement_status', '=', 'sin_iniciar')]"/>
+                <filter name="filter_en_progreso" string="En progreso" domain="[('engagement_status', '=', 'en_progreso')]"/>
+                <filter name="filter_completados" string="Completados" domain="[('engagement_status', '=', 'completado')]"/>
+                <filter name="filter_inactivos" string="Inactivos" domain="[('engagement_status', '=', 'inactivo')]"/>
+                <separator/>
+                <filter name="filter_progress_0" string="Avance igual a 0%" domain="[('progress', '&lt;=', 0)]"/>
+                <filter name="filter_progress_gt_50" string="Avance mayor a 50%" domain="[('progress', '&gt;', 50)]"/>
+                <separator/>
+                <filter name="filter_last_sync_date" string="Última sincronización" date="last_sync_at"/>
+                <separator/>
+                <filter name="group_course" string="Por curso" context="{'group_by': 'course_id'}"/>
+                <filter name="group_student" string="Por alumno" context="{'group_by': 'student_id'}"/>
+                <filter name="group_modality" string="Por modalidad" context="{'group_by': 'modality'}"/>
+                <filter name="group_status" string="Estado académico" context="{'group_by': 'status'}"/>
+                <filter name="group_engagement" string="Engagement" context="{'group_by': 'engagement_status'}"/>
+                <filter name="group_enrollment_month" string="Fecha inscripción (mes)" context="{'group_by': 'enrollment_date:month'}"/>
+                <filter name="group_sync_month" string="Última sincronización (mes)" context="{'group_by': 'last_sync_at:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_pivot" model="ir.ui.view">
+        <field name="name">course.enrollment.pivot</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis pivot">
+                <field name="course_id" type="row"/>
+                <field name="status" type="col"/>
+                <field name="student_id" type="measure" string="# Alumnos"/>
+                <field name="progress" type="measure" string="Avance (promedio)"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_courses" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.courses</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <graph string="Inscritos por curso" type="bar" stacked="0">
+                <field name="course_id"/>
+                <field name="student_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_academic_status" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.academic.status</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">12</field>
+        <field name="arch" type="xml">
+            <graph string="Distribución por estado académico" type="bar" stacked="1">
+                <field name="status"/>
+                <field name="student_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_engagement" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.engagement</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">14</field>
+        <field name="arch" type="xml">
+            <graph string="Distribución por engagement" type="pie">
+                <field name="engagement_status"/>
+                <field name="student_id" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_progress_course" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.progress.course</field>
+        <field name="model">course.enrollment</field>
+        <field name="priority">16</field>
+        <field name="arch" type="xml">
+            <graph string="Avance agregado por curso (suma; use pivot para promedio)" type="bar" stacked="0">
+                <field name="course_id"/>
+                <field name="progress" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_course_enrollment" model="ir.actions.act_window">
+        <field name="name">Inscripciones</field>
+        <field name="res_model">course.enrollment</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_das_student', '=', True)]</field>
+        <field name="context">{'create': False, 'search_default_filter_das_students': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay registros de seguimiento.
+            </p>
+            <p>
+                Las inscripciones reales se crean en eLearning al completar el flujo comercial y de facturación.
+                Los administradores pueden sincronizar desde el <b>Dashboard DAS LMS</b> (botón <b>Actualizar datos</b> o acceso rápido de sincronización).
+            </p>
+        </field>
+    </record>
+
+    <record id="action_das_lms_sync_server" model="ir.actions.server">
+        <field name="name">Sincronizar inscripciones desde eLearning</field>
+        <field name="model_id" ref="model_course_enrollment"/>
+        <field name="state">code</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system')), (4, ref('base.group_erp_manager'))]"/>
+        <field name="code">action = env['course.enrollment'].action_sync_from_elearning()</field>
+    </record>
+
+    <menuitem id="menu_das_lms_root" name="DAS LMS" sequence="50" action="action_das_lms_dashboard"/>
+    <menuitem
+        id="menu_das_lms_statistics"
+        name="Dashboard"
+        parent="menu_das_lms_root"
+        action="action_das_lms_dashboard"
+        sequence="10"
+    />
+    <menuitem
+        id="menu_das_lms_inscripciones"
+        name="Inscripciones"
+        parent="menu_das_lms_root"
+        action="action_course_enrollment"
+        sequence="20"
+    />
+    <menuitem
+        id="menu_das_lms_link_audit"
+        name="Validar vínculos producto-curso"
+        parent="menu_das_lms_root"
+        action="das_lms.action_das_lms_link_audit_wizard"
+        sequence="70"
+    />
+    <record id="view_course_enrollment_pivot_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.pivot.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_pivot"/>
+        <field name="arch" type="xml">
+            <xpath expr="//pivot" position="attributes">
+                <attribute name="class">o_das_lms_analytics_pivot</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_courses_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.courses.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_courses"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_engagement_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.engagement.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_engagement"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_progress_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.progress.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_progress_course"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_course_enrollment_graph_academic_status_das_style" model="ir.ui.view">
+        <field name="name">course.enrollment.graph.academic.status.das.style</field>
+        <field name="model">course.enrollment</field>
+        <field name="inherit_id" ref="das_lms.view_course_enrollment_graph_academic_status"/>
+        <field name="arch" type="xml">
+            <xpath expr="//graph" position="attributes">
+                <attribute name="class">o_das_lms_analytics_graph</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

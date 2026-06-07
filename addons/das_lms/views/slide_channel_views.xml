@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="slide_channel_view_form_das_lms" model="ir.ui.view">
+        <field name="name">slide.channel.form.das.lms</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="website_slides.view_slide_channel_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Información académica DAS" name="das_lms_academic">
+                    <group>
+                        <group string="Calendario y modalidad">
+                            <field name="das_start_date"/>
+                            <field name="das_end_date"/>
+                            <field name="registration_cutoff_days"/>
+                            <field name="das_registration_deadline" readonly="1"/>
+                            <field name="das_registration_open" readonly="1" widget="boolean"/>
+                            <field name="das_modality"/>
+                        </group>
+                        <group string="Carga horaria (académica)">
+                            <field name="das_autonomous_hours"/>
+                            <field name="das_teacher_contact_hours"/>
+                            <field name="das_total_hours"/>
+                        </group>
+                    </group>
+                    <group string="Ciclo académico (calculado)">
+                        <group>
+                            <field name="das_academic_status" widget="badge"/>
+                            <field name="das_is_before_start" readonly="1"/>
+                            <field name="das_is_running" readonly="1"/>
+                            <field name="das_is_finished" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="das_can_sell" readonly="1"/>
+                            <field name="das_can_study" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+                <page string="Estadísticas DAS" name="das_lms_stats">
+                    <field
+                        name="das_lms_enrollment_ids"
+                        nolabel="1"
+                        colspan="4"
+                        mode="list"
+                        domain="[('is_das_student', '=', True)]"
+                    >
+                        <list create="false" delete="false" edit="false">
+                            <field name="student_id" string="Alumno"/>
+                            <field name="student_email" string="Correo"/>
+                            <field name="modality" string="Modalidad"/>
+                            <field name="status" string="Estado académico"/>
+                            <field name="engagement_status" string="Engagement" optional="hide"/>
+                            <field name="progress" string="Avance" widget="progressbar" options="{'max_value': 100}"/>
+                            <field name="enrollment_date" string="Fecha inscripción"/>
+                            <field name="last_activity_at" string="Última actividad" optional="show"/>
+                            <field name="last_sync_at" string="Última sincronización" optional="show"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="slide_channel_view_tree_das_lms_academic" model="ir.ui.view">
+        <field name="name">slide.channel.list.das.lms.academic</field>
+        <field name="model">slide.channel</field>
+        <field name="inherit_id" ref="website_slides.slide_channel_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="das_start_date" string="Inicio académico" optional="hide"/>
+                <field name="das_academic_status" string="Ciclo DAS" optional="hide" widget="badge"/>
+                <field name="das_modality" string="Modalidad DAS" optional="hide"/>
+                <field name="das_registration_open" string="Inscripción abierta" optional="hide"/>
+                <field name="das_registration_deadline" string="Último día inscripción" optional="hide"/>
+                <field name="das_total_hours" string="Horas totales" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

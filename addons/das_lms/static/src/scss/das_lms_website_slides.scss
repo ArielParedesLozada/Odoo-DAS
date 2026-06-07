@@ -1,0 +1,128 @@
+/* DAS LMS — eLearning (/slides, /slides/all): barra "Todos los cursos" + búsqueda.
+   Odoo usa top: -40px en .o_wslides_home_nav (solapa el banner). Se neutraliza y se
+   añade aire entre la barra y el bloque principal (Mis cursos, tarjetas, lateral). */
+
+body.o_wslides_body .container.o_wslides_home_nav.position-relative {
+    top: 0;
+    margin-top: 2rem;
+    margin-bottom: 1.75rem;
+}
+
+body.o_wslides_body .container.o_wslides_home_main {
+    padding-top: 0.75rem;
+}
+
+/* Bloque académico DAS (página pública del curso) */
+.o_wslides_course_header .o_das_lms_course_academic {
+    max-width: 100%;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+
+.o_wslides_course_header .o_das_lms_course_academic__title {
+    letter-spacing: 0.06em;
+}
+
+.o_wslides_course_header .o_das_lms_course_academic__lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+}
+
+/* Tarjetas de curso: etiqueta de horas alineada con bloque académico DAS */
+body.o_wslides_body .o_wslides_course_card .o_das_lms_course_card_hours .o_das_lms_hours_label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.1rem;
+}
+
+body.o_wslides_body .o_wslides_course_card .o_das_lms_course_card_hours .o_das_lms_hours_value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+body.o_wslides_body .o_wslides_course_sidebar .o_das_lms_sidebar_hours-total {
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.o_wslides_course_header .o_das_lms_badge-finished {
+    background: #94a3b8;
+    color: #fff;
+}
+
+/* Tienda (/shop/product): bloque académico del curso vinculado */
+section#product_detail .o_das_lms_shop_academic {
+    max-width: 100%;
+    background: rgba(248, 250, 252, 0.98);
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+}
+
+section#product_detail .o_das_lms_shop_academic__title {
+    letter-spacing: 0.06em;
+}
+
+section#product_detail .o_das_lms_shop_academic__lbl {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+}
+
+section#product_detail .o_das_lms_badge-finished {
+    background: #94a3b8;
+    color: #fff;
+}
+
+/* Tienda (/shop/product): si LMS marca la ficha, no mostrar compra aunque sale_variant_mixin fuerce clases Bootstrap. */
+/* Ficha tienda: bloque único de estado inscrito (misma caja que alert Bootstrap). */
+.o_das_lms_shop_enrollment_banner .btn.btn-primary {
+    align-self: flex-start;
+}
+
+/* Tienda: aviso arriba y botón Agregar al carrito debajo, tamaño compacto (sin flex-grow). */
+section#product_detail[data-das-lms-notice-stack-cart="1"] {
+    .o_das_lms_product_notice--stack {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    #add_to_cart_wrap.o_das_lms_add_to_cart--below_notice {
+        flex: 0 0 100%;
+        display: inline-flex !important;
+        width: fit-content;
+        max-width: 100%;
+        align-self: flex-start;
+        margin-top: 0.25rem !important;
+        margin-right: 0 !important;
+
+        a#add_to_cart,
+        .btn {
+            width: auto !important;
+            max-width: none;
+            flex: 0 0 auto !important;
+            flex-grow: 0 !important;
+        }
+    }
+}
+
+section#product_detail[data-das-lms-hide-shop="1"] {
+    #add_to_cart_wrap,
+    .css_quantity,
+    .product_price {
+        display: none !important;
+    }
+
+    #add_to_cart {
+        pointer-events: none !important;
+    }
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="das_email_campaign_config_birthday" model="das.email.campaign.config">
+        <field name="name">Felicitación de cumpleaños</field>
+        <field name="active" eval="True"/>
+        <field name="code">birthday</field>
+        <field name="sequence">10</field>
+        <field name="cron_interval">daily</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_birthday"/>
+        <field name="description">Envía un correo automático el día del cumpleaños del contacto.</field>
+    </record>
+
+    <record id="das_email_campaign_config_upcoming" model="das.email.campaign.config">
+        <field name="name">Cursos próximos a iniciar</field>
+        <field name="code">upcoming</field>
+        <field name="sequence">20</field>
+        <field name="cron_interval">daily</field>
+        <field name="days_before_start">3</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_upcoming"/>
+        <field name="description">Recordatorio diario de cursos que inician en los próximos días.</field>
+    </record>
+
+    <record id="das_email_campaign_config_new_courses" model="das.email.campaign.config">
+        <field name="name">Promoción de cursos nuevos</field>
+        <field name="code">new_courses</field>
+        <field name="sequence">30</field>
+        <field name="cron_interval">weekly</field>
+        <field name="new_course_window_days">14</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_new_courses"/>
+        <field name="description">Promociona cursos publicados recientemente según intereses y categorías.</field>
+    </record>
+
+    <record id="das_email_campaign_config_experience" model="das.email.campaign.config">
+        <field name="name">Recomendación por nivel de experiencia</field>
+        <field name="code">experience</field>
+        <field name="sequence">40</field>
+        <field name="cron_interval">weekly</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_experience"/>
+        <field name="description">Sugiere cursos según el nivel declarado por el usuario.</field>
+    </record>
+
+    <record id="das_email_campaign_config_newsletter_weekly" model="das.email.campaign.config">
+        <field name="name">Newsletter semanal</field>
+        <field name="code">newsletter</field>
+        <field name="sequence">50</field>
+        <field name="cron_interval">weekly</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_newsletter"/>
+        <field name="description">Resumen semanal de novedades para usuarios con frecuencia semanal o diaria.</field>
+    </record>
+
+    <record id="das_email_campaign_config_newsletter_monthly" model="das.email.campaign.config">
+        <field name="name">Newsletter mensual</field>
+        <field name="code">newsletter</field>
+        <field name="sequence">60</field>
+        <field name="cron_interval">monthly</field>
+        <field name="mail_template_id" ref="das_email_campaigns.mail_template_das_newsletter"/>
+        <field name="description">Resumen mensual de novedades para usuarios con frecuencia mensual o quincenal.</field>
+    </record>
+</odoo>

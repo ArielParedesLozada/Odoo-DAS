@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="courses_home_das_lms_portal_single_section" inherit_id="website_slides.courses_home" name="DAS LMS: home /slides una sola sección (portal)">
+        <!-- Sin cursos en el sitio: no mostrar vacío si el alumno sí tiene "Mis cursos". -->
+        <xpath expr="//div[hasclass('o_wslides_home_content_section', 'mb-3')][contains(@t-if, 'not channels_popular')]" position="attributes">
+            <attribute name="t-if">not channels_my and not channels_popular and not channels_newest</attribute>
+        </xpath>
+        <!-- Portal DAS: listar todos los cursos inscritos en la única sección visible. -->
+        <xpath expr="//t[contains(@t-foreach, 'channels_my[:3]')]" position="attributes">
+            <attribute name="t-foreach">channels_my if das_lms_slides_portal_home else channels_my[:3]</attribute>
+        </xpath>
+        <!-- Quitar "Ver todo" en Mis cursos: en portal DAS la home ya muestra todos los inscritos. -->
+        <xpath expr="//a[@href='/slides/all?my=1']" position="replace"/>
+        <!-- Quitar enlace "Vista" / View al perfil en el lateral (redundante en portal DAS). -->
+        <xpath expr="//div[hasclass('o_wslides_home_aside_title')]//a[@class='d-none d-lg-block']" position="replace"/>
+    </template>
+
+    <template id="portal_slide_channel_access_denied" name="DAS LMS: curso no inscrito">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="alert alert-info shadow-sm" role="alert">
+                        <h1 class="h4 mb-2">No estás inscrito en este curso.</h1>
+                        <p class="mb-0" t-if="das_lms_registration_notice">
+                            <span t-out="das_lms_registration_notice"/>
+                        </p>
+                        <p class="mb-0" t-else="">
+                            Solo puedes acceder al contenido de los cursos en los que estás inscrito.
+                            Si aún no lo has adquirido, puedes hacerlo desde la tienda.
+                        </p>
+                    </div>
+                    <p t-if="channel" class="mt-3">
+                        <strong>Curso:</strong>
+                        <span t-field="channel.name"/>
+                    </p>
+                    <div class="mt-4">
+                        <a href="/shop" class="btn btn-primary">Ir a la tienda</a>
+                        <a href="/slides" class="btn btn-outline-secondary ms-2">Mis cursos</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+    <template id="portal_slide_course_lessons_locked" name="DAS LMS: contenido del curso aún no disponible (calendario)">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <div class="container py-5">
+                    <div class="alert alert-info shadow-sm" role="status">
+                        <h1 class="h4 mb-2">Contenido no disponible todavía</h1>
+                        <p class="mb-0" t-if="channel and channel.das_start_date">
+                            El curso aún no inicia. Podrá acceder al contenido desde el
+                            <span t-field="channel.das_start_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>.
+                            Sigue inscrito en el curso.
+                        </p>
+                        <p class="mb-0" t-else="">
+                            Las lecciones de este curso aún no están disponibles según el calendario académico.
+                        </p>
+                    </div>
+                    <p t-if="channel" class="mt-3">
+                        <strong>Curso:</strong>
+                        <span t-field="channel.name"/>
+                    </p>
+                    <div class="mt-4">
+                        <a href="/slides" class="btn btn-primary">Mis cursos</a>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

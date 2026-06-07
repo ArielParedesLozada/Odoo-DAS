@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Odoo 18: sale_ok está en div options fuera del notebook; xpath ahí es frágil.
+        Ubicación estable: pestaña General Information, después de Category (categ_id).
+        Prioridad alta para aplicar después de personalizaciones tipo Studio.
+    -->
+    <record id="product_template_form_view_das_lms_channel" model="ir.ui.view">
+        <field name="name">product.template.form.das.lms.channel</field>
+        <field name="model">product.template</field>
+        <field name="priority">99</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='general_information']//field[@name='categ_id']" position="after">
+                <group
+                    string="DAS LMS"
+                    name="das_lms_course_link"
+                    colspan="2"
+                    invisible="type == 'combo'"
+                >
+                    <field
+                        name="das_lms_channel_id"
+                        string="Curso eLearning relacionado"
+                        options="{'no_create': True}"
+                        placeholder="Seleccione el curso (prioridad sobre vínculo por variante)"
+                    />
+                    <field
+                        name="das_lms_slide_channel_id"
+                        string="Curso resuelto"
+                        readonly="1"
+                    />
+                    <div
+                        class="alert alert-warning mb-0 mt-2"
+                        role="alert"
+                        colspan="2"
+                        invisible="das_lms_slide_channel_id"
+                    >
+                        Este producto no está vinculado a ningún curso eLearning.
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

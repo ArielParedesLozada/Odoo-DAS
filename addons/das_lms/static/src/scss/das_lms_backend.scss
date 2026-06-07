@@ -1,0 +1,990 @@
+/* =============================================================================
+   DAS LMS — Backend: dashboard académico y análisis (estilo ejecutivo / SaaS)
+   ============================================================================= */
+
+$o-das-navy: #0f172a;
+$o-das-slate: #334155;
+$o-das-border: #e2e8f0;
+$o-das-soft: #f8fafc;
+$o-das-card: #ffffff;
+
+/* --- Dashboard form -------------------------------------------------------- */
+.o_form_view.o_das_lms_dashboard_form {
+    .o_form_sheet_bg {
+        background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 40%, #f8fafc 100%);
+    }
+
+    .o_das_lms_dashboard_sheet.o_form_sheet,
+    .o_form_sheet.o_das_lms_dashboard_sheet,
+    .o_das_lms_analytics_exec_sheet.o_form_sheet,
+    .o_form_sheet.o_das_lms_analytics_exec_sheet {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-bottom: 2.5rem;
+    }
+
+    /* HEADER */
+    .o_das_lms_exec_header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 1.25rem;
+        padding: 1.75rem 1.75rem 1.5rem;
+        margin: -0.5rem -1rem 1.75rem;
+        border-radius: 14px;
+        background: linear-gradient(125deg, #1e3a5f 0%, #0f2744 42%, #1a3652 100%);
+        color: #f1f5f9;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    }
+
+    .o_das_lms_exec_header.o_das_lms_exec_header--analytics {
+        background: linear-gradient(125deg, #312e81 0%, #1e3a5f 48%, #0f2744 100%);
+    }
+
+    .o_das_lms_exec_header__brand {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        min-width: 0;
+        flex: 1 1 280px;
+    }
+
+    .o_das_lms_exec_header__icon {
+        flex-shrink: 0;
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.45rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .o_das_lms_exec_header__title {
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.35rem;
+        color: #fff;
+    }
+
+    .o_das_lms_exec_header__subtitle {
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        color: rgba(226, 232, 240, 0.88);
+        max-width: 36rem;
+    }
+
+    .o_das_lms_exec_header__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .o_das_lms_exec-pill {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 10px;
+        padding: 0.5rem 0.85rem;
+        min-width: 6.5rem;
+    }
+
+    .o_das_lms_exec-pill__lbl {
+        display: block;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.8;
+    }
+
+    .o_das_lms_exec-pill__val {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .o_das_lms_exec-pill--cycle {
+        min-width: 5.25rem;
+        padding: 0.45rem 0.65rem;
+    }
+
+    .o_das_lms_exec-pill--cycle .o_das_lms_exec-pill__val {
+        font-size: 1rem;
+    }
+
+    /* Section headings — minimal */
+    .o_das_lms_section-heading {
+        margin: 2.25rem 0 0.85rem;
+        padding: 0;
+        border-bottom: none;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1rem;
+    }
+
+    .o_das_lms_section-heading--minimal h2 {
+        margin: 0;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: $o-das-navy;
+    }
+
+    .o_das_lms_section-heading__badge {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* KPI cards — ejecutivo, altura uniforme */
+    .o_das_lms_kpi-cards--executive .o_das_lms_kpi-card {
+        min-height: 118px;
+    }
+
+    .o_das_lms_kpi-card {
+        border-radius: 12px;
+        padding: 1rem 1rem 1.05rem;
+        height: 100%;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: $o-das-card;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 12px 0 0 12px;
+            opacity: 0.85;
+        }
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            border-color: #e2e8f0;
+        }
+
+        .o_das_lms_kpi-card__head {
+            display: flex;
+            justify-content: flex-end;
+            margin: -0.15rem 0 0.2rem;
+        }
+
+        .o_das_lms_kpi-icon {
+            font-size: 1.05rem;
+            opacity: 0.42;
+        }
+
+        .o_das_lms_kpi-title {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #94a3b8;
+            font-weight: 700;
+            margin: 0 0 0.35rem;
+            line-height: 1.2;
+        }
+
+        .o_das_lms_kpi-value {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: $o-das-navy;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-top: auto;
+        }
+
+        .o_das_lms_kpi-hint {
+            font-size: 0.74rem;
+            color: #94a3b8;
+            margin-top: 0.4rem;
+            line-height: 1.35;
+        }
+    }
+
+    .o_das_lms_kpi--blue::before {
+        background: #2563eb;
+    }
+    .o_das_lms_kpi--cyan::before {
+        background: #0891b2;
+    }
+    .o_das_lms_kpi--green::before {
+        background: #16a34a;
+    }
+    .o_das_lms_kpi--indigo::before {
+        background: #4f46e5;
+    }
+    .o_das_lms_kpi--slate::before {
+        background: #64748b;
+    }
+    .o_das_lms_kpi--amber::before {
+        background: #d97706;
+    }
+    .o_das_lms_kpi--teal::before {
+        background: #0d9488;
+    }
+    .o_das_lms_kpi--red::before {
+        background: #dc2626;
+    }
+
+    /* Panels */
+    .o_das_lms_panel {
+        background: $o-das-card;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 12px;
+        padding: 1.35rem 1.5rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .o_das_lms_panel--charts-wide {
+        padding: 1.5rem 1.65rem;
+    }
+
+    .o_das_lms_panel--charts,
+    .o_das_lms_panel--activity {
+        .o_field_widget.o_field_html,
+        .o_field_html {
+            width: 100%;
+        }
+
+        .o_field_html .oe_read_only {
+            width: 100%;
+        }
+
+        /* Ancho completo solo en contenedores raíz del HTML embebido (no en todos los div:
+           width:100% en cualquier div deformaba el doughnut a elipse). */
+        .o_field_html .o_das_lms_charts_root,
+        .o_field_html .o_das_lms_activity_root {
+            width: 100%;
+        }
+    }
+
+    /* Embedded charts (HTML markup from compute) */
+    .o_das_lms_charts_root {
+        display: flex;
+        flex-direction: column;
+        gap: 1.35rem;
+    }
+
+    .o_das_lms_charts_top {
+        display: grid;
+        grid-template-columns: minmax(240px, 300px) minmax(280px, 1fr);
+        gap: 1.25rem;
+        align-items: stretch;
+    }
+
+    @media (max-width: 991.98px) {
+        .o_das_lms_charts_top {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .o_das_lms_chart-block {
+        background: #fafbfc;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 12px;
+        padding: 1.15rem 1.25rem;
+        height: 100%;
+    }
+
+    .o_das_lms_chart-block--hbars {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .o_das_lms_chart-block--vchart {
+        background: #fafbfc;
+    }
+
+    .o_das_lms_chart-title {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: #64748b;
+        margin: 0 0 1rem;
+    }
+
+    .o_das_lms_donut-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.35rem;
+        justify-content: center;
+    }
+
+    .o_das_lms_donut {
+        width: 148px;
+        height: 148px;
+        min-width: 148px;
+        max-width: 148px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        flex-shrink: 0;
+        position: relative;
+        box-sizing: border-box;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 24%;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+        }
+    }
+
+    .o_das_lms_donut-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        color: $o-das-slate;
+    }
+
+    .o_das_lms_legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .o_das_lms_legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .o_das_lms_bar-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr) 2.5rem;
+        gap: 0.5rem 0.65rem;
+        align-items: center;
+        margin-bottom: 0.55rem;
+        font-size: 0.8rem;
+    }
+
+    .o_das_lms_bar-name {
+        color: $o-das-slate;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .o_das_lms_bar-track {
+        height: 9px;
+        border-radius: 99px;
+        background: #e2e8f0;
+        overflow: hidden;
+    }
+
+    .o_das_lms_bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #60a5fa, #4f46e5);
+        min-width: 2%;
+        transition: width 0.35s ease;
+    }
+
+    .o_das_lms_bar-fill--progress {
+        background: linear-gradient(90deg, #34d399, #059669);
+    }
+
+    .o_das_lms_chart-block--full {
+        width: 100%;
+        margin-top: 0.15rem;
+    }
+
+    /* Barras verticales — avance por curso */
+    .o_das_lms_vchart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.35rem;
+        min-height: 188px;
+        padding: 0.25rem 0.15rem 0;
+    }
+
+    .o_das_lms_vcol {
+        flex: 1 1 0;
+        min-width: 0;
+        max-width: 72px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .o_das_lms_vbar-wrap {
+        width: 100%;
+        height: 140px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
+    .o_das_lms_vbar {
+        width: 100%;
+        max-width: 36px;
+        border-radius: 8px 8px 3px 3px;
+        background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 55%, #1d4ed8 100%);
+        min-height: 4px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        transition: filter 0.2s ease;
+    }
+
+    .o_das_lms_vcol:hover .o_das_lms_vbar {
+        filter: brightness(1.05);
+    }
+
+    .o_das_lms_vval {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: $o-das-navy;
+    }
+
+    .o_das_lms_vlbl {
+        font-size: 0.62rem;
+        color: #64748b;
+        text-align: center;
+        line-height: 1.15;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .o_das_lms_bar-val {
+        text-align: right;
+        font-weight: 700;
+        color: $o-das-navy;
+        font-size: 0.78rem;
+    }
+
+    /* Activity timeline */
+    .o_das_lms_activity_root {
+        font-size: 0.88rem;
+        color: $o-das-slate;
+    }
+
+    .o_das_lms_activity-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .o_das_lms_activity-chip {
+        flex: 1 1 200px;
+        background: #f8fafc;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 10px;
+        padding: 0.7rem 0.95rem;
+        font-size: 0.8125rem;
+        line-height: 1.45;
+        color: $o-das-slate;
+    }
+
+    .o_das_lms_activity-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem 1.5rem;
+        margin-top: 1rem;
+        padding-top: 0.25rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .o_das_lms_activity-split {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .o_das_lms_activity-h {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748b;
+        margin: 0 0 0.5rem;
+    }
+
+    .o_das_lms_timeline {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .o_das_lms_timeline li {
+        display: flex;
+        gap: 0.65rem;
+        padding: 0.45rem 0;
+        border-bottom: 1px solid #f1f5f9;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .o_das_lms_tl-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-top: 0.35rem;
+        flex-shrink: 0;
+        background: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .o_das_lms_tl-dot--ok {
+        background: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    }
+
+    .o_das_lms_tl-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .o_das_lms_tl-title {
+        font-weight: 600;
+        color: $o-das-navy;
+        font-size: 0.86rem;
+    }
+
+    .o_das_lms_tl-sub {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .o_das_lms_tl-date {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 0.15rem;
+    }
+
+    .o_das_lms_tl-badge {
+        font-size: 0.65rem;
+        font-weight: 600;
+        background: #e0e7ff !important;
+        color: #3730a3 !important;
+    }
+
+    /* Course table */
+    .o_das_lms_panel--table {
+        padding: 0.85rem 1rem;
+    }
+
+    .o_das_lms_panel--table .o_list_table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .o_das_lms_course_table .o_list_table > thead > tr > th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f8fafc !important;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-top: 0.55rem !important;
+        padding-bottom: 0.55rem !important;
+    }
+
+    .o_das_lms_course_table .o_list_table > tbody > tr:hover > td {
+        background: #fafbfc !important;
+    }
+
+    .o_das_lms_course_table .o_list_table > tbody > tr > td {
+        vertical-align: middle;
+        font-size: 0.8125rem;
+        padding-top: 0.45rem !important;
+        padding-bottom: 0.45rem !important;
+    }
+
+    .o_das_lms_course_table .o_list_table > tbody > tr > td.o_data_cell {
+        border-color: #f1f5f9;
+    }
+
+    /* Avance %: valor numérico limpio (sin barra + badge del progressbar en lista) */
+    .o_das_lms_course_table .o_das_lms_avance_pct,
+    .o_das_lms_course_table td.o_das_lms_avance_pct .o_field_widget {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #1e293b;
+        letter-spacing: -0.02em;
+    }
+
+    /* Alerts kanban */
+    .o_das_lms_alert_field .o_kanban_renderer.o_das_lms_alert_kanban,
+    .o_das_lms_alert_kanban.o_kanban_renderer {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+    }
+
+    .o_das_lms_alert-kcard {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 0.95rem;
+        border-radius: 10px;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.035);
+        margin-bottom: 0.45rem;
+        transition: box-shadow 0.18s ease, border-color 0.18s ease;
+
+        &:hover {
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+        }
+    }
+
+    .o_das_lms_alert-kcard__icon {
+        flex-shrink: 0;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: #f1f5f9;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+    }
+
+    .o_das_lms_alert_kanban .o_kanban_record.danger .o_das_lms_alert-kcard__icon {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .o_das_lms_alert_kanban .o_kanban_record.warning .o_das_lms_alert-kcard__icon {
+        background: #fffbeb;
+        color: #b45309;
+    }
+
+    .o_das_lms_alert_kanban .o_kanban_record.info .o_das_lms_alert-kcard__icon {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
+    .o_das_lms_alert_kanban .o_kanban_record.success .o_das_lms_alert-kcard__icon {
+        background: #f0fdf4;
+        color: #15803d;
+    }
+
+    .o_das_lms_alert-kcard__title {
+        font-weight: 700;
+        font-size: 0.8125rem;
+        color: $o-das-navy;
+        margin-bottom: 0.2rem;
+        letter-spacing: -0.01em;
+    }
+
+    .o_das_lms_alert-kcard__text {
+        font-size: 0.78rem;
+        line-height: 1.4;
+        color: #64748b;
+        white-space: normal;
+    }
+
+    /* Odoo kanban decoration colors — border accent */
+    .o_das_lms_alert_kanban .o_kanban_record.danger .o_das_lms_alert-kcard {
+        border-left: 4px solid #dc2626;
+    }
+    .o_das_lms_alert_kanban .o_kanban_record.warning .o_das_lms_alert-kcard {
+        border-left: 4px solid #d97706;
+    }
+    .o_das_lms_alert_kanban .o_kanban_record.info .o_das_lms_alert-kcard {
+        border-left: 4px solid #2563eb;
+    }
+    .o_das_lms_alert_kanban .o_kanban_record.success .o_das_lms_alert-kcard {
+        border-left: 4px solid #16a34a;
+    }
+
+    /* Quick actions */
+    .o_das_lms_quick-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0.65rem;
+    }
+
+    .o_das_lms_qbtn {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.65rem;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        background: #fff;
+        color: $o-das-navy;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+
+        &:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+            transform: translateY(-1px);
+            color: $o-das-navy;
+        }
+    }
+
+    .o_das_lms_qbtn__icon {
+        font-size: 1.1rem;
+        color: #3b82f6;
+        margin-bottom: 0;
+        opacity: 0.9;
+    }
+
+    .o_das_lms_qbtn__t {
+        font-weight: 600;
+        font-size: 0.8125rem;
+        letter-spacing: -0.01em;
+    }
+
+    .o_das_lms_qbtn__s {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.2rem;
+    }
+}
+
+/* --- Análisis: encabezado de ayuda --------------------------------------- */
+.o_das_lms_analytics_intro {
+    max-width: 720px;
+    padding: 1rem 0.25rem 0.5rem;
+
+    .o_das_lms_analytics_intro__title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: $o-das-navy;
+        margin: 0 0 0.5rem;
+    }
+
+    .o_das_lms_analytics_intro__text {
+        margin: 0 0 0.75rem;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .o_das_lms_analytics_intro__list {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: #64748b;
+        font-size: 0.88rem;
+        line-height: 1.45;
+    }
+}
+
+.o_das_lms_analytics_intro.o_das_lms_analytics_intro--compact {
+    max-width: 42rem;
+    padding: 0.5rem 0.25rem 0.35rem;
+}
+
+.o_das_lms_analytics_intro.o_das_lms_analytics_intro--compact .o_das_lms_analytics_intro__list {
+    font-size: 0.82rem;
+}
+
+/* --- Pivot / gráficos: más presencia en pantalla ------------------------- */
+.o_das_lms_analytics_pivot {
+    min-height: 420px;
+}
+
+.o_das_lms_analytics_graph {
+    min-height: 380px;
+}
+
+/* --- Análisis avanzado: hub tabular (diferenciado del dashboard) ---------- */
+.o_form_view.o_das_lms_analytics_hub_form {
+    .o_form_sheet_bg {
+        background: #f1f5f9;
+    }
+
+    .o_das_lms_analytics_hub_sheet.o_form_sheet,
+    .o_form_sheet.o_das_lms_analytics_hub_sheet {
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 2rem;
+    }
+
+    .o_das_lms_analytics_hub_head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-bottom: 0.25rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .o_das_lms_analytics_hub_head__title {
+        margin: 0 0 0.35rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+    }
+
+    .o_das_lms_analytics_hub_head__desc {
+        margin: 0;
+        max-width: 46rem;
+        font-size: 0.875rem;
+        line-height: 1.45;
+        color: #64748b;
+    }
+
+    .o_das_lms_analytics_hub_head__meta {
+        flex-shrink: 0;
+    }
+
+    .o_das_lms_analytics_hub_head__date {
+        display: inline-block;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #475569;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.35rem 0.65rem;
+    }
+
+    .o_das_lms_analytics_hub_kpis {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+    }
+
+    .o_das_lms_analytics_hub_kpi {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.45rem 0.85rem;
+        min-width: 7.5rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .o_das_lms_analytics_hub_kpi__lbl {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #94a3b8;
+        font-weight: 700;
+        margin-bottom: 0.15rem;
+    }
+
+    .o_das_lms_analytics_hub_kpi__val {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .o_das_lms_analytics_hub_section_title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #475569;
+        margin: 0 0 0.5rem;
+    }
+
+    .o_das_lms_analytics_hub_tablewrap {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.35rem 0.25rem 0.5rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > thead > tr > th {
+        background: #f8fafc !important;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        font-weight: 700;
+        border-bottom: 1px solid #e2e8f0 !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > tbody > tr:hover > td {
+        background: #fafbfc !important;
+    }
+
+    .o_das_lms_analytics_main_table .o_list_table > tbody > tr > td {
+        font-size: 0.8125rem;
+        vertical-align: middle;
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+    }
+
+    .o_das_lms_analytics_main_table .o_das_lms_avance_pct,
+    .o_das_lms_analytics_main_table td.o_das_lms_avance_pct .o_field_widget {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #1e293b;
+        letter-spacing: -0.02em;
+    }
+}
+
+/* --- Inscripciones: listado administrativo compacto ------------------------- */
+.o_list_view.o_das_lms_enrollment_list {
+    .o_list_table > thead > tr > th {
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.045em;
+        font-weight: 700;
+        color: #64748b;
+        padding-top: 0.45rem !important;
+        padding-bottom: 0.45rem !important;
+    }
+
+    .o_list_table > tbody > tr > td {
+        padding-top: 0.35rem !important;
+        padding-bottom: 0.35rem !important;
+        vertical-align: middle;
+        font-size: 0.8125rem;
+    }
+
+    .o_data_cell[data-name="course_id"] {
+        max-width: 20rem;
+    }
+
+    .o_data_cell[data-name="course_id"] .o_field_widget,
+    .o_data_cell[data-name="course_id"] span {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
