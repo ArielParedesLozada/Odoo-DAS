@@ -1,0 +1,226 @@
+name: CD — Deploy a Producción
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "addons/**"
+      - "Dockerfile"
+      - "config/**"
+      - "docker/docker-compose.prod.yml"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/odoo-das
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # JOB 1: Build y push imagen con tags 'latest' y SHA
+  # ──────────────────────────────────────────────────────────
+  build-push:
+    name: Build y push imagen producción
+    runs-on: ubuntu-latest
+
+    outputs:
+      short_sha: ${{ steps.sha.outputs.short }}
+      version_tag: ${{ steps.version.outputs.tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Obtener SHA corto
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Generar tag de versión
+        id: version
+        run: echo "tag=prod-$(date +%Y%m%d)-${{ steps.sha.outputs.short }}" >> $GITHUB_OUTPUT
+
+      - name: Log in a GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extraer metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ steps.version.outputs.tag }}
+
+      - name: Build y push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 2: Backup previo al deploy (seguridad ante rollback)
+  # ──────────────────────────────────────────────────────────
+  pre-deploy-backup:
+    name: Backup previo al deploy
+    runs-on: ubuntu-latest
+    needs: build-push
+    environment:
+      name: production
+
+    steps:
+      - name: Backup via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          timeout: 120s
+          script: |
+            set -e
+            cd /opt/odoo-das
+            chmod +x scripts/backup.sh
+            BACKUP_DIR=/opt/backups/odoo-das ./scripts/backup.sh prod
+            echo "Backup completado antes del deploy ${{ needs.build-push.outputs.version_tag }}"
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 3: Deploy en Azure VM — requiere aprobación manual
+  # ──────────────────────────────────────────────────────────
+  deploy-production:
+    name: Deploy en Azure VM (producción)
+    runs-on: ubuntu-latest
+    needs: [build-push, pre-deploy-backup]
+    environment:
+      name: production
+      url: https://odoo.${{ secrets.DOMAIN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH a Azure VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          timeout: 600s
+          script: |
+            set -e
+            cd /opt/odoo-das
+
+            git fetch origin main
+            git checkout main
+            git pull origin main
+
+            echo "${{ secrets.GHCR_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            VERSION_TAG="${{ needs.build-push.outputs.version_tag }}"
+            export DOCKER_IMAGE="ghcr.io/${{ env.IMAGE_NAME }}"
+
+            chmod +x scripts/deploy.sh
+            GHCR_TOKEN="${{ secrets.GHCR_TOKEN }}" \
+            GHCR_USER="${{ github.actor }}" \
+            ./scripts/deploy.sh prod "$VERSION_TAG"
+
+      - name: Verificar producción post-deploy
+        run: |
+          BASE="https://odoo.${{ secrets.DOMAIN }}"
+          echo "Verificando producción en $BASE..."
+          for i in $(seq 1 12); do
+            STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$BASE/web/health" || echo "000")
+            if [[ "$STATUS" == "200" ]]; then
+              echo "Producción activa (intento $i)"
+              exit 0
+            fi
+            echo "Intento $i — HTTP $STATUS — esperando 30s..."
+            sleep 30
+          done
+          echo "ERROR: Producción no respondió"
+          exit 1
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 4: Prueba de carga post-deploy producción
+  # ──────────────────────────────────────────────────────────
+  load-test-production:
+    name: Prueba de carga producción
+    runs-on: ubuntu-latest
+    needs: deploy-production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar Locust
+        run: pip install locust
+
+      - name: Prueba de carga moderada (post-deploy)
+        run: |
+          locust \
+            --headless \
+            --host "https://odoo.${{ secrets.DOMAIN }}" \
+            --users 10 \
+            --spawn-rate 2 \
+            --run-time 60s \
+            --only-summary \
+            --exit-code-on-error 1 \
+            --html locust_report_prod.html \
+            -f locustfile.py
+        # Si Locust falla no cancela el deploy (ya está desplegado)
+        continue-on-error: true
+
+      - name: Subir reporte
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locust-prod-report-${{ needs.build-push.outputs.version_tag }}
+          path: |
+            locust_report_prod.html
+            locust_*.csv
+          retention-days: 30
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 5: Rollback automático si algo falla
+  # ──────────────────────────────────────────────────────────
+  rollback-on-failure:
+    name: Rollback automático
+    runs-on: ubuntu-latest
+    needs: [build-push, deploy-production]
+    if: failure()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ejecutar rollback via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          timeout: 300s
+          script: |
+            set -e
+            cd /opt/odoo-das
+            echo "DEPLOY FALLIDO — iniciando rollback automático..."
+            chmod +x scripts/rollback.sh
+            # Rollback no interactivo (sin confirmación)
+            LAST_TAG=$(cat .last_tag_prod 2>/dev/null || echo "")
+            if [[ -n "$LAST_TAG" && "$LAST_TAG" != "none" ]]; then
+              GHCR_TOKEN="${{ secrets.GHCR_TOKEN }}" \
+              GHCR_USER="${{ github.actor }}" \
+              ./scripts/deploy.sh prod "$LAST_TAG"
+              echo "Rollback completado a $LAST_TAG"
+            else
+              echo "No hay tag anterior disponible para rollback"
+            fi

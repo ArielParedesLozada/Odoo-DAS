@@ -1,0 +1,167 @@
+name: CD — Deploy a Staging
+
+on:
+  push:
+    branches: [staging]
+    paths:
+      - "addons/**"
+      - "Dockerfile"
+      - "config/**"
+      - "docker/docker-compose.staging.yml"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/odoo-das
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # JOB 1: Build y push de imagen con tag 'staging'
+  # ──────────────────────────────────────────────────────────
+  build-push:
+    name: Build y push imagen staging
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      short_sha: ${{ steps.sha.outputs.short }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Obtener SHA corto
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Log in a GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extraer metadata de imagen
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=staging
+            type=sha,prefix=staging-
+
+      - name: Build y push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 2: Deploy en Azure VM via SSH
+  # ──────────────────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy en Azure VM (staging)
+    runs-on: ubuntu-latest
+    needs: build-push
+    environment:
+      name: staging
+      url: https://staging.${{ secrets.DOMAIN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH a Azure VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          timeout: 300s
+          script: |
+            set -e
+            cd /opt/odoo-das
+
+            # Actualizar repositorio
+            git fetch origin staging
+            git checkout staging
+            git pull origin staging
+
+            # Actualizar imagen
+            echo "${{ secrets.GHCR_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            export IMAGE_TAG="staging-${{ needs.build-push.outputs.short_sha }}"
+            export DOCKER_IMAGE="ghcr.io/${{ env.IMAGE_NAME }}"
+
+            # Ejecutar script de deploy
+            chmod +x scripts/deploy.sh
+            GHCR_TOKEN="${{ secrets.GHCR_TOKEN }}" \
+            GHCR_USER="${{ github.actor }}" \
+            ./scripts/deploy.sh staging "staging-${{ needs.build-push.outputs.short_sha }}"
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 3: Smoke tests y prueba de carga reducida post-deploy
+  # ──────────────────────────────────────────────────────────
+  smoke-test:
+    name: Smoke tests staging
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar dependencias de test
+        run: pip install locust requests
+
+      - name: Verificar endpoints críticos
+        run: |
+          BASE="https://staging.${{ secrets.DOMAIN }}"
+          STAGING_AUTH="${{ secrets.STAGING_BASIC_AUTH }}"
+
+          check_endpoint() {
+            STATUS=$(curl -sf -u "$STAGING_AUTH" -o /dev/null -w "%{http_code}" "$1" || echo "000")
+            if [[ "$STATUS" =~ ^(200|301|302)$ ]]; then
+              echo "OK ($STATUS): $1"
+            else
+              echo "FAIL ($STATUS): $1"
+              return 1
+            fi
+          }
+
+          check_endpoint "$BASE/web/health"
+          check_endpoint "$BASE/web/login"
+          check_endpoint "$BASE/slides"
+          check_endpoint "$BASE/my"
+
+      - name: Prueba de carga reducida con Locust (smoke)
+        run: |
+          locust \
+            --headless \
+            --host "https://staging.${{ secrets.DOMAIN }}" \
+            --users 3 \
+            --spawn-rate 1 \
+            --run-time 30s \
+            --only-summary \
+            --exit-code-on-error 1 \
+            -f locustfile.py
+        # 3 usuarios, 30s — solo verifica que la app responde bajo carga mínima
+        continue-on-error: true
+
+      - name: Subir reporte de Locust
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locust-staging-report
+          path: "locust_*.csv"
+          retention-days: 14

@@ -1,0 +1,212 @@
+name: CI — Validación de Pull Request
+
+on:
+  pull_request:
+    branches: [staging, main]
+    paths:
+      - "addons/**"
+      - "Dockerfile"
+      - "config/**"
+      - "docker/**"
+      - ".github/workflows/**"
+
+jobs:
+  # ──────────────────────────────────────────────────────────
+  # JOB 1: Lint — Sintaxis Python de los addons
+  # ──────────────────────────────────────────────────────────
+  lint:
+    name: Lint Python (flake8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar flake8
+        run: pip install flake8
+
+      - name: Verificar sintaxis de addons personalizados
+        run: |
+          flake8 addons/ \
+            --max-line-length=120 \
+            --ignore=E501,W503,E402 \
+            --exclude=addons/das_tareas_prueba,addons/*/migrations \
+            --count \
+            --statistics
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 2: Build — Construcción de la imagen Docker
+  # ──────────────────────────────────────────────────────────
+  build:
+    name: Build imagen Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build imagen (sin push — solo valida que compila)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          # Cache entre runs para acelerar builds
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: odoo-das:ci-${{ github.sha }}
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 3: Tests — Pruebas unitarias por módulo
+  # ──────────────────────────────────────────────────────────
+  test-unit:
+    name: Tests unitarios Odoo
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo_ci_secret
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - name: das_email_preferences
+            db: ci_preferences
+          - name: das_lms
+            db: ci_lms
+          - name: das_email_campaigns
+            db: ci_campaigns
+          - name: l10n_ec_base
+            db: ci_l10n_base
+          - name: l10n_ec_sri
+            db: ci_sri
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Rebuild con cache (rápido porque el build anterior lo cargó)
+      - name: Build imagen para tests
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          cache-from: type=gha
+          tags: odoo-das:ci-test
+
+      - name: Tests — ${{ matrix.module.name }}
+        run: |
+          docker run --rm \
+            --network host \
+            odoo-das:ci-test \
+            odoo \
+              --db_host 127.0.0.1 \
+              --db_port 5432 \
+              --db_user odoo \
+              --db_password odoo_ci_secret \
+              --database ${{ matrix.module.db }} \
+              --test-enable \
+              --stop-after-init \
+              --log-level=test \
+              -i ${{ matrix.module.name }} \
+            2>&1 | tee test_${{ matrix.module.name }}.log
+          # Verificar que los tests corrieron (no solo que Odoo arrancó)
+          grep -qE "Ran [0-9]+ tests|OK \(" test_${{ matrix.module.name }}.log || \
+            grep -q "error" test_${{ matrix.module.name }}.log && exit 1 || true
+
+      - name: Subir log de tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log-${{ matrix.module.name }}
+          path: test_${{ matrix.module.name }}.log
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────
+  # JOB 4: Validar instalación completa (todos los módulos DAS juntos)
+  # ──────────────────────────────────────────────────────────
+  validate-full-install:
+    name: Instalación completa de módulos
+    runs-on: ubuntu-latest
+    needs: test-unit
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo_ci_secret
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build imagen
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          cache-from: type=gha
+          tags: odoo-das:ci-test
+
+      - name: Instalar todos los módulos DAS en una sola DB
+        run: |
+          docker run --rm \
+            --network host \
+            odoo-das:ci-test \
+            odoo \
+              --db_host 127.0.0.1 \
+              --db_port 5432 \
+              --db_user odoo \
+              --db_password odoo_ci_secret \
+              --database ci_full_install \
+              --stop-after-init \
+              --log-level=info \
+              -i das_email_preferences,das_email_campaigns,das_lms,das_lms_certificates,das_lms_satisfaction_survey,l10n_ec_base,l10n_ec_sri \
+            2>&1 | tee install_full.log
+          # Verificar que no hubo errores de instalación
+          ! grep -qE "^ERROR|Module .* failed" install_full.log
+          echo "Instalación completa exitosa"
+
+      - name: Subir log de instalación
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-full-log
+          path: install_full.log
+          retention-days: 7

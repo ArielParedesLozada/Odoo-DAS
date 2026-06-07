@@ -1,0 +1,69 @@
+# ============================================================
+# Entorno de PRODUCCIÓN — Azure VM
+# Uso: docker compose -f docker-compose.prod.yml up -d
+# Requiere: red externa "nginx-proxy" creada previamente
+#   docker network create nginx-proxy
+# ============================================================
+services:
+  db-prod:
+    image: postgres:15
+    container_name: odoo18-prod-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-odoo_prod}
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_prod_data:/var/lib/postgresql/data/pgdata
+    # Sin puertos expuestos al host — solo accesible dentro de la red interna
+    expose:
+      - "5432"
+    networks:
+      - odoo-prod-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  odoo-prod:
+    image: ${DOCKER_IMAGE:-odoo-das}:${IMAGE_TAG:-latest}
+    container_name: odoo18-prod
+    depends_on:
+      db-prod:
+        condition: service_healthy
+    volumes:
+      - odoo_prod_filestore:/var/lib/odoo
+    environment:
+      HOST: db-prod
+      USER: ${DB_USER:-odoo}
+      PASSWORD: ${DB_PASSWORD}
+      DATABASE_NAME: ${DB_NAME:-odoo_prod}
+    # Sin puertos al host — Nginx hace el proxy por la red nginx-proxy
+    expose:
+      - "8069"
+    networks:
+      - odoo-prod-internal
+      - nginx-proxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  db_prod_data:
+    driver: local
+  odoo_prod_filestore:
+    driver: local
+
+networks:
+  odoo-prod-internal:
+    # Red interna: Odoo ↔ PostgreSQL, sin acceso externo
+    internal: true
+  nginx-proxy:
+    external: true
+    name: nginx-proxy

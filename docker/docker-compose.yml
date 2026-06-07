@@ -1,3 +1,7 @@
+# ============================================================
+# Entorno de DESARROLLO LOCAL
+# Uso: cd docker && docker compose up -d
+# ============================================================
 services:
   db:
     image: postgres:15
@@ -10,15 +14,17 @@ services:
     volumes:
       - ./volumes/db:/var/lib/postgresql/data/pgdata
     ports:
+      # Puerto 8072 solo para desarrollo (DBeaver / pgAdmin local)
       - "8072:5432"
     networks:
       - odoo-das-net
 
   odoo:
+    # Desarrollo: imagen base con addons montados como volumen (sin rebuild)
     image: odoo:18.0
     container_name: odoo18-das
     depends_on:
-      - db
+      - db    
     ports:
       - "8070:8069"
     volumes:
@@ -31,6 +37,7 @@ services:
       - PASSWORD=odoo_db_password
     networks:
       - odoo-das-net
+    restart: unless-stopped
 
 networks:
   odoo-das-net:
