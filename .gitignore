@@ -1,7 +1,12 @@
 docker/volumes
 config/odoo.conf
+config/odoo.prod.conf
 .env
 tmp_restore/
+.env.prod
+dump.sql/
+filestore/
+manifest.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
