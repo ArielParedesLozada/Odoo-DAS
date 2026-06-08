@@ -1,10 +1,16 @@
 docker/volumes
+
+# Config
 config/odoo.conf
 config/odoo.prod.conf
+
+# Environments
 .env
-tmp_restore/
 .env.prod
-dump.sql/
+
+# Filestore
+tmp_restore/
+dump.sql
 filestore/
 manifest.json
 
