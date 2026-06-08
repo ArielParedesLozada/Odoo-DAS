@@ -1,0 +1,25 @@
+# Volúmenes de Docker (datos locales, no van a la imagen)
+docker/volumes/
+
+# Módulo de prueba — no se incluye en la imagen de producción
+addons/das_tareas_prueba/
+
+# Configuración local (se inyectan como volumen o vars de entorno)
+config/odoo.conf
+.env
+
+# Archivos de desarrollo
+.git/
+.github/
+docs/
+*.md
+*.log
+
+# Python cache
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+
+# Tests (no necesarios en la imagen runtime)
+# Comentar esta línea si el CI necesita construir la imagen y correr tests desde ella
+# addons/*/tests/

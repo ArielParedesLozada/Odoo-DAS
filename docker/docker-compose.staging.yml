@@ -1,0 +1,65 @@
+# ============================================================
+# Entorno de STAGING — Azure VM (mismo host que producción)
+# Uso: docker compose -f docker-compose.staging.yml up -d
+# Requiere: red externa "nginx-proxy" creada previamente
+# ============================================================
+services:
+  db-staging:
+    image: postgres:15
+    container_name: odoo18-staging-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-odoo_staging}
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_staging_data:/var/lib/postgresql/data/pgdata
+    expose:
+      - "5432"
+    networks:
+      - odoo-staging-internal
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  odoo-staging:
+    image: ${DOCKER_IMAGE:-odoo-das}:${IMAGE_TAG:-staging}
+    container_name: odoo18-staging
+    depends_on:
+      db-staging:
+        condition: service_healthy
+    volumes:
+      - odoo_staging_filestore:/var/lib/odoo
+    environment:
+      HOST: db-staging
+      USER: ${DB_USER:-odoo}
+      PASSWORD: ${DB_PASSWORD}
+      DATABASE_NAME: ${DB_NAME:-odoo_staging}
+    expose:
+      - "8069"
+    networks:
+      - odoo-staging-internal
+      - nginx-proxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  db_staging_data:
+    driver: local
+  odoo_staging_filestore:
+    driver: local
+
+networks:
+  odoo-staging-internal:
+    internal: true
+  nginx-proxy:
+    external: true
+    name: nginx-proxy

@@ -1,0 +1,47 @@
+# ============================================================
+# Stack de Nginx + Certbot (Let's Encrypt)
+# Debe levantarse PRIMERO, antes que prod y staging
+# Uso: cd nginx && docker compose up -d
+# ============================================================
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/odoo.conf:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+      - nginx_logs:/var/log/nginx
+      # Archivo htpasswd para proteger staging (generar con: htpasswd -c .htpasswd usuario)
+      - ./.htpasswd:/etc/nginx/.htpasswd:ro
+    networks:
+      - nginx-proxy
+    restart: unless-stopped
+    depends_on:
+      - certbot
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    # Renovación automática cada 12h — Let's Encrypt renueva cuando faltan <30 días
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
+    restart: unless-stopped
+
+volumes:
+  certbot_certs:
+    driver: local
+  certbot_www:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  nginx-proxy:
+    name: nginx-proxy
+    driver: bridge
