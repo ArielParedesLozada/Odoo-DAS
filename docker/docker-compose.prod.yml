@@ -35,6 +35,7 @@ services:
         condition: service_healthy
     volumes:
       - odoo_prod_filestore:/var/lib/odoo
+      - ../config/odoo.prod.conf:/etc/odoo/odoo.conf:ro
     environment:
       HOST: db-prod
       USER: ${DB_USER:-odoo}
