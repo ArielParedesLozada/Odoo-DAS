@@ -15,8 +15,6 @@ services:
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
       - nginx_logs:/var/log/nginx
-      # Archivo htpasswd para proteger staging (generar con: htpasswd -c .htpasswd usuario)
-      - ./.htpasswd:/etc/nginx/.htpasswd:ro
     networks:
       - nginx-proxy
     restart: unless-stopped
