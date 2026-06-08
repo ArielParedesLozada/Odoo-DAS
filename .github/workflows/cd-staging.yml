@@ -1,4 +1,5 @@
 name: CD — Deploy a Staging
+# PENDIENTE: habilitar cuando VPS y DNS estén configurados (eliminar el 'if: false' de cada job)
 
 on:
   push:
@@ -20,6 +21,7 @@ jobs:
   build-push:
     name: Build y push imagen staging
     runs-on: ubuntu-latest
+    if: ${{ vars.CD_ENABLED == 'true' }}
 
     outputs:
       image_tag: ${{ steps.meta.outputs.tags }}
@@ -71,7 +73,7 @@ jobs:
     needs: build-push
     environment:
       name: staging
-      url: https://staging.${{ secrets.DOMAIN }}
+      url: https://staging.${{ vars.DOMAIN }}
 
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +121,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Instalar dependencias de test
         run: pip install locust requests

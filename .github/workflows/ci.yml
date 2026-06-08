@@ -24,7 +24,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Instalar flake8
         run: pip install flake8
@@ -119,23 +118,32 @@ jobs:
 
       - name: Tests — ${{ matrix.module.name }}
         run: |
+          # HOST/USER/PASSWORD son las vars que el entrypoint de odoo:18.0 usa
+          # para construir DB_ARGS. NO usar --db_host/--db_password vía CLI
+          # porque el entrypoint los sobreescribe (los appends al final del exec).
           docker run --rm \
             --network host \
+            -e HOST=127.0.0.1 \
+            -e PORT=5432 \
+            -e USER=odoo \
+            -e PASSWORD=odoo_ci_secret \
             odoo-das:ci-test \
             odoo \
-              --db_host 127.0.0.1 \
-              --db_port 5432 \
-              --db_user odoo \
-              --db_password odoo_ci_secret \
               --database ${{ matrix.module.db }} \
               --test-enable \
+              --test-tags post_install \
               --stop-after-init \
               --log-level=test \
               -i ${{ matrix.module.name }} \
             2>&1 | tee test_${{ matrix.module.name }}.log
-          # Verificar que los tests corrieron (no solo que Odoo arrancó)
-          grep -qE "Ran [0-9]+ tests|OK \(" test_${{ matrix.module.name }}.log || \
-            grep -q "error" test_${{ matrix.module.name }}.log && exit 1 || true
+
+          # Verificar en 3 niveles independientes
+          grep -qE "Ran [0-9]+ test" test_${{ matrix.module.name }}.log \
+            || { echo "FAIL: ningún test corrió en ${{ matrix.module.name }}"; exit 1; }
+          ! grep -qE "^[0-9]+ .* ERROR .* Module .* failed" test_${{ matrix.module.name }}.log \
+            || { echo "FAIL: módulo no instaló correctamente"; exit 1; }
+          ! grep -qE "FAILED \(" test_${{ matrix.module.name }}.log \
+            || { echo "FAIL: uno o más tests fallaron"; exit 1; }
 
       - name: Subir log de tests
         if: always()
@@ -188,12 +196,12 @@ jobs:
         run: |
           docker run --rm \
             --network host \
+            -e HOST=127.0.0.1 \
+            -e PORT=5432 \
+            -e USER=odoo \
+            -e PASSWORD=odoo_ci_secret \
             odoo-das:ci-test \
             odoo \
-              --db_host 127.0.0.1 \
-              --db_port 5432 \
-              --db_user odoo \
-              --db_password odoo_ci_secret \
               --database ci_full_install \
               --stop-after-init \
               --log-level=info \

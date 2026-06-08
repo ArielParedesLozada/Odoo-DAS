@@ -1,4 +1,5 @@
 name: CD — Deploy a Producción
+# PENDIENTE: habilitar cuando VPS y DNS estén configurados (var CD_ENABLED=true)
 
 on:
   push:
@@ -20,6 +21,7 @@ jobs:
   build-push:
     name: Build y push imagen producción
     runs-on: ubuntu-latest
+    if: ${{ vars.CD_ENABLED == 'true' }}
 
     outputs:
       short_sha: ${{ steps.sha.outputs.short }}
@@ -100,7 +102,7 @@ jobs:
     needs: [build-push, pre-deploy-backup]
     environment:
       name: production
-      url: https://odoo.${{ secrets.DOMAIN }}
+      url: https://odoo.${{ vars.DOMAIN }}
 
     steps:
       - uses: actions/checkout@v4
